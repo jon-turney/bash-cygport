@@ -68,7 +68,8 @@ prep() {
   (cd ${topdir} && \
   tar xv${opt_decomp}f ${src_orig_pkg} ; \
   cd ${topdir} && \
-  patch -p0 < ${src_patch} 
+  patch -p0 < ${src_patch}
+  && touch ${srcdir}/configure
   && mkdirs )
 }
 conf() {
@@ -191,6 +192,7 @@ case $1 in
   all) prep && conf && build && install && \
      strip && pkg && spkg && finish ; \
 	  STATUS=$? ;;
+  finalize) build && install && strip && pkg && spkg && finish; STATUS=$? ;;
   *) echo "Error: bad arguments" ; exit 1 ;;
 esac
 exit ${STATUS}
