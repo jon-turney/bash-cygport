@@ -1,6 +1,6 @@
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/bashline.c bash-2.05b/bashline.c
---- bash-2.05b-orig/bashline.c	2002-05-07 21:52:42.000000000 +0200
-+++ bash-2.05b/bashline.c	2003-10-20 13:41:56.653598400 +0200
+--- bash-2.05b-orig/bashline.c	2002-05-07 15:52:42.000000000 -0400
++++ bash-2.05b/bashline.c	2004-10-29 13:45:22.609375000 -0400
 @@ -1044,7 +1044,10 @@
  	}
        else
@@ -34,9 +34,33 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/bashline.c bash-2.05b/bas
  	    /* There are multiple instances of the same match (duplicate
  	       completions haven't yet been removed).  In this case, all of
  	       the matches will be the same, and the duplicate removal code
+@@ -2134,13 +2141,16 @@
+       if (temp2 == 0)
+ 	{
+ 	  free (temp1);
+-	  return 1;
+-	}
+-      len1 = strlen (temp1);
+-      if (temp1[len1 - 1] == '/')
+-	{
+-	  len2 = strlen (temp2);
+-	  temp2 = (char *)xrealloc (temp2, len2 + 2);
++          return 1;
++         }
++        len1 = strlen (temp1);
++       /* temp1 is definitely an absolute pathname.  So if the length is
++          <= 2 and the path ends in a slash, it's either "/" or "//". 
++         In both cases, no further slash must be appended. */
++       if (len1 > 2 && temp1[len1 - 1] == '/')
++         {
++           len2 = strlen (temp2);
++           temp2 = (char *)xrealloc (temp2, len2 + 2);
+ 	  temp2[len2] = '/';
+ 	  temp2[len2 + 1] = '\0';
+ 	}
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/config.h.in bash-2.05b/config.h.in
---- bash-2.05b-orig/config.h.in	2002-06-25 15:48:52.000000000 +0200
-+++ bash-2.05b/config.h.in	2003-10-20 13:41:56.683641600 +0200
+--- bash-2.05b-orig/config.h.in	2002-06-25 09:48:52.000000000 -0400
++++ bash-2.05b/config.h.in	2004-10-29 13:45:22.609375000 -0400
 @@ -709,7 +709,7 @@
  #undef HAVE_WAIT3
  
@@ -60,8 +84,8 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/config.h.in bash-2.05b/co
  /* Presence of certain system libraries. */
  
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/configure bash-2.05b/configure
---- bash-2.05b-orig/configure	2002-07-16 15:31:47.000000000 +0200
-+++ bash-2.05b/configure	2003-10-20 14:07:17.991174000 +0200
+--- bash-2.05b-orig/configure	2002-07-16 09:31:47.000000000 -0400
++++ bash-2.05b/configure	2004-10-29 13:45:23.453125000 -0400
 @@ -1,15 +1,84 @@
  #! /bin/sh
 -# From configure.in for Bash 2.05b, version 2.144, from autoconf version 2.52.
@@ -21367,8 +21391,8 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/configure bash-2.05b/conf
    # Use ||, not &&, to avoid exiting from the if with $? = 1, which
    # would make configure fail if this is the last instruction.
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/configure.in bash-2.05b/configure.in
---- bash-2.05b-orig/configure.in	2002-07-16 15:31:25.000000000 +0200
-+++ bash-2.05b/configure.in	2003-10-20 13:41:56.823843200 +0200
+--- bash-2.05b-orig/configure.in	2002-07-16 09:31:25.000000000 -0400
++++ bash-2.05b/configure.in	2004-10-29 13:45:23.218750000 -0400
 @@ -851,7 +851,7 @@
  linux*)		LOCAL_LDFLAGS=-rdynamic ;;	 # allow dynamic loading
  *qnx*)		LOCAL_CFLAGS="-Dqnx -F -3s" LOCAL_LDFLAGS="-3s" LOCAL_LIBS="-lunix -lncurses" ;;
@@ -21378,9 +21402,61 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/configure.in bash-2.05b/c
  opennt*|interix*) LOCAL_CFLAGS="-DNO_MAIN_ENV_ARG -DBROKEN_DIRENT_D_INO" ;;
  esac
  
+diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/execute_cmd.c bash-2.05b/execute_cmd.c
+--- bash-2.05b-orig/execute_cmd.c	2002-03-18 13:24:22.000000000 -0500
++++ bash-2.05b/execute_cmd.c	2004-10-29 13:45:23.234375000 -0400
+@@ -619,6 +619,9 @@
+ 	/* We can't rely on this variable retaining its value across a
+ 	   call to execute_simple_command if a longjmp occurs as the
+ 	   result of a `return' builtin.  This is true for sure with gcc. */
++#if defined (RECYCLES_PIDS)
++        last_made_pid = NO_PID;
++#endif
+ 	last_pid = last_made_pid;
+ 	was_error_trap = signal_is_trapped (ERROR_TRAP) && signal_is_ignored (ERROR_TRAP) == 0;
+ 
+@@ -664,13 +667,6 @@
+ 	       commands, this causes the last simple command in
+ 	       the function to be waited for twice. */
+ 	      exec_result = wait_for (last_made_pid);
+-#if defined (RECYCLES_PIDS)
+-	      /* LynxOS, for one, recycles pids very quickly -- so quickly
+-		 that a new process may have the same pid as the last one
+-		 created.  This has been reported to fix the problem. */
+-	      if (exec_result == 0)
+-		last_made_pid = NO_PID;
+-#endif
+ 	  }
+       }
+ 
+@@ -2485,6 +2481,9 @@
+   first_word_quoted =
+     simple_command->words ? (simple_command->words->word->flags & W_QUOTED): 0;
+ 
++#if defined (RECYCLES_PIDS)
++  last_command_subst_pid = NO_PID;
++#endif
+   old_last_command_subst_pid = last_command_subst_pid;
+   old_last_async_pid = last_asynchronous_pid;
+ 
+@@ -2518,9 +2517,11 @@
+ 	  already_forked = 1;
+ 	  simple_command->flags |= CMD_NO_FORK;
+ 
+-	  subshell_environment = (pipe_in != NO_PIPE || pipe_out != NO_PIPE)
+-					? (SUBSHELL_PIPE|SUBSHELL_FORK)
+-	  				: (SUBSHELL_ASYNC|SUBSHELL_FORK);
++	  subshell_environment = SUBSHELL_FORK;
++	  if (async)
++            subshell_environment |= SUBSHELL_ASYNC;
++	  if (pipe_in != NO_PIPE || pipe_out != NO_PIPE)
++            subshell_environment |= SUBSHELL_PIPE;
+ 
+ 	  /* We need to do this before piping to handle some really
+ 	     pathological cases where one of the pipe file descriptors
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/findcmd.c bash-2.05b/findcmd.c
---- bash-2.05b-orig/findcmd.c	2002-03-19 16:19:05.000000000 +0100
-+++ bash-2.05b/findcmd.c	2003-10-20 13:41:56.853886400 +0200
+--- bash-2.05b-orig/findcmd.c	2002-03-19 10:19:05.000000000 -0500
++++ bash-2.05b/findcmd.c	2004-10-29 13:45:23.234375000 -0400
 @@ -96,7 +96,7 @@
    if (S_ISDIR (finfo.st_mode))
      return (FS_EXISTS|FS_DIRECTORY);
@@ -21391,8 +21467,8 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/findcmd.c bash-2.05b/find
       support Unix file system semantics.  This may produce wrong
       answers for non-AFS files when ruid != euid.  I hate AFS. */
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/general.c bash-2.05b/general.c
---- bash-2.05b-orig/general.c	2002-06-12 22:57:55.000000000 +0200
-+++ bash-2.05b/general.c	2003-10-20 13:41:56.883929600 +0200
+--- bash-2.05b-orig/general.c	2002-06-12 16:57:55.000000000 -0400
++++ bash-2.05b/general.c	2004-10-29 13:45:23.234375000 -0400
 @@ -470,7 +470,16 @@
    char *result;
  
@@ -21410,9 +21486,302 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/general.c bash-2.05b/gene
    else
      result = sh_makepath (dot_path, string, 0);
  
+diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/jobs.c bash-2.05b/jobs.c
+--- bash-2.05b-orig/jobs.c	2002-05-09 11:56:20.000000000 -0400
++++ bash-2.05b/jobs.c	2004-10-29 13:45:23.250000000 -0400
+@@ -232,7 +232,7 @@
+ static int job_last_stopped __P((int));
+ static int job_last_running __P((int));
+ static int most_recent_job_in_state __P((int, JOB_STATE));
+-static int find_job __P((pid_t, int));
++static int find_job __P((pid_t, int, PROCESS  **));
+ static int print_job __P((JOB *, int, int, int));
+ static int process_exit_status __P((WAIT));
+ static int job_exit_status __P((int));
+@@ -504,7 +504,7 @@
+   if (the_pipeline)
+     {
+       register PROCESS *p;
+-      int any_alive, any_stopped;
++      int any_running, any_stopped;
+ 
+       newjob = (JOB *)xmalloc (sizeof (JOB));
+ 
+@@ -528,16 +528,16 @@
+ 
+       /* Set the state of this pipeline. */
+       p = newjob->pipe;
+-      any_alive = any_stopped = 0;
++      any_running = any_stopped = 0;
+       do
+ 	{
+-	  any_alive |= p->running;
+-	  any_stopped |= WIFSTOPPED (p->status);
++	  any_running |= PRUNNING (p);
++	  any_stopped |= PSTOPPED (p);
+ 	  p = p->next;
+ 	}
+       while (p != newjob->pipe);
+ 
+-      newjob->state = any_alive ? JRUNNING : (any_stopped ? JSTOPPED : JDEAD);
++      newjob->state = any_running ? JRUNNING : (any_stopped ? JSTOPPED : JDEAD);
+       newjob->wd = job_working_directory ();
+       newjob->deferred = deferred;
+ 
+@@ -739,6 +739,28 @@
+ {
+   PROCESS *t, *p;
+ 
++#if defined (RECYCLES_PIDS)
++  int job;
++  p = find_pipeline (pid, 0, &job);
++  if (p)
++    {
++	/* As I understand it, job should never be "NO_JOB" because processes
++	   in the current pipeline have not been reaped.
++	   If that's true (the printf below never kicks in), replace the above by 
++	   job = find_job (pid, 0, &p)
++	   if (job != NO_JOB)
++	   and remove the test and printf below.
++	*/
++      if (job == NO_JOB)
++	fprintf(stderr, "add_process: process pid %5ld (%s) in the_pipeline", 
++		(long) p->pid, p->command);
++      if (PALIVE (p))
++	internal_error ("add_process: pid %5ld (%s) is still alive", 
++			(long) p->pid, p->command);
++      p->running = PS_RECYCLED;
++    }
++#endif
++
+   t = (PROCESS *)xmalloc (sizeof (PROCESS));
+   t->next = the_pipeline;
+   t->pid = pid;
+@@ -885,13 +907,13 @@
+ /* Return the pipeline that PID belongs to.  Note that the pipeline
+    doesn't have to belong to a job.  Must be called with SIGCHLD blocked. */
+ static PROCESS *
+-find_pipeline (pid, running_only, jobp)
++find_pipeline (pid, alive_only, jobp)
+      pid_t pid;
+-     int running_only;
++     int alive_only;
+      int *jobp;		/* index into jobs list or NO_JOB */
+ {
+   int job;
+-  register PROCESS *p;
++  PROCESS *p;
+ 
+   /* See if this process is in the pipeline that we are building. */
+   if (jobp)
+@@ -902,32 +924,31 @@
+       do
+ 	{
+ 	  /* Return it if we found it. */
+-	  if (p->pid == pid)
+-	    {
+-	      if ((running_only && PRUNNING(p)) || (running_only == 0))
+-		return (p);
+-	    }
++	  if (p->pid == pid
++              && (PALIVE (p) || ((alive_only == 0) && !PRECYCLED (p))))
++	    return (p);
+ 
+ 	  p = p->next;
+ 	}
+       while (p != the_pipeline);
+     }
+ 
+-  job = find_job (pid, running_only);
++  job = find_job (pid, alive_only, &p);
+   if (jobp)
+     *jobp = job;
+-  return (job == NO_JOB) ? (PROCESS *)NULL : jobs[job]->pipe;
++  return (job == NO_JOB) ? (PROCESS *)NULL : p;
+ }
+ 
+ /* Return the job index that PID belongs to, or NO_JOB if it doesn't
+    belong to any job.  Must be called with SIGCHLD blocked. */
+ static int
+-find_job (pid, running_only)
++find_job (pid, alive_only, pp)
+      pid_t pid;
+-     int running_only;
++     int alive_only;
++     PROCESS ** pp;
+ {
+   register int i;
+-  register PROCESS *p;
++  PROCESS *p;
+ 
+   for (i = 0; i < job_slots; i++)
+     {
+@@ -937,10 +958,12 @@
+ 
+ 	  do
+ 	    {
+-	      if (p->pid == pid)
++	      if (p->pid == pid
++		  && (PALIVE (p) || ((alive_only == 0) && !PRECYCLED (p))))
+ 		{
+-		  if ((running_only && PRUNNING(p)) || (running_only == 0))
+-		    return (i);
++		  if (pp)
++		    *pp = p;
++		  return (i);
+ 		}
+ 
+ 	      p = p->next;
+@@ -965,7 +988,7 @@
+   if (block)
+     BLOCK_CHILD (set, oset);
+ 
+-  job = find_job (pid, 0);
++  job = find_job (pid, 0, NULL);
+ 
+   if (block)
+     UNBLOCK_CHILD (oset);
+@@ -983,7 +1006,7 @@
+ 
+   BLOCK_CHILD (set, oset);
+ 
+-  job = find_job (pid, 0);
++  job = find_job (pid, 0, NULL);
+ 
+   if (job != NO_JOB)
+     printf ("[%d] %ld\n", job + 1, (long)pid);
+@@ -1099,7 +1122,7 @@
+ 	    {
+ 	      if (format)
+ 		{
+-		  if (show->running == first->running &&
++		  if (PRUNNING (show) == PRUNNING (first) &&
+ 		      WSTATUS (show->status) == WSTATUS (first->status))
+ 		    temp = "";
+ 		}
+@@ -1407,7 +1430,6 @@
+ 
+       if (async_p)
+ 	last_asynchronous_pid = pid;
+-
+       last_made_pid = pid;
+ 
+       /* Unblock SIGINT and SIGCHLD. */
+@@ -1616,7 +1638,7 @@
+   /* POSIX.2: if we just waited for a job, we can remove it from the jobs
+      table. */
+   BLOCK_CHILD (set, oset);
+-  job = find_job (pid, 0);
++  job = find_job (pid, 0, NULL);
+   if (job != NO_JOB && jobs[job] && DEADJOB (job))
+     jobs[job]->flags |= J_NOTIFIED;
+   UNBLOCK_CHILD (oset);
+@@ -1821,13 +1843,13 @@
+ 	 We check for JDEAD in case the job state has been set by waitchld
+ 	 after receipt of a SIGCHLD. */
+       if (job == NO_JOB)
+-	job = find_job (pid, 0);
++	job = find_job (pid, 0, NULL);
+ 
+       /* waitchld() takes care of setting the state of the job.  If the job
+ 	 has already exited before this is called, sigchld_handler will have
+ 	 called waitchld and the state will be set to JDEAD. */
+ 
+-      if (child->running || (job != NO_JOB && RUNNING (job)))
++      if (PRUNNING (child) || (job != NO_JOB && RUNNING (job)))
+ 	{
+ #if defined (WAITPID_BROKEN)    /* SCOv4 */
+ 	  sigset_t suspend_set;
+@@ -1881,7 +1903,7 @@
+       if (interactive && job_control == 0)
+ 	QUIT;
+     }
+-  while (child->running || (job != NO_JOB && RUNNING (job)));
++  while (PRUNNING (child) || (job != NO_JOB && RUNNING (job)));
+ 
+   /* The exit state of the command is either the termination state of the
+      child, or the termination state of the job.  If a job, the status
+@@ -2356,6 +2378,10 @@
+ 
+ 	      do
+ 		{
++#if defined (RECYCLES_PIDS)
++		  if (!PALIVE (p)) /* The pid may have been recycled */
++		    continue;
++#endif
+ 		  kill (p->pid, sig);
+ 		  if (p->running == PS_DONE && (sig == SIGTERM || sig == SIGHUP))
+ 		    kill (p->pid, SIGCONT);
+@@ -2463,6 +2489,15 @@
+       if (WIFCONTINUED(status) == 0)
+ 	children_exited++;
+ 
++#if defined (RECYCLES_PIDS)
++      /* last_asynchronous_pid is the value of $!
++         Avoid aliasing by setting the pid to an unusual value.
++         Setting to NO_PID might cause an error when evaluating $!
++         Using 1 seems safe as that process cannot be killed accidentally */
++      if (last_asynchronous_pid == pid 
++          && !WIFCONTINUED(status) && !WIFSTOPPED(status))
++        last_asynchronous_pid = 1;
++#endif
+       /* Locate our PROCESS for this pid. */
+       child = find_pipeline (pid, 1, &job);	/* want running procs only */
+ 
+@@ -2473,9 +2508,6 @@
+       if (child == 0)
+ 	continue;
+ 
+-      while (child->pid != pid)
+-	child = child->next;
+-
+       /* Remember status, and whether or not the process is running. */
+       child->status = status;
+       child->running = WIFCONTINUED(status) ? PS_RUNNING : PS_DONE;
+@@ -2544,8 +2576,8 @@
+   job_state = any_stopped = any_tstped = 0;
+   do
+     {
+-      job_state |= child->running;
+-      if (child->running == PS_DONE && (WIFSTOPPED (child->status)))
++      job_state |= PRUNNING (child);
++      if (PSTOPPED (child))
+ 	{
+ 	  any_stopped = 1;
+ 	  any_tstped |= interactive && job_control &&
+diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/jobs.h bash-2.05b/jobs.h
+--- bash-2.05b-orig/jobs.h	2002-01-17 12:35:11.000000000 -0500
++++ bash-2.05b/jobs.h	2004-10-29 13:45:23.265625000 -0400
+@@ -45,7 +45,7 @@
+ /* Values for the `running' field of a struct process. */
+ #define PS_DONE		0
+ #define PS_RUNNING	1
+-#define PS_STOPPED	2
++#define PS_RECYCLED	2
+ 
+ /* Each child of the shell is remembered in a STRUCT PROCESS.  A chain of
+    such structures is a pipeline.  The chain is circular. */
+@@ -57,10 +57,14 @@
+   char *command;	/* The particular program that is running. */
+ } PROCESS;
+ 
+-/* PRUNNING really means `not exited' */
+-#define PRUNNING(p)	((p)->running || WIFSTOPPED((p)->status))
++#define PRUNNING(p)	((p)->running == PS_RUNNING)
++#define PALIVE(p)	((p)->running == PS_RUNNING || WIFSTOPPED((p)->status))
+ #define PSTOPPED(p)	(WIFSTOPPED((p)->status))
+-#define PDEADPROC(p)	((p)->running == PS_DONE)
++#if defined (RECYCLES_PIDS)
++#  define PRECYCLED(p)	((p)->running == PS_RECYCLED)
++#else
++#  define PRECYCLED(p)	0
++#endif
+ 
+ /* A description of a pipeline's state. */
+ typedef enum { JRUNNING, JSTOPPED, JDEAD, JMIXED } JOB_STATE;
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/bind.c bash-2.05b/lib/readline/bind.c
---- bash-2.05b-orig/lib/readline/bind.c	2002-01-24 17:15:52.000000000 +0100
-+++ bash-2.05b/lib/readline/bind.c	2003-10-20 13:41:56.913972800 +0200
+--- bash-2.05b-orig/lib/readline/bind.c	2002-01-24 11:15:52.000000000 -0500
++++ bash-2.05b/lib/readline/bind.c	2004-10-29 13:45:23.281250000 -0400
 @@ -311,7 +311,7 @@
  	     mapped to something, `abc' to be mapped to something else,
  	     and the function bound  to `a' to be executed when the user
@@ -21423,8 +21792,8 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/bind.c bash-
  	      map[ANYOTHERKEY] = k;
  	      k.function = 0;
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/display.c bash-2.05b/lib/readline/display.c
---- bash-2.05b-orig/lib/readline/display.c	2002-06-04 16:54:47.000000000 +0200
-+++ bash-2.05b/lib/readline/display.c	2003-10-20 13:41:56.934001600 +0200
+--- bash-2.05b-orig/lib/readline/display.c	2002-06-04 10:54:47.000000000 -0400
++++ bash-2.05b/lib/readline/display.c	2004-10-29 13:45:23.296875000 -0400
 @@ -70,7 +70,7 @@
  static void cr PARAMS((void));
  
@@ -21492,8 +21861,8 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/display.c ba
  #endif /* HANDLE_MULTIBYTE */
 -	  
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/mbutil.c bash-2.05b/lib/readline/mbutil.c
---- bash-2.05b-orig/lib/readline/mbutil.c	2002-06-04 17:54:29.000000000 +0200
-+++ bash-2.05b/lib/readline/mbutil.c	2003-10-20 13:41:56.964044800 +0200
+--- bash-2.05b-orig/lib/readline/mbutil.c	2002-06-04 11:54:29.000000000 -0400
++++ bash-2.05b/lib/readline/mbutil.c	2004-10-29 13:45:23.296875000 -0400
 @@ -205,6 +205,7 @@
    if (tmp == (size_t)(-2))
      {
@@ -21539,8 +21908,8 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/mbutil.c bas
  	pos += tmp;
      }
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/readline.c bash-2.05b/lib/readline/readline.c
---- bash-2.05b-orig/lib/readline/readline.c	2002-03-13 23:10:46.000000000 +0100
-+++ bash-2.05b/lib/readline/readline.c	2003-10-20 13:41:57.004102400 +0200
+--- bash-2.05b-orig/lib/readline/readline.c	2002-03-13 17:10:46.000000000 -0500
++++ bash-2.05b/lib/readline/readline.c	2004-10-29 13:45:23.296875000 -0400
 @@ -684,6 +684,7 @@
      }
  #if defined (VI_MODE)
@@ -21550,8 +21919,8 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/readline.c b
      _rl_vi_set_last (key, rl_numeric_arg, rl_arg_sign);
  #endif
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/vi_mode.c bash-2.05b/lib/readline/vi_mode.c
---- bash-2.05b-orig/lib/readline/vi_mode.c	2002-05-23 19:27:58.000000000 +0200
-+++ bash-2.05b/lib/readline/vi_mode.c	2003-10-20 13:41:57.034145600 +0200
+--- bash-2.05b-orig/lib/readline/vi_mode.c	2002-05-23 13:27:58.000000000 -0400
++++ bash-2.05b/lib/readline/vi_mode.c	2004-10-29 13:45:23.328125000 -0400
 @@ -680,7 +680,8 @@
       int count;
  {
@@ -21574,8 +21943,8 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/vi_mode.c ba
  	  rl_delete (1, 0);
  	  rl_insert_text (mb);
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/subst.c bash-2.05b/subst.c
---- bash-2.05b-orig/subst.c	2002-06-24 13:59:45.000000000 +0200
-+++ bash-2.05b/subst.c	2003-10-20 14:07:17.911059200 +0200
+--- bash-2.05b-orig/subst.c	2002-06-24 07:59:45.000000000 -0400
++++ bash-2.05b/subst.c	2004-10-29 13:45:23.343750000 -0400
 @@ -1638,11 +1638,10 @@
  
  /* This performs word splitting and quoted null character removal on
@@ -21628,6 +21997,15 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/subst.c bash-2.05b/subst.
    old_pid = last_made_pid;
  #if defined (JOB_CONTROL)
    old_pipeline_pgrp = pipeline_pgrp;
+@@ -3759,7 +3773,7 @@
+   cleanup_the_pipeline ();
+ #endif
+ 
+-  pid = make_child ((char *)NULL, 0);
++  pid = make_child ((char *)NULL, subshell_environment & SUBSHELL_ASYNC);
+   if (pid == 0)
+     /* Reset the signal handlers in the child, but don't free the
+        trap strings. */
 @@ -3794,21 +3808,8 @@
  	  exit (EXECUTION_FAILURE);
  	}
@@ -21653,8 +22031,8 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/subst.c bash-2.05b/subst.
        /* The currently executing shell is not interactive. */
        interactive = 0;
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/test.c bash-2.05b/test.c
---- bash-2.05b-orig/test.c	2002-02-28 16:54:47.000000000 +0100
-+++ bash-2.05b/test.c	2003-10-20 13:41:57.094232000 +0200
+--- bash-2.05b-orig/test.c	2002-02-28 10:54:47.000000000 -0500
++++ bash-2.05b/test.c	2004-10-29 13:45:23.343750000 -0400
 @@ -102,7 +102,7 @@
  /* We have to use access(2) for machines running AFS, because it's
     not a Unix file system.  This may produce incorrect answers for
