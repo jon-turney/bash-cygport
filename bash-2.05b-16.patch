@@ -1,6 +1,6 @@
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/bashline.c bash-2.05b/bashline.c
 --- bash-2.05b-orig/bashline.c	2002-05-07 21:52:42.000000000 +0200
-+++ bash-2.05b/bashline.c	2003-09-15 11:41:17.756644800 +0200
++++ bash-2.05b/bashline.c	2003-10-20 13:41:56.653598400 +0200
 @@ -1044,7 +1044,10 @@
  	}
        else
@@ -36,7 +36,7 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/bashline.c bash-2.05b/bas
  	       the matches will be the same, and the duplicate removal code
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/config.h.in bash-2.05b/config.h.in
 --- bash-2.05b-orig/config.h.in	2002-06-25 15:48:52.000000000 +0200
-+++ bash-2.05b/config.h.in	2003-09-15 11:41:17.786688000 +0200
++++ bash-2.05b/config.h.in	2003-10-20 13:41:56.683641600 +0200
 @@ -709,7 +709,7 @@
  #undef HAVE_WAIT3
  
@@ -61,7 +61,7 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/config.h.in bash-2.05b/co
  
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/configure bash-2.05b/configure
 --- bash-2.05b-orig/configure	2002-07-16 15:31:47.000000000 +0200
-+++ bash-2.05b/configure	2003-09-15 11:41:18.217307000 +0200
++++ bash-2.05b/configure	2003-10-20 14:07:17.991174000 +0200
 @@ -1,15 +1,84 @@
  #! /bin/sh
 -# From configure.in for Bash 2.05b, version 2.144, from autoconf version 2.52.
@@ -21368,7 +21368,7 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/configure bash-2.05b/conf
    # would make configure fail if this is the last instruction.
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/configure.in bash-2.05b/configure.in
 --- bash-2.05b-orig/configure.in	2002-07-16 15:31:25.000000000 +0200
-+++ bash-2.05b/configure.in	2003-09-15 11:41:17.916875200 +0200
++++ bash-2.05b/configure.in	2003-10-20 13:41:56.823843200 +0200
 @@ -851,7 +851,7 @@
  linux*)		LOCAL_LDFLAGS=-rdynamic ;;	 # allow dynamic loading
  *qnx*)		LOCAL_CFLAGS="-Dqnx -F -3s" LOCAL_LDFLAGS="-3s" LOCAL_LIBS="-lunix -lncurses" ;;
@@ -21380,7 +21380,7 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/configure.in bash-2.05b/c
  
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/findcmd.c bash-2.05b/findcmd.c
 --- bash-2.05b-orig/findcmd.c	2002-03-19 16:19:05.000000000 +0100
-+++ bash-2.05b/findcmd.c	2003-09-15 11:41:17.946918400 +0200
++++ bash-2.05b/findcmd.c	2003-10-20 13:41:56.853886400 +0200
 @@ -96,7 +96,7 @@
    if (S_ISDIR (finfo.st_mode))
      return (FS_EXISTS|FS_DIRECTORY);
@@ -21392,7 +21392,7 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/findcmd.c bash-2.05b/find
       answers for non-AFS files when ruid != euid.  I hate AFS. */
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/general.c bash-2.05b/general.c
 --- bash-2.05b-orig/general.c	2002-06-12 22:57:55.000000000 +0200
-+++ bash-2.05b/general.c	2003-09-15 11:41:17.976961600 +0200
++++ bash-2.05b/general.c	2003-10-20 13:41:56.883929600 +0200
 @@ -470,7 +470,16 @@
    char *result;
  
@@ -21412,7 +21412,7 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/general.c bash-2.05b/gene
  
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/bind.c bash-2.05b/lib/readline/bind.c
 --- bash-2.05b-orig/lib/readline/bind.c	2002-01-24 17:15:52.000000000 +0100
-+++ bash-2.05b/lib/readline/bind.c	2003-09-15 11:41:17.996990400 +0200
++++ bash-2.05b/lib/readline/bind.c	2003-10-20 13:41:56.913972800 +0200
 @@ -311,7 +311,7 @@
  	     mapped to something, `abc' to be mapped to something else,
  	     and the function bound  to `a' to be executed when the user
@@ -21424,7 +21424,7 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/bind.c bash-
  	      k.function = 0;
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/display.c bash-2.05b/lib/readline/display.c
 --- bash-2.05b-orig/lib/readline/display.c	2002-06-04 16:54:47.000000000 +0200
-+++ bash-2.05b/lib/readline/display.c	2003-09-15 11:41:18.027033600 +0200
++++ bash-2.05b/lib/readline/display.c	2003-10-20 13:41:56.934001600 +0200
 @@ -70,7 +70,7 @@
  static void cr PARAMS((void));
  
@@ -21493,7 +21493,7 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/display.c ba
 -	  
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/mbutil.c bash-2.05b/lib/readline/mbutil.c
 --- bash-2.05b-orig/lib/readline/mbutil.c	2002-06-04 17:54:29.000000000 +0200
-+++ bash-2.05b/lib/readline/mbutil.c	2003-09-15 11:41:18.047062400 +0200
++++ bash-2.05b/lib/readline/mbutil.c	2003-10-20 13:41:56.964044800 +0200
 @@ -205,6 +205,7 @@
    if (tmp == (size_t)(-2))
      {
@@ -21540,7 +21540,7 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/mbutil.c bas
      }
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/readline.c bash-2.05b/lib/readline/readline.c
 --- bash-2.05b-orig/lib/readline/readline.c	2002-03-13 23:10:46.000000000 +0100
-+++ bash-2.05b/lib/readline/readline.c	2003-09-15 11:41:18.077105600 +0200
++++ bash-2.05b/lib/readline/readline.c	2003-10-20 13:41:57.004102400 +0200
 @@ -684,6 +684,7 @@
      }
  #if defined (VI_MODE)
@@ -21551,7 +21551,7 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/readline.c b
  #endif
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/vi_mode.c bash-2.05b/lib/readline/vi_mode.c
 --- bash-2.05b-orig/lib/readline/vi_mode.c	2002-05-23 19:27:58.000000000 +0200
-+++ bash-2.05b/lib/readline/vi_mode.c	2003-09-15 11:41:18.107148800 +0200
++++ bash-2.05b/lib/readline/vi_mode.c	2003-10-20 13:41:57.034145600 +0200
 @@ -680,7 +680,8 @@
       int count;
  {
@@ -21575,7 +21575,7 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/lib/readline/vi_mode.c ba
  	  rl_insert_text (mb);
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/subst.c bash-2.05b/subst.c
 --- bash-2.05b-orig/subst.c	2002-06-24 13:59:45.000000000 +0200
-+++ bash-2.05b/subst.c	2003-09-15 11:41:18.137192000 +0200
++++ bash-2.05b/subst.c	2003-10-20 14:07:17.911059200 +0200
 @@ -1638,11 +1638,10 @@
  
  /* This performs word splitting and quoted null character removal on
@@ -21592,9 +21592,69 @@ diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/subst.c bash-2.05b/subst.
  
  WORD_LIST *
  list_string (string, separators, quoted)
+@@ -3717,6 +3716,7 @@
+   pid_t pid, old_pid, old_pipeline_pgrp;
+   char *istring;
+   int result, fildes[2], function_value;
++  int i, closeit[3];
+ 
+   istring = (char *)NULL;
+ 
+@@ -3743,6 +3743,16 @@
+   if (subst_assign_varlist == 0 || garglist == 0)
+     maybe_make_export_env ();	/* XXX */
+ 
++
++  for (i = 0; i <= 2; i++)
++    if (fcntl (i, F_GETFD, &result) != -1)
++      closeit[i] = 0;
++    else
++      {
++	open ("/dev/null", O_RDONLY);
++	closeit[i] = 1;
++      }
++
+   /* Pipe the output of executing STRING into the current shell. */
+   if (pipe (fildes) < 0)
+     {
+@@ -3750,6 +3760,10 @@
+       goto error_exit;
+     }
+ 
++  for (i = 0; i <= 2; i++)
++    if (closeit[i])
++      close (i);
++
+   old_pid = last_made_pid;
+ #if defined (JOB_CONTROL)
+   old_pipeline_pgrp = pipeline_pgrp;
+@@ -3794,21 +3808,8 @@
+ 	  exit (EXECUTION_FAILURE);
+ 	}
+ 
+-      /* If standard output is closed in the parent shell
+-	 (such as after `exec >&-'), file descriptor 1 will be
+-	 the lowest available file descriptor, and end up in
+-	 fildes[0].  This can happen for stdin and stderr as well,
+-	 but stdout is more important -- it will cause no output
+-	 to be generated from this command. */
+-      if ((fildes[1] != fileno (stdin)) &&
+-	  (fildes[1] != fileno (stdout)) &&
+-	  (fildes[1] != fileno (stderr)))
+-	close (fildes[1]);
+-
+-      if ((fildes[0] != fileno (stdin)) &&
+-	  (fildes[0] != fileno (stdout)) &&
+-	  (fildes[0] != fileno (stderr)))
+-	close (fildes[0]);
++      close (fildes[1]);
++      close (fildes[0]);
+ 
+       /* The currently executing shell is not interactive. */
+       interactive = 0;
 diff -urN -x .build -x .inst -x .sinst bash-2.05b-orig/test.c bash-2.05b/test.c
 --- bash-2.05b-orig/test.c	2002-02-28 16:54:47.000000000 +0100
-+++ bash-2.05b/test.c	2003-09-15 11:41:18.157220800 +0200
++++ bash-2.05b/test.c	2003-10-20 13:41:57.094232000 +0200
 @@ -102,7 +102,7 @@
  /* We have to use access(2) for machines running AFS, because it's
     not a Unix file system.  This may produce incorrect answers for
