@@ -2,7 +2,7 @@
 #
 # Generic package build script
 #
-# $Id: generic-build-script,v 1.29 2004/10/14 22:55:26 igor Exp $
+# $Id: generic-build-script,v 1.33 2005/06/22 02:24:26 igor Exp $
 #
 # Package maintainers: if the original source is not distributed as a
 # (possibly compressed) tarball, set the value of ${src_orig_pkg_name},
@@ -34,8 +34,14 @@ tscriptname=`basename $0 .sh`
 export PKG=`echo $tscriptname | sed -e 's/\-[^\-]*\-[^\-]*$//'`
 export VER=`echo $tscriptname | sed -e "s/${PKG}\-//" -e 's/\-[^\-]*$//'`
 export REL=`echo $tscriptname | sed -e "s/${PKG}\-${VER}\-//"`
+# BASEPKG refers to the upstream base package
+# SHORTPKG refers to the Cygwin package
+# Normally, these are identical, but if the Cygwin package name is different
+# from the upstream package name, you will want to redefine BASEPKG.
+# Example: For Apache 2, BASEPKG=httpd-2.x.xx but SHORTPKG=apache2-2.x.xx
 export BASEPKG=${PKG}-${VER}
-export FULLPKG=${BASEPKG}-${REL}
+export SHORTPKG=${PKG}-${VER}
+export FULLPKG=${SHORTPKG}-${REL}
 
 # determine correct decompression option and tarball filename
 export src_orig_pkg_name=
@@ -151,7 +157,7 @@ conf() {
   --mandir='${prefix}/share/man' --infodir='${prefix}/share/info' \
   --libexecdir='${sbindir}' --localstatedir="${localstatedir}" \
   --datadir='${prefix}/share' --without-libiconv-prefix \
-  --without-libintl-prefix )
+  --without-libintl-prefix --with-installed-readline )
 }
 reconf() {
   (cd ${topdir} && \
@@ -171,6 +177,8 @@ clean() {
   (cd ${objdir} && \
   make clean )
 }
+# postinstall named 00bash.sh to ensure /bin/sh exists before other
+# postinstall scripts are run, even when old ash package is uninstalled
 install() {
   (cd ${objdir} && \
   rm -fr ${instdir}/* && \
@@ -180,7 +188,7 @@ install() {
       rm -f ${instdir}${f} ; \
     fi ;\
   done &&\
-  for d in ${prefix}/share/doc/${BASEPKG} ${prefix}/share/doc/Cygwin ; do \
+  for d in ${prefix}/share/doc/${SHORTPKG} ${prefix}/share/doc/Cygwin ; do \
     if [ ! -d ${instdir}${d} ] ; then \
       mkdir -p ${instdir}${d} ;\
     fi ;\
@@ -191,26 +199,29 @@ install() {
   if [ -d ${instdir}${prefix}/share/man ] ; then \
     find ${instdir}${prefix}/share/man -name "*.1" -o -name "*.3" -o \
       -name "*.3x" -o -name "*.3pm" -o -name "*.5" -o -name "*.6" -o \
-      -name "*.7" -o -name "*.8" | xargs gzip -q ; \
+      -name "*.7" -o -name "*.8" | xargs -r gzip -q ; \
   fi && \
   templist="" && \
   for fp in ${install_docs} ; do \
-    for f in ${srcdir}/$fp ; do \
-      if [ -f $f ] ; then \
-        templist="$templist $f"; \
-      fi ; \
-    done ; \
+    case "$fp" in \
+      */) templist="$templist `cd ${srcdir} && find $fp -type f`" ;;
+      *)  for f in ${srcdir}/$fp ; do \
+            if [ -f $f ] ; then \
+              templist="$templist $f"; \
+            fi ; \
+          done ;; \
+    esac ; \
   done && \
   if [ ! "x$templist" = "x" ]; then \
     /usr/bin/install -m 644 $templist \
-         ${instdir}${prefix}/share/doc/${BASEPKG} ; \
+         ${instdir}${prefix}/share/doc/${SHORTPKG} ; \
   fi && \
   if [ -f ${srcdir}/CYGWIN-PATCHES/${PKG}.README ]; then \
     /usr/bin/install -m 644 ${srcdir}/CYGWIN-PATCHES/${PKG}.README \
-      ${instdir}${prefix}/share/doc/Cygwin/${BASEPKG}.README ; \
+      ${instdir}${prefix}/share/doc/Cygwin/${SHORTPKG}.README ; \
   elif [ -f ${srcdir}/CYGWIN-PATCHES/README ] ; then \
     /usr/bin/install -m 644 ${srcdir}/CYGWIN-PATCHES/README \
-      ${instdir}${prefix}/share/doc/Cygwin/${BASEPKG}.README ; \
+      ${instdir}${prefix}/share/doc/Cygwin/${SHORTPKG}.README ; \
   fi && \
   if [ -f ${srcdir}/CYGWIN-PATCHES/${PKG}.sh ] ; then \
     if [ ! -d ${instdir}${sysconfdir}/postinstall ]; then \
@@ -223,7 +234,7 @@ install() {
       mkdir -p ${instdir}${sysconfdir}/postinstall ; \
     fi && \
     /usr/bin/install -m 755 ${srcdir}/CYGWIN-PATCHES/postinstall.sh \
-      ${instdir}${sysconfdir}/postinstall/${PKG}.sh ; \
+      ${instdir}${sysconfdir}/postinstall/00${PKG}.sh ; \
   fi && \
   if [ -f ${srcdir}/CYGWIN-PATCHES/preremove.sh ] ; then \
     if [ ! -d ${instdir}${sysconfdir}/preremove ]; then \
@@ -235,7 +246,7 @@ install() {
 }
 strip() {
   (cd ${instdir} && \
-  find . -name "*.dll" -or -name "*.exe" | xargs strip 2>&1 ; \
+  find . -name "*.dll" -or -name "*.exe" | xargs -r strip 2>&1 ; \
   true )
 }
 list() {
@@ -245,9 +256,9 @@ list() {
 }
 depend() {
   (cd ${instdir} && \
-  find ${instdir} -name "*.exe" -o -name "*.dll" | xargs cygcheck | \
-  sed -e '/\.exe/d' -e 's,\\,/,g' | sort -bu | xargs -n1 cygpath -u \
-  | xargs cygcheck -f | sed 's%^%  %' | sort -u ; \
+  find ${instdir} -name "*.exe" -o -name "*.dll" | xargs -r cygcheck | \
+  sed -e '/\.exe/d' -e 's,\\,/,g' | sort -bu | xargs -r -n1 cygpath -u \
+  | xargs -r cygcheck -f | sed 's%^%  %' | sort -u ; \
   true )
 }
 pkg() {
@@ -256,7 +267,7 @@ pkg() {
 }
 mkpatch() {
   (cd ${srcdir} && \
-  find . -name "autom4te.cache" | xargs rm -rf ; \
+  find . -name "autom4te.cache" | xargs -r rm -rf ; \
   unpack ${src_orig_pkg} && \
   mv ${BASEPKG} ../${BASEPKG}-orig && \
   cd ${topdir} && \
@@ -350,9 +361,8 @@ while test -n "$1" ; do
     checksig)		checksig ; STATUS=$? ;;
     first)		mkdirs && spkg && finish ; STATUS=$? ;;
     almostall)		checksig && prep && conf && build && install && \
-			strip && pkg && spkg ; \
-			STATUS=$? ;;
-    all)                almostall && finish ; STATUS=$? ;;
+			strip && pkg && spkg ; STATUS=$? ;;
+    all)		almostall && finish ; STATUS=$? ;;
     *) echo "Error: bad arguments" ; exit 1 ;;
   esac
   ( exit ${STATUS} ) || exit ${STATUS}

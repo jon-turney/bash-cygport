@@ -1,8 +1,8 @@
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README bash-3.0/CYGWIN-PATCHES/bash.README
 --- bash-3.0-orig/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-05-24 21:38:16.000000000 -0600
-@@ -0,0 +1,110 @@
-+bash 3.0-2
++++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-07-01 22:37:22.000000000 -0600
+@@ -0,0 +1,117 @@
++bash 3.0-3
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -12,7 +12,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +modification.
 +
 +Runtime requirements:
-+  cygwin-1.5.16 or newer
++  cygwin-1.5.17 or newer
++  newer than ash-20040127-1 for bash to be /bin/sh
 +
 +Build conditions:
 +  standard development tools
@@ -26,22 +27,23 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.0-2-src.tar.bz2
++  unpack bash-3.0-3-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +	 unpacked under /usr/src automatically
 +  cd /usr/src
-+  ./bash-3.0-2.sh all
++  ./bash-3.0-3.sh all
 +
 +This will create:
-+  /usr/src/bash-3.0-2.tar.bz2
-+  /usr/src/bash-3.0-2-src.tar.bz2
++  /usr/src/bash-3.0-3.tar.bz2
++  /usr/src/bash-3.0-3-src.tar.bz2
 +
-+Or use './bash-3.0-2.sh prep' to get a patched source directory
++Or use './bash-3.0-3.sh prep' to get a patched source directory
 +
 +-------------------------------------------
 +
 +Files included in the binary distribution:
 +
++  /etc/postinstall/00bash.sh
 +  /usr/bin/bash.exe
 +  /usr/bin/bashbug
 +  /usr/share/man/man1/bashbug.1.gz
@@ -62,6 +64,11 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +------------------
 +
 +Port Notes:
++
++----- version 3.0-3 -----
++Fix a heap corruption bug introduced in the last build.  Enable
++SSH_SOURCE_BASHRC.  Link to libreadline dynamically.  Use bash, not
++ash, as /bin/sh.
 +
 +----- version 3.0-2 -----
 +Fix some bugs with // completion, including an order of magnitude
@@ -112,9 +119,19 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +
 +Cygwin port maintained by: Eric Blake <ebb9@byu.net>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
+diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.sh bash-3.0/CYGWIN-PATCHES/postinstall.sh
+--- bash-3.0-orig/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
++++ bash-3.0/CYGWIN-PATCHES/postinstall.sh	2005-07-01 22:30:42.000000000 -0600
+@@ -0,0 +1,6 @@
++#!/bin/bash
++# Bash postinstall script.  This copies (hard links where possible) bash
++# as /bin/sh, per the decision here:
++# http://cygwin.com/ml/cygwin-apps/2005-06/msg00117.html
++
++test -x /bin/sh.exe || link /bin/bash.exe /bin/sh.exe
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/setup.hint bash-3.0/CYGWIN-PATCHES/setup.hint
 --- bash-3.0-orig/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/setup.hint	2005-05-25 05:19:52.000000000 -0600
++++ bash-3.0/CYGWIN-PATCHES/setup.hint	2005-05-27 06:22:30.000000000 -0600
 @@ -0,0 +1,13 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"
@@ -125,13 +142,13 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/setup.hint b
 +programming and interactive use. In addition, most sh scripts can be
 +run by Bash without modification."
 +category: Base Shells
-+requires: cygwin termcap
++requires: cygwin libintl3 libiconv2 libreadline6 libncurses8
 +prev: 2.05b-16
 +curr: 2.05b-17
-+test: 3.0-2
++test: 3.0-3
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/Makefile.in bash-3.0/Makefile.in
 --- bash-3.0-orig/Makefile.in	2004-03-17 06:34:39.000000000 -0700
-+++ bash-3.0/Makefile.in	2005-05-25 06:02:29.825875000 -0600
++++ bash-3.0/Makefile.in	2005-07-02 06:11:53.094750000 -0600
 @@ -1,6 +1,6 @@
  # Makefile for bash-3.0, version 2.152
  #
@@ -151,7 +168,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/Makefile.in bash-3.0/Makefi
  TILDE_DEP = $(TILDE_LIBRARY)
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/array.c bash-3.0/array.c
 --- bash-3.0-orig/array.c	2004-05-06 06:24:13.000000000 -0600
-+++ bash-3.0/array.c	2005-05-25 06:02:29.872750000 -0600
++++ bash-3.0/array.c	2005-07-02 06:11:53.157250000 -0600
 @@ -451,7 +451,7 @@
  			 */
  			array_dispose_element(new);
@@ -163,7 +180,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/array.c bash-3.0/array.c
  			ADD_BEFORE(ae, new);
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/arrayfunc.c bash-3.0/arrayfunc.c
 --- bash-3.0-orig/arrayfunc.c	2003-12-18 22:03:09.000000000 -0700
-+++ bash-3.0/arrayfunc.c	2005-05-25 06:02:29.904000000 -0600
++++ bash-3.0/arrayfunc.c	2005-07-02 06:11:53.172875000 -0600
 @@ -611,7 +611,7 @@
    var = find_variable (t);
  
@@ -1918,7 +1935,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/braces.c bash-3.0/braces.c
  #endif
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/builtins/trap.def bash-3.0/builtins/trap.def
 --- bash-3.0-orig/builtins/trap.def	2004-05-27 20:26:19.000000000 -0600
-+++ bash-3.0/builtins/trap.def	2005-05-25 06:02:30.450875000 -0600
++++ bash-3.0/builtins/trap.def	2005-07-02 06:11:53.485375000 -0600
 @@ -23,7 +23,7 @@
  
  $BUILTIN trap
@@ -1959,6 +1976,24 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/builtins/trap.def bash-3.0/
  		(*first_arg != '-' || first_arg[1]) &&
  		signal_object_p (first_arg, opt) && list->next == 0)
  	operation = REVERT;
+diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/config-top.h bash-3.0/config-top.h
+--- bash-3.0-orig/config-top.h	2003-08-05 08:36:12.000000000 -0600
++++ bash-3.0/config-top.h	2005-07-01 22:03:54.000000000 -0600
+@@ -3,7 +3,7 @@
+ /* This contains various user-settable options not under the control of
+    autoconf. */
+ 
+-/* Copyright (C) 2002 Free Software Foundation, Inc.
++/* Copyright (C) 2002, 2005 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -84,4 +84,4 @@
+ 
+ /* Define this if you want bash to try to check whether it's being run by
+    sshd and source the .bashrc if so (like the rshd behavior). */
+-/* #define SSH_SOURCE_BASHRC */
++#define SSH_SOURCE_BASHRC
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/configure bash-3.0/configure
 --- bash-3.0-orig/configure	2004-07-21 14:18:56.000000000 -0600
 +++ bash-3.0/configure	2005-05-24 20:32:48.000000000 -0600
@@ -15212,7 +15247,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/configure.in bash-3.0/confi
  AC_SUBST(HIST_LIBDIR)
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/doc/bashref.texi bash-3.0/doc/bashref.texi
 --- bash-3.0-orig/doc/bashref.texi	2004-06-26 12:26:07.000000000 -0600
-+++ bash-3.0/doc/bashref.texi	2005-05-25 06:02:31.263375000 -0600
++++ bash-3.0/doc/bashref.texi	2005-07-02 06:11:53.969750000 -0600
 @@ -5953,7 +5953,8 @@
  @item
  The @code{trap} builtin doesn't check the first argument for a possible
@@ -15290,7 +15325,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
  	     pathological cases where one of the pipe file descriptors
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/findcmd.c bash-3.0/findcmd.c
 --- bash-3.0-orig/findcmd.c	2003-09-12 12:50:45.000000000 -0600
-+++ bash-3.0/findcmd.c	2005-05-25 06:02:31.294625000 -0600
++++ bash-3.0/findcmd.c	2005-07-02 06:11:54.047875000 -0600
 @@ -1,6 +1,6 @@
  /* findcmd.c -- Functions to search for commands by name. */
  
@@ -15310,7 +15345,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/findcmd.c bash-3.0/findcmd.
       answers for non-AFS files when ruid != euid.  I hate AFS. */
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/general.c bash-3.0/general.c
 --- bash-3.0-orig/general.c	2004-04-14 21:20:13.000000000 -0600
-+++ bash-3.0/general.c	2005-05-25 06:02:31.310250000 -0600
++++ bash-3.0/general.c	2005-07-02 06:11:54.063500000 -0600
 @@ -267,7 +267,7 @@
    c = string[indx = 0];
  
@@ -15353,7 +15388,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/include/shmbutil.h bash-3.0
  /* Declare and initialize a multibyte state.  Call must be terminated
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
 --- bash-3.0-orig/jobs.c	2004-04-23 14:28:25.000000000 -0600
-+++ bash-3.0/jobs.c	2005-05-25 06:02:31.404000000 -0600
++++ bash-3.0/jobs.c	2005-07-02 06:11:54.126000000 -0600
 @@ -3,7 +3,7 @@
  /* This file works with both POSIX and BSD systems.  It implements job
     control. */
@@ -15510,18 +15545,16 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
  
    if (job != NO_JOB)
      printf ("[%d] %ld\n", job + 1, (long)pid);
-@@ -1010,7 +1023,9 @@
+@@ -1010,7 +1023,7 @@
  {
    char *x;
  
 -  x = strsignal (s);
-+  if (x != retcode_name_buffer)
-+    free (x);
-+  x = strdup (strsignal (s));
++  x = (char *) strsignal (s);
    if (x == 0)
      {
        x = retcode_name_buffer;
-@@ -1125,7 +1140,7 @@
+@@ -1125,7 +1138,7 @@
  	    {
  	      if (format)
  		{
@@ -15530,7 +15563,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
  		      WSTATUS (show->status) == WSTATUS (first->status))
  		    temp = "";
  		}
-@@ -1639,7 +1654,7 @@
+@@ -1639,7 +1652,7 @@
    /* POSIX.2: if we just waited for a job, we can remove it from the jobs
       table. */
    BLOCK_CHILD (set, oset);
@@ -15539,7 +15572,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
    if (job != NO_JOB && jobs[job] && DEADJOB (job))
      jobs[job]->flags |= J_NOTIFIED;
    UNBLOCK_CHILD (oset);
-@@ -1778,8 +1793,13 @@
+@@ -1778,8 +1791,13 @@
    if (pipefail_opt)
      {
        fail = 0;
@@ -15555,7 +15588,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
        return fail;
      }
  
-@@ -1868,13 +1888,13 @@
+@@ -1868,13 +1886,13 @@
  	 We check for JDEAD in case the job state has been set by waitchld
  	 after receipt of a SIGCHLD. */
        if (job == NO_JOB)
@@ -15571,7 +15604,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
  	{
  #if defined (WAITPID_BROKEN)    /* SCOv4 */
  	  sigset_t suspend_set;
-@@ -1928,7 +1948,7 @@
+@@ -1928,7 +1946,7 @@
        if (interactive && job_control == 0)
  	QUIT;
      }
@@ -15580,7 +15613,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
  
    /* The exit state of the command is either the termination state of the
       child, or the termination state of the job.  If a job, the status
-@@ -2404,6 +2424,10 @@
+@@ -2404,6 +2422,10 @@
  
  	      do
  		{
@@ -15591,7 +15624,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
  		  kill (p->pid, sig);
  		  if (p->running == PS_DONE && (sig == SIGTERM || sig == SIGHUP))
  		    kill (p->pid, SIGCONT);
-@@ -2511,6 +2535,15 @@
+@@ -2511,6 +2533,15 @@
        if (WIFCONTINUED(status) == 0)
  	children_exited++;
  
@@ -15607,7 +15640,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
        /* Locate our PROCESS for this pid. */
        child = find_pipeline (pid, 1, &job);	/* want running procs only */
  
-@@ -2521,9 +2554,6 @@
+@@ -2521,9 +2552,6 @@
        if (child == 0)
  	continue;
  
@@ -15617,7 +15650,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
        /* Remember status, and whether or not the process is running. */
        child->status = status;
        child->running = WIFCONTINUED(status) ? PS_RUNNING : PS_DONE;
-@@ -2592,8 +2622,8 @@
+@@ -2592,8 +2620,8 @@
    job_state = any_stopped = any_tstped = 0;
    do
      {
@@ -15628,7 +15661,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
  	{
  	  any_stopped = 1;
  	  any_tstped |= interactive && job_control &&
-@@ -3265,11 +3295,11 @@
+@@ -3265,11 +3293,11 @@
  /* Clear out any jobs in the job array.  This is intended to be used by
     children of the shell, who should not have any job structures as baggage
     when they start executing (forking subshells for parenthesized execution
@@ -15643,7 +15676,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
  {
    register int i;
    sigset_t set, oset;
-@@ -3281,10 +3311,10 @@
+@@ -3281,10 +3309,10 @@
        current_job = previous_job = NO_JOB;
  
        for (i = 0; i < job_slots; i++)
@@ -15656,7 +15689,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
  	{
  	  free ((char *)jobs);
  	  job_slots = 0;
-@@ -3295,10 +3325,10 @@
+@@ -3295,10 +3323,10 @@
  }
  
  /* Mark all jobs in the job array so that they don't get a SIGHUP when the
@@ -15670,7 +15703,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
  {
    register int i;
    sigset_t set, oset;
-@@ -3308,7 +3338,7 @@
+@@ -3308,7 +3336,7 @@
    if (job_slots)
      {
        for (i = 0; i < job_slots; i++)
@@ -15681,7 +15714,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
  
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.h bash-3.0/jobs.h
 --- bash-3.0-orig/jobs.h	2004-03-17 06:34:15.000000000 -0700
-+++ bash-3.0/jobs.h	2005-05-25 06:02:31.419625000 -0600
++++ bash-3.0/jobs.h	2005-07-02 06:11:54.157250000 -0600
 @@ -1,6 +1,6 @@
  /* jobs.h -- structures and stuff used by the jobs.c file. */
  
@@ -15785,7 +15818,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/complete.c bas
  #if defined (VISIBLE_STATS)
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/display.c bash-3.0/lib/readline/display.c
 --- bash-3.0-orig/lib/readline/display.c	2004-05-27 20:57:51.000000000 -0600
-+++ bash-3.0/lib/readline/display.c	2005-05-25 06:02:31.607125000 -0600
++++ bash-3.0/lib/readline/display.c	2005-07-02 06:11:54.204125000 -0600
 @@ -201,7 +201,7 @@
       int *lp, *lip, *niflp, *vlp;
  {
@@ -15943,7 +15976,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/misc.c bash-3.
  }
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/vi_mode.c bash-3.0/lib/readline/vi_mode.c
 --- bash-3.0-orig/lib/readline/vi_mode.c	2004-07-13 12:08:27.000000000 -0600
-+++ bash-3.0/lib/readline/vi_mode.c	2005-05-25 06:02:31.732125000 -0600
++++ bash-3.0/lib/readline/vi_mode.c	2005-07-02 06:11:54.235375000 -0600
 @@ -272,10 +272,12 @@
    switch (key)
      {
@@ -16007,7 +16040,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/vi_mode.c bash
  	{
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/patchlevel.h bash-3.0/patchlevel.h
 --- bash-3.0-orig/patchlevel.h	2001-08-22 06:05:39.000000000 -0600
-+++ bash-3.0/patchlevel.h	2005-05-25 06:02:31.747750000 -0600
++++ bash-3.0/patchlevel.h	2005-07-02 06:11:54.251000000 -0600
 @@ -25,6 +25,6 @@
     regexp `^#define[ 	]*PATCHLEVEL', since that's what support/mkversion.sh
     looks for to find the patch level (for the sccs version string). */
@@ -16018,7 +16051,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/patchlevel.h bash-3.0/patch
  #endif /* _PATCHLEVEL_H_ */
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/pcomplete.c bash-3.0/pcomplete.c
 --- bash-3.0-orig/pcomplete.c	2004-01-08 08:36:17.000000000 -0700
-+++ bash-3.0/pcomplete.c	2005-05-25 06:02:31.763375000 -0600
++++ bash-3.0/pcomplete.c	2005-07-02 06:11:54.282250000 -0600
 @@ -863,6 +863,8 @@
    if (array_p (v) == 0)
      v = convert_var_to_array (v);
@@ -16039,7 +16072,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/pcomplete.c bash-3.0/pcompl
      sl = (STRINGLIST *)NULL;
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/subst.c bash-3.0/subst.c
 --- bash-3.0-orig/subst.c	2004-07-04 11:56:13.000000000 -0600
-+++ bash-3.0/subst.c	2005-05-25 06:02:31.794625000 -0600
++++ bash-3.0/subst.c	2005-07-02 06:11:54.313500000 -0600
 @@ -4,7 +4,7 @@
  /* ``Have a little faith, there's magic in the night.  You ain't a
       beauty, but, hey, you're alright.'' */
@@ -16259,7 +16292,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/tests/array.tests bash-3.0/
  echo positive offset 2 - expect seven
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/tests/dbg-support.tests bash-3.0/tests/dbg-support.tests
 --- bash-3.0-orig/tests/dbg-support.tests	2003-03-25 13:33:03.000000000 -0700
-+++ bash-3.0/tests/dbg-support.tests	2005-05-25 06:02:31.841500000 -0600
++++ bash-3.0/tests/dbg-support.tests	2005-07-02 06:11:54.360375000 -0600
 @@ -62,8 +62,8 @@
  trap 'print_debug_trap $LINENO' DEBUG
  trap 'print_return_trap $LINENO' RETURN
@@ -16273,7 +16306,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/tests/dbg-support.tests bas
  # Start easy with a simple function.
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/tests/errors.right bash-3.0/tests/errors.right
 --- bash-3.0-orig/tests/errors.right	2004-05-27 20:26:03.000000000 -0600
-+++ bash-3.0/tests/errors.right	2005-05-25 06:02:31.872750000 -0600
++++ bash-3.0/tests/errors.right	2005-07-02 06:11:54.391625000 -0600
 @@ -85,7 +85,7 @@
  ./errors.tests: line 213: /bin/sh + 0: syntax error: operand expected (error token is "/bin/sh + 0")
  ./errors.tests: line 216: trap: NOSIG: invalid signal specification
