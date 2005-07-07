@@ -2,7 +2,7 @@
 #
 # Generic package build script
 #
-# $Id: generic-build-script,v 1.33 2005/06/22 02:24:26 igor Exp $
+fullvers='$Id: generic-build-script,v 1.33 2005/06/22 02:24:26 igor Exp $'
 #
 # Package maintainers: if the original source is not distributed as a
 # (possibly compressed) tarball, set the value of ${src_orig_pkg_name},
@@ -122,7 +122,45 @@ if [ -z "$SIG" ]; then
   export SIG=1	# set to 1 to turn on signing by default
 fi
 
-# helper function
+# helper functions
+
+# Provide help.
+help() {
+cat <<EOF
+This is the cygwin packaging script for ${FULLPKG}.
+Usage: $0 <action>
+Actions are:
+    help, --help	Print this message
+    version, --version	Print the version message
+    prep		Unpack and patch into ${srcdir}
+    mkdirs		Make hidden directories needed during build
+    conf, configure	Configure the package (./configure)
+    reconf		Rerun configure
+    build, make		Build the package (make)
+    check, test	    	Run the testsuite (make ${test_rule})
+    clean		Remove built files (make clean)
+    install		Install package to staging area (make install)
+    list		List package contents
+    depend		List package dependencies
+    strip		Strip package executables
+    pkg, package	Prepare the binary package ${bin_pkg_name}
+    mkpatch		Prepare the patch file ${src_patch_name}
+    acceptpatch		Apply a patch to the source
+    spkg, src-package	Prepare the source package ${src_pkg_name}
+    finish		Remove source directory ${srcdir}
+    checksig		Validate GPG signatures (requires gpg)
+    first		Full run for spkg (mkdirs, spkg, finish)
+    almostall		Full run for bin pkg, except for finish
+    all			Full run for bin pkg
+EOF
+}
+
+# Provide version of generic-build-script modified to make this
+version() {
+    vers=`echo "$fullvers" | sed -e 's/.*,v \([0-9.]*\).*/\1/'`
+    echo "${FULLPKG}.sh based on generic-build-script $vers"
+}
+
 # unpacks the original package source archive into ./${BASEPKG}/
 # change this if the original package was not tarred
 # or if it doesn't unpack to a correct directory
@@ -201,6 +239,7 @@ install() {
       -name "*.3x" -o -name "*.3pm" -o -name "*.5" -o -name "*.6" -o \
       -name "*.7" -o -name "*.8" | xargs -r gzip -q ; \
   fi && \
+  ln -s bash.1.gz ${instdir}${prefix}/share/man/man1/sh.1.gz &&
   templist="" && \
   for fp in ${install_docs} ; do \
     case "$fp" in \
@@ -241,7 +280,14 @@ install() {
       mkdir -p ${instdir}${sysconfdir}/preremove ; \
     fi && \
     /usr/bin/install -m 755 ${srcdir}/CYGWIN-PATCHES/preremove.sh \
-      ${instdir}${sysconfdir}/preremove/${PKG}.sh ; \
+      ${instdir}${sysconfdir}/preremove/~~${PKG}.sh ; \
+  fi &&
+  if [ -f ${srcdir}/CYGWIN-PATCHES/manifest.lst ] ; then
+    if [ ! -d ${instdir}${sysconfdir}/preremove ]; then
+      mkdir -p ${instdir}${sysconfdir}/preremove ;
+    fi &&
+    /usr/bin/install -m 755 ${srcdir}/CYGWIN-PATCHES/manifest.lst \
+      ${instdir}${sysconfdir}/preremove/${PKG}-manifest.lst ;
   fi )
 }
 strip() {
@@ -337,6 +383,8 @@ checksig() {
 }
 while test -n "$1" ; do
   case $1 in
+    help|--help)	help ; STATUS=$? ;;
+    version|--version)	version ; STATUS=$? ;;
     prep)		prep ; STATUS=$? ;;
     mkdirs)		mkdirs ; STATUS=$? ;;
     conf)		conf ; STATUS=$? ;;
@@ -368,4 +416,3 @@ while test -n "$1" ; do
   ( exit ${STATUS} ) || exit ${STATUS}
   shift
 done
-

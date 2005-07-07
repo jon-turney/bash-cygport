@@ -1,8 +1,8 @@
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README bash-3.0/CYGWIN-PATCHES/bash.README
 --- bash-3.0-orig/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-07-01 22:37:22.000000000 -0600
-@@ -0,0 +1,117 @@
-+bash 3.0-3
++++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-07-06 19:26:58.000000000 -0600
+@@ -0,0 +1,133 @@
++bash 3.0-6
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -11,9 +11,10 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +use. In addition, most sh scripts can be run by Bash without
 +modification.
 +
++As of July, 2005, bash is used as cygwin's /bin/sh.
++
 +Runtime requirements:
-+  cygwin-1.5.17 or newer
-+  newer than ash-20040127-1 for bash to be /bin/sh
++  cygwin-1.5.18 or newer
 +
 +Build conditions:
 +  standard development tools
@@ -27,27 +28,30 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.0-3-src.tar.bz2
++  unpack bash-3.0-6-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +	 unpacked under /usr/src automatically
 +  cd /usr/src
-+  ./bash-3.0-3.sh all
++  ./bash-3.0-6.sh all
 +
 +This will create:
-+  /usr/src/bash-3.0-3.tar.bz2
-+  /usr/src/bash-3.0-3-src.tar.bz2
++  /usr/src/bash-3.0-6.tar.bz2
++  /usr/src/bash-3.0-6-src.tar.bz2
 +
-+Or use './bash-3.0-3.sh prep' to get a patched source directory
++Or use './bash-3.0-6.sh prep' to get a patched source directory
 +
 +-------------------------------------------
 +
 +Files included in the binary distribution:
 +
 +  /etc/postinstall/00bash.sh
++  /etc/preremove/bash-manifest.lst
++  /etc/preremove/~~bash.sh
 +  /usr/bin/bash.exe
 +  /usr/bin/bashbug
 +  /usr/share/man/man1/bashbug.1.gz
 +  /usr/share/man/man1/bash.1.gz
++  /usr/share/man/man1/sh.1.gz
 +  /usr/share/info/bash.info.gz
 +  /usr/share/locale/en@quot/LC_MESSAGES/bash.mo
 +  /usr/share/locale/en@boldquot/LC_MESSAGES/bash.mo
@@ -65,18 +69,30 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +
 +Port Notes:
 +
-+----- version 3.0-3 -----
++----- version 3.0-6 -- 2005-07-07 -----
++Use cp, not ln, in the postinstall scripts since a running shell can't
++break a hard link to itself in NTFS.
++
++----- version 3.0-5 -- 2005-07-06 -----
++Update the postinstall scripts to catch more cases, and provide sh man
++page.
++
++----- version 3.0-4 -- 2005-07-05 -----
++Add a preremove script to counteract the postinstall script: delete
++/bin/sh only if it matches /bin/bash.
++
++----- version 3.0-3 -- 2005-07-02 -----
 +Fix a heap corruption bug introduced in the last build.  Enable
 +SSH_SOURCE_BASHRC.  Link to libreadline dynamically.  Use bash, not
 +ash, as /bin/sh.
 +
-+----- version 3.0-2 -----
++----- version 3.0-2 -- 2005-05-27 -----
 +Fix some bugs with // completion, including an order of magnitude
 +speedup by avoiding stat("//server").  Link to libiconv dynamically
 +(but libreadline is still static until the // patches are applied
 +there, too).
 +
-+----- version 3.0-1 -----
++----- version 3.0-1 -- 2005-05-25 -----
 +New upstream release, including the first 16 official patches.  New
 +maintainer, Eric Blake.  All patches in 2.05b-17 that were not
 +accepted upstream have been forward ported.
@@ -119,20 +135,55 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +
 +Cygwin port maintained by: Eric Blake <ebb9@byu.net>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
+diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/manifest.lst bash-3.0/CYGWIN-PATCHES/manifest.lst
+--- bash-3.0-orig/CYGWIN-PATCHES/manifest.lst	1969-12-31 17:00:00.000000000 -0700
++++ bash-3.0/CYGWIN-PATCHES/manifest.lst	2005-07-05 20:56:26.000000000 -0600
+@@ -0,0 +1 @@
++usr/bin/sh.exe
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.sh bash-3.0/CYGWIN-PATCHES/postinstall.sh
 --- bash-3.0-orig/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/postinstall.sh	2005-07-01 22:30:42.000000000 -0600
-@@ -0,0 +1,6 @@
++++ bash-3.0/CYGWIN-PATCHES/postinstall.sh	2005-07-06 19:31:12.000000000 -0600
+@@ -0,0 +1,23 @@
 +#!/bin/bash
-+# Bash postinstall script.  This copies (hard links where possible) bash
-+# as /bin/sh, per the decision here:
-+# http://cygwin.com/ml/cygwin-apps/2005-06/msg00117.html
++# Bash postinstall script.  This ensures that /bin/sh exists and is
++# runnable, updating older copies of ash or bash as appropriate, while
++# leaving other shells (ksh or zsh) alone.
 +
-+test -x /bin/sh.exe || link /bin/bash.exe /bin/sh.exe
++# Get rid of ash manpage, if it is in the way of our compressed page.
++rm -f /usr/share/man/man1/sh.1
++
++update=no
++# Is /bin/sh missing, or have broken dependencies?
++case `cygcheck /bin/sh.exe 2>&1` in
++    *Error:\ could\ not\ find*) update=yes ;;
++    *) # We can run it.  Is the version from ash or bash?
++        case `/bin/sh.exe --version 2>&1` in
++            Illegal\ option\ --* | GNU\ bash*) update=yes ;;
++        esac ;;
++esac
++# Update, if needed.  Use copy, not hard or symlink, since symlinks won't
++# work from Windows cmd and a hardlink to a running shell can't be broken.
++# As a last-ditch fallback, try exec to stop running bash.
++if test $update = yes ; then
++    cp -f /bin/bash.exe /bin/sh.exe || exec cp -f /bin/bash.exe /bin/sh.exe
++fi
+diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/preremove.sh bash-3.0/CYGWIN-PATCHES/preremove.sh
+--- bash-3.0-orig/CYGWIN-PATCHES/preremove.sh	1969-12-31 17:00:00.000000000 -0700
++++ bash-3.0/CYGWIN-PATCHES/preremove.sh	2005-07-06 19:32:18.000000000 -0600
+@@ -0,0 +1,9 @@
++#!/bin/bash
++# Bash preremove script.  This removes /bin/sh if and only if it is bash,
++# to make postinstalls more likely to succeed even when dependent libraries
++# have changed.  Use exec as a last-ditch effort in case sh and bash were
++# hardlinked, since links can't be broken while a shell is running.
++
++case `/bin/sh.exe --version 2>&1` in
++    GNU\ bash*) rm -f /bin/sh.exe || exec rm -f /bin/sh.exe ;;
++esac
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/setup.hint bash-3.0/CYGWIN-PATCHES/setup.hint
 --- bash-3.0-orig/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/setup.hint	2005-05-27 06:22:30.000000000 -0600
-@@ -0,0 +1,13 @@
++++ bash-3.0/CYGWIN-PATCHES/setup.hint	2005-07-06 06:20:56.000000000 -0600
+@@ -0,0 +1,10 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"
 +ldesc: "Bash is an sh-compatible shell that incorporates useful
@@ -143,12 +194,9 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/setup.hint b
 +run by Bash without modification."
 +category: Base Shells
 +requires: cygwin libintl3 libiconv2 libreadline6 libncurses8
-+prev: 2.05b-16
-+curr: 2.05b-17
-+test: 3.0-3
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/Makefile.in bash-3.0/Makefile.in
 --- bash-3.0-orig/Makefile.in	2004-03-17 06:34:39.000000000 -0700
-+++ bash-3.0/Makefile.in	2005-07-02 06:11:53.094750000 -0600
++++ bash-3.0/Makefile.in	2005-07-06 05:59:58.000000000 -0600
 @@ -1,6 +1,6 @@
  # Makefile for bash-3.0, version 2.152
  #
@@ -168,7 +216,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/Makefile.in bash-3.0/Makefi
  TILDE_DEP = $(TILDE_LIBRARY)
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/array.c bash-3.0/array.c
 --- bash-3.0-orig/array.c	2004-05-06 06:24:13.000000000 -0600
-+++ bash-3.0/array.c	2005-07-02 06:11:53.157250000 -0600
++++ bash-3.0/array.c	2005-07-06 05:59:58.000000000 -0600
 @@ -451,7 +451,7 @@
  			 */
  			array_dispose_element(new);
@@ -180,7 +228,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/array.c bash-3.0/array.c
  			ADD_BEFORE(ae, new);
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/arrayfunc.c bash-3.0/arrayfunc.c
 --- bash-3.0-orig/arrayfunc.c	2003-12-18 22:03:09.000000000 -0700
-+++ bash-3.0/arrayfunc.c	2005-07-02 06:11:53.172875000 -0600
++++ bash-3.0/arrayfunc.c	2005-07-06 05:59:58.000000000 -0600
 @@ -611,7 +611,7 @@
    var = find_variable (t);
  
@@ -1933,49 +1981,6 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/braces.c bash-3.0/braces.c
  	  continue;
  	}
  #endif
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/builtins/trap.def bash-3.0/builtins/trap.def
---- bash-3.0-orig/builtins/trap.def	2004-05-27 20:26:19.000000000 -0600
-+++ bash-3.0/builtins/trap.def	2005-07-02 06:11:53.485375000 -0600
-@@ -23,7 +23,7 @@
- 
- $BUILTIN trap
- $FUNCTION trap_builtin
--$SHORT_DOC trap [-lp] [[arg] signal_spec ...]
-+$SHORT_DOC trap [-lp] [arg signal_spec ...]
- The command ARG is to be read and executed when the shell receives
- signal(s) SIGNAL_SPEC.  If ARG is absent (and a single SIGNAL_SPEC
- is supplied) or `-', each specified signal is reset to its original
-@@ -87,7 +87,7 @@
- trap_builtin (list)
-      WORD_LIST *list;
- {
--  int list_signal_names, display, result, opt;
-+  int list_signal_names, display, result, opt, first_signal;
- 
-   list_signal_names = display = 0;
-   result = EXECUTION_SUCCESS;
-@@ -118,14 +118,19 @@
-   else
-     {
-       char *first_arg;
--      int operation, sig;
-+      int operation, sig, first_signal;
- 
-       operation = SET;
-       first_arg = list->word->word;
-+      first_signal = first_arg && *first_arg && all_digits (first_arg) && signal_object_p (first_arg, opt);
-+
-+      /* Backwards compatibility */
-+      if (first_signal)
-+	operation = REVERT;
-       /* When in posix mode, the historical behavior of looking for a
- 	 missing first argument is disabled.  To revert to the original
- 	 signal handling disposition, use `-' as the first argument. */
--      if (posixly_correct == 0 && first_arg && *first_arg &&
-+      else if (posixly_correct == 0 && first_arg && *first_arg &&
- 		(*first_arg != '-' || first_arg[1]) &&
- 		signal_object_p (first_arg, opt) && list->next == 0)
- 	operation = REVERT;
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/config-top.h bash-3.0/config-top.h
 --- bash-3.0-orig/config-top.h	2003-08-05 08:36:12.000000000 -0600
 +++ bash-3.0/config-top.h	2005-07-01 22:03:54.000000000 -0600
@@ -15245,19 +15250,6 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/configure.in bash-3.0/confi
  AC_SUBST(HISTORY_LIB)
  AC_SUBST(HISTORY_DEP)
  AC_SUBST(HIST_LIBDIR)
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/doc/bashref.texi bash-3.0/doc/bashref.texi
---- bash-3.0-orig/doc/bashref.texi	2004-06-26 12:26:07.000000000 -0600
-+++ bash-3.0/doc/bashref.texi	2005-07-02 06:11:53.969750000 -0600
-@@ -5953,7 +5953,8 @@
- @item
- The @code{trap} builtin doesn't check the first argument for a possible
- signal specification and revert the signal handling to the original
--disposition if it is.  If users want to reset the handler for a given
-+disposition if it is, unless that argument consists solely of digits and
-+is a valid signal number.  If users want to reset the handler for a given
- signal to the original disposition, they should use @samp{-} as the
- first argument.
- 
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/execute_cmd.c
 --- bash-3.0-orig/execute_cmd.c	2004-07-04 12:12:58.000000000 -0600
 +++ bash-3.0/execute_cmd.c	2005-05-12 20:39:30.000000000 -0600
@@ -15325,7 +15317,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
  	     pathological cases where one of the pipe file descriptors
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/findcmd.c bash-3.0/findcmd.c
 --- bash-3.0-orig/findcmd.c	2003-09-12 12:50:45.000000000 -0600
-+++ bash-3.0/findcmd.c	2005-07-02 06:11:54.047875000 -0600
++++ bash-3.0/findcmd.c	2005-07-06 05:59:59.000000000 -0600
 @@ -1,6 +1,6 @@
  /* findcmd.c -- Functions to search for commands by name. */
  
@@ -15345,7 +15337,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/findcmd.c bash-3.0/findcmd.
       answers for non-AFS files when ruid != euid.  I hate AFS. */
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/general.c bash-3.0/general.c
 --- bash-3.0-orig/general.c	2004-04-14 21:20:13.000000000 -0600
-+++ bash-3.0/general.c	2005-07-02 06:11:54.063500000 -0600
++++ bash-3.0/general.c	2005-07-06 05:59:59.000000000 -0600
 @@ -267,7 +267,7 @@
    c = string[indx = 0];
  
@@ -15388,7 +15380,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/include/shmbutil.h bash-3.0
  /* Declare and initialize a multibyte state.  Call must be terminated
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
 --- bash-3.0-orig/jobs.c	2004-04-23 14:28:25.000000000 -0600
-+++ bash-3.0/jobs.c	2005-07-02 06:11:54.126000000 -0600
++++ bash-3.0/jobs.c	2005-07-06 05:59:59.000000000 -0600
 @@ -3,7 +3,7 @@
  /* This file works with both POSIX and BSD systems.  It implements job
     control. */
@@ -15714,7 +15706,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
  
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.h bash-3.0/jobs.h
 --- bash-3.0-orig/jobs.h	2004-03-17 06:34:15.000000000 -0700
-+++ bash-3.0/jobs.h	2005-07-02 06:11:54.157250000 -0600
++++ bash-3.0/jobs.h	2005-07-06 05:59:59.000000000 -0600
 @@ -1,6 +1,6 @@
  /* jobs.h -- structures and stuff used by the jobs.c file. */
  
@@ -15818,7 +15810,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/complete.c bas
  #if defined (VISIBLE_STATS)
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/display.c bash-3.0/lib/readline/display.c
 --- bash-3.0-orig/lib/readline/display.c	2004-05-27 20:57:51.000000000 -0600
-+++ bash-3.0/lib/readline/display.c	2005-07-02 06:11:54.204125000 -0600
++++ bash-3.0/lib/readline/display.c	2005-07-06 05:59:59.000000000 -0600
 @@ -201,7 +201,7 @@
       int *lp, *lip, *niflp, *vlp;
  {
@@ -15976,7 +15968,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/misc.c bash-3.
  }
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/vi_mode.c bash-3.0/lib/readline/vi_mode.c
 --- bash-3.0-orig/lib/readline/vi_mode.c	2004-07-13 12:08:27.000000000 -0600
-+++ bash-3.0/lib/readline/vi_mode.c	2005-07-02 06:11:54.235375000 -0600
++++ bash-3.0/lib/readline/vi_mode.c	2005-07-06 05:59:59.000000000 -0600
 @@ -272,10 +272,12 @@
    switch (key)
      {
@@ -16040,7 +16032,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/vi_mode.c bash
  	{
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/patchlevel.h bash-3.0/patchlevel.h
 --- bash-3.0-orig/patchlevel.h	2001-08-22 06:05:39.000000000 -0600
-+++ bash-3.0/patchlevel.h	2005-07-02 06:11:54.251000000 -0600
++++ bash-3.0/patchlevel.h	2005-07-06 05:59:59.000000000 -0600
 @@ -25,6 +25,6 @@
     regexp `^#define[ 	]*PATCHLEVEL', since that's what support/mkversion.sh
     looks for to find the patch level (for the sccs version string). */
@@ -16051,7 +16043,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/patchlevel.h bash-3.0/patch
  #endif /* _PATCHLEVEL_H_ */
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/pcomplete.c bash-3.0/pcomplete.c
 --- bash-3.0-orig/pcomplete.c	2004-01-08 08:36:17.000000000 -0700
-+++ bash-3.0/pcomplete.c	2005-07-02 06:11:54.282250000 -0600
++++ bash-3.0/pcomplete.c	2005-07-06 05:59:59.000000000 -0600
 @@ -863,6 +863,8 @@
    if (array_p (v) == 0)
      v = convert_var_to_array (v);
@@ -16072,7 +16064,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/pcomplete.c bash-3.0/pcompl
      sl = (STRINGLIST *)NULL;
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/subst.c bash-3.0/subst.c
 --- bash-3.0-orig/subst.c	2004-07-04 11:56:13.000000000 -0600
-+++ bash-3.0/subst.c	2005-07-02 06:11:54.313500000 -0600
++++ bash-3.0/subst.c	2005-07-06 05:59:59.000000000 -0600
 @@ -4,7 +4,7 @@
  /* ``Have a little faith, there's magic in the night.  You ain't a
       beauty, but, hey, you're alright.'' */
@@ -16292,7 +16284,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/tests/array.tests bash-3.0/
  echo positive offset 2 - expect seven
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/tests/dbg-support.tests bash-3.0/tests/dbg-support.tests
 --- bash-3.0-orig/tests/dbg-support.tests	2003-03-25 13:33:03.000000000 -0700
-+++ bash-3.0/tests/dbg-support.tests	2005-07-02 06:11:54.360375000 -0600
++++ bash-3.0/tests/dbg-support.tests	2005-07-06 06:55:19.000000000 -0600
 @@ -62,8 +62,8 @@
  trap 'print_debug_trap $LINENO' DEBUG
  trap 'print_return_trap $LINENO' RETURN
@@ -16306,7 +16298,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/tests/dbg-support.tests bas
  # Start easy with a simple function.
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/tests/errors.right bash-3.0/tests/errors.right
 --- bash-3.0-orig/tests/errors.right	2004-05-27 20:26:03.000000000 -0600
-+++ bash-3.0/tests/errors.right	2005-07-02 06:11:54.391625000 -0600
++++ bash-3.0/tests/errors.right	2005-07-06 06:55:19.000000000 -0600
 @@ -85,7 +85,7 @@
  ./errors.tests: line 213: /bin/sh + 0: syntax error: operand expected (error token is "/bin/sh + 0")
  ./errors.tests: line 216: trap: NOSIG: invalid signal specification
