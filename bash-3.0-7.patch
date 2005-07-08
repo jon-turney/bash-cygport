@@ -1,8 +1,8 @@
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README bash-3.0/CYGWIN-PATCHES/bash.README
 --- bash-3.0-orig/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-07-06 19:26:58.000000000 -0600
-@@ -0,0 +1,133 @@
-+bash 3.0-6
++++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-07-07 07:23:50.000000000 -0600
+@@ -0,0 +1,136 @@
++bash 3.0-7
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -28,17 +28,17 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.0-6-src.tar.bz2
++  unpack bash-3.0-7-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +	 unpacked under /usr/src automatically
 +  cd /usr/src
-+  ./bash-3.0-6.sh all
++  ./bash-3.0-7.sh all
 +
 +This will create:
-+  /usr/src/bash-3.0-6.tar.bz2
-+  /usr/src/bash-3.0-6-src.tar.bz2
++  /usr/src/bash-3.0-7.tar.bz2
++  /usr/src/bash-3.0-7-src.tar.bz2
 +
-+Or use './bash-3.0-6.sh prep' to get a patched source directory
++Or use './bash-3.0-7.sh prep' to get a patched source directory
 +
 +-------------------------------------------
 +
@@ -68,6 +68,9 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +------------------
 +
 +Port Notes:
++
++----- version 3.0-7 -- 2005-07-07 -----
++Fix bug in postinstall script.
 +
 +----- version 3.0-6 -- 2005-07-07 -----
 +Use cp, not ln, in the postinstall scripts since a running shell can't
@@ -137,12 +140,12 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/manifest.lst bash-3.0/CYGWIN-PATCHES/manifest.lst
 --- bash-3.0-orig/CYGWIN-PATCHES/manifest.lst	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/manifest.lst	2005-07-05 20:56:26.000000000 -0600
++++ bash-3.0/CYGWIN-PATCHES/manifest.lst	2005-07-07 07:24:40.000000000 -0600
 @@ -0,0 +1 @@
 +usr/bin/sh.exe
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.sh bash-3.0/CYGWIN-PATCHES/postinstall.sh
 --- bash-3.0-orig/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/postinstall.sh	2005-07-06 19:31:12.000000000 -0600
++++ bash-3.0/CYGWIN-PATCHES/postinstall.sh	2005-07-07 07:24:40.000000000 -0600
 @@ -0,0 +1,23 @@
 +#!/bin/bash
 +# Bash postinstall script.  This ensures that /bin/sh exists and is
@@ -155,7 +158,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.
 +update=no
 +# Is /bin/sh missing, or have broken dependencies?
 +case `cygcheck /bin/sh.exe 2>&1` in
-+    *Error:\ could\ not\ find*) update=yes ;;
++    *Error:\ could\ not\ find* | *Cannot\ open*) update=yes ;;
 +    *) # We can run it.  Is the version from ash or bash?
 +        case `/bin/sh.exe --version 2>&1` in
 +            Illegal\ option\ --* | GNU\ bash*) update=yes ;;
@@ -169,7 +172,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.
 +fi
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/preremove.sh bash-3.0/CYGWIN-PATCHES/preremove.sh
 --- bash-3.0-orig/CYGWIN-PATCHES/preremove.sh	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/preremove.sh	2005-07-06 19:32:18.000000000 -0600
++++ bash-3.0/CYGWIN-PATCHES/preremove.sh	2005-07-07 07:24:40.000000000 -0600
 @@ -0,0 +1,9 @@
 +#!/bin/bash
 +# Bash preremove script.  This removes /bin/sh if and only if it is bash,
