@@ -195,7 +195,9 @@ conf() {
   --mandir='${prefix}/share/man' --infodir='${prefix}/share/info' \
   --libexecdir='${sbindir}' --localstatedir="${localstatedir}" \
   --datadir='${prefix}/share' --without-libiconv-prefix \
-  --without-libintl-prefix --with-installed-readline )
+  --without-libintl-prefix )
+  # omitting --with-installed-readline until libreadline has same patches
+  # as the patched readline included with bash
 }
 reconf() {
   (cd ${topdir} && \
@@ -239,7 +241,18 @@ install() {
       -name "*.3x" -o -name "*.3pm" -o -name "*.5" -o -name "*.6" -o \
       -name "*.7" -o -name "*.8" | xargs -r gzip -q ; \
   fi && \
-  ln -s bash.1.gz ${instdir}${prefix}/share/man/man1/sh.1.gz &&
+  echo '.so man1/bash.1.gz' > ${instdir}${prefix}/share/man/man1/sh.1 &&
+  echo '.so man1/bash_builtins.1.gz' \
+    > ${instdir}${prefix}/share/man/man1/alias.1 &&
+  for f in bg bind break builtin caller case cd command compgen complete \
+     continue declare dirs disown do done elif else enable esac eval exec \
+     exit export fc fg fi for function getopts hash help history if in jobs \
+     let local logout popd pushd read readonly return select set shift shopt \
+     source suspend then time times trap type typeset ulimit umask unalias \
+     unset until wait while ; do
+    ln -f ${instdir}${prefix}/share/man/man1/alias.1 \
+      ${instdir}${prefix}/share/man/man1/$f.1
+  done &&
   templist="" && \
   for fp in ${install_docs} ; do \
     case "$fp" in \

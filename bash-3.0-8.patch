@@ -1,8 +1,8 @@
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README bash-3.0/CYGWIN-PATCHES/bash.README
 --- bash-3.0-orig/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-07-07 07:23:50.000000000 -0600
-@@ -0,0 +1,136 @@
-+bash 3.0-7
++++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-07-15 07:49:58.000000000 -0600
+@@ -0,0 +1,202 @@
++bash 3.0-8
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -28,17 +28,17 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.0-7-src.tar.bz2
++  unpack bash-3.0-8-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +	 unpacked under /usr/src automatically
 +  cd /usr/src
-+  ./bash-3.0-7.sh all
++  ./bash-3.0-8.sh all
 +
 +This will create:
-+  /usr/src/bash-3.0-7.tar.bz2
-+  /usr/src/bash-3.0-7-src.tar.bz2
++  /usr/src/bash-3.0-8.tar.bz2
++  /usr/src/bash-3.0-8-src.tar.bz2
 +
-+Or use './bash-3.0-7.sh prep' to get a patched source directory
++Or use './bash-3.0-8.sh prep' to get a patched source directory
 +
 +-------------------------------------------
 +
@@ -46,15 +46,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +
 +  /etc/postinstall/00bash.sh
 +  /etc/preremove/bash-manifest.lst
-+  /etc/preremove/~~bash.sh
 +  /usr/bin/bash.exe
 +  /usr/bin/bashbug
-+  /usr/share/man/man1/bashbug.1.gz
-+  /usr/share/man/man1/bash.1.gz
-+  /usr/share/man/man1/sh.1.gz
-+  /usr/share/info/bash.info.gz
-+  /usr/share/locale/en@quot/LC_MESSAGES/bash.mo
-+  /usr/share/locale/en@boldquot/LC_MESSAGES/bash.mo
 +  /usr/share/doc/bash-3.0/ABOUT-NLS
 +  /usr/share/doc/bash-3.0/AUTHORS
 +  /usr/share/doc/bash-3.0/CHANGES
@@ -64,10 +57,83 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +  /usr/share/doc/bash-3.0/NOTES
 +  /usr/share/doc/bash-3.0/README
 +  /usr/share/doc/Cygwin/bash-3.0.README (this file)
++  /usr/share/info/bash.info.gz
++  /usr/share/locale/en@boldquot/LC_MESSAGES/bash.mo
++  /usr/share/locale/en@quot/LC_MESSAGES/bash.mo
++  /usr/share/man/man1/alias.1
++  /usr/share/man/man1/bashbug.1.gz
++  /usr/share/man/man1/bash.1.gz
++  /usr/share/man/man1/bash_builtins.1.gz
++  /usr/share/man/man1/bg.1
++  /usr/share/man/man1/bind.1
++  /usr/share/man/man1/break.1
++  /usr/share/man/man1/builtin.1
++  /usr/share/man/man1/caller.1
++  /usr/share/man/man1/case.1
++  /usr/share/man/man1/cd.1
++  /usr/share/man/man1/command.1
++  /usr/share/man/man1/compgen.1
++  /usr/share/man/man1/complete.1
++  /usr/share/man/man1/continue.1
++  /usr/share/man/man1/declare.1
++  /usr/share/man/man1/dirs.1
++  /usr/share/man/man1/disown.1
++  /usr/share/man/man1/enable.1
++  /usr/share/man/man1/eval.1
++  /usr/share/man/man1/exec.1
++  /usr/share/man/man1/exit.1
++  /usr/share/man/man1/export.1
++  /usr/share/man/man1/fc.1
++  /usr/share/man/man1/fg.1
++  /usr/share/man/man1/for.1
++  /usr/share/man/man1/function.1
++  /usr/share/man/man1/getopts.1
++  /usr/share/man/man1/hash.1
++  /usr/share/man/man1/help.1
++  /usr/share/man/man1/history.1
++  /usr/share/man/man1/if.1
++  /usr/share/man/man1/in.1
++  /usr/share/man/man1/jobs.1
++  /usr/share/man/man1/let.1
++  /usr/share/man/man1/local.1
++  /usr/share/man/man1/logout.1
++  /usr/share/man/man1/popd.1
++  /usr/share/man/man1/pushd.1
++  /usr/share/man/man1/read.1
++  /usr/share/man/man1/readonly.1
++  /usr/share/man/man1/return.1
++  /usr/share/man/man1/select.1
++  /usr/share/man/man1/set.1
++  /usr/share/man/man1/sh.1.gz
++  /usr/share/man/man1/shift.1
++  /usr/share/man/man1/shopt.1
++  /usr/share/man/man1/source.1
++  /usr/share/man/man1/suspend.1  
++  /usr/share/man/man1/time.1
++  /usr/share/man/man1/times.1
++  /usr/share/man/man1/trap.1
++  /usr/share/man/man1/type.1
++  /usr/share/man/man1/typeset.1
++  /usr/share/man/man1/ulimit.1
++  /usr/share/man/man1/umask.1
++  /usr/share/man/man1/unalias.1
++  /usr/share/man/man1/unset.1
++  /usr/share/man/man1/until.1
++  /usr/share/man/man1/wait.1
++  /usr/share/man/man1/while.1
 +
 +------------------
 +
 +Port Notes:
++
++----- version 3.0-8 -- 2005-07-15 -----
++Remove preremove script (it wasn't invoked by alternate name, and
++invoking it by the name bash.sh would delete /bin/sh too early).  Fix
++packaging bug that omitted info file, and add man pages for all
++builtins not already claimed by programs.  As a temporary fix for
++tilde expansion, don't link against libreadline, and add a hack that
++tries to work around the extra space in prompt bug (this hack does not
++fix the problem, but does mask the worst of it).
 +
 +----- version 3.0-7 -- 2005-07-07 -----
 +Fix bug in postinstall script.
@@ -145,8 +211,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/manifest.lst
 +usr/bin/sh.exe
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.sh bash-3.0/CYGWIN-PATCHES/postinstall.sh
 --- bash-3.0-orig/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/postinstall.sh	2005-07-07 07:24:40.000000000 -0600
-@@ -0,0 +1,23 @@
++++ bash-3.0/CYGWIN-PATCHES/postinstall.sh	2005-07-15 09:17:43.000000000 -0600
+@@ -0,0 +1,24 @@
 +#!/bin/bash
 +# Bash postinstall script.  This ensures that /bin/sh exists and is
 +# runnable, updating older copies of ash or bash as appropriate, while
@@ -166,26 +232,14 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.
 +esac
 +# Update, if needed.  Use copy, not hard or symlink, since symlinks won't
 +# work from Windows cmd and a hardlink to a running shell can't be broken.
-+# As a last-ditch fallback, try exec to stop running bash.
++# As a last-ditch fallback, try exec to stop the current running bash.
 +if test $update = yes ; then
-+    cp -f /bin/bash.exe /bin/sh.exe || exec cp -f /bin/bash.exe /bin/sh.exe
++    cp -fpuv /bin/bash.exe /bin/sh.exe ||
++    exec cp -fpuv /bin/bash.exe /bin/sh.exe
 +fi
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/preremove.sh bash-3.0/CYGWIN-PATCHES/preremove.sh
---- bash-3.0-orig/CYGWIN-PATCHES/preremove.sh	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/preremove.sh	2005-07-07 07:24:40.000000000 -0600
-@@ -0,0 +1,9 @@
-+#!/bin/bash
-+# Bash preremove script.  This removes /bin/sh if and only if it is bash,
-+# to make postinstalls more likely to succeed even when dependent libraries
-+# have changed.  Use exec as a last-ditch effort in case sh and bash were
-+# hardlinked, since links can't be broken while a shell is running.
-+
-+case `/bin/sh.exe --version 2>&1` in
-+    GNU\ bash*) rm -f /bin/sh.exe || exec rm -f /bin/sh.exe ;;
-+esac
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/setup.hint bash-3.0/CYGWIN-PATCHES/setup.hint
 --- bash-3.0-orig/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/setup.hint	2005-07-06 06:20:56.000000000 -0600
++++ bash-3.0/CYGWIN-PATCHES/setup.hint	2005-07-15 07:46:33.000000000 -0600
 @@ -0,0 +1,10 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"
@@ -196,7 +250,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/setup.hint b
 +programming and interactive use. In addition, most sh scripts can be
 +run by Bash without modification."
 +category: Base Shells
-+requires: cygwin libintl3 libiconv2 libreadline6 libncurses8
++requires: cygwin libintl3 libiconv2 libncurses8
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/Makefile.in bash-3.0/Makefile.in
 --- bash-3.0-orig/Makefile.in	2004-03-17 06:34:39.000000000 -0700
 +++ bash-3.0/Makefile.in	2005-07-06 05:59:58.000000000 -0600
@@ -15253,6 +15307,29 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/configure.in bash-3.0/confi
  AC_SUBST(HISTORY_LIB)
  AC_SUBST(HISTORY_DEP)
  AC_SUBST(HIST_LIBDIR)
+diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/doc/Makefile.in bash-3.0/doc/Makefile.in
+--- bash-3.0-orig/doc/Makefile.in	2004-07-27 06:57:48.000000000 -0600
++++ bash-3.0/doc/Makefile.in	2005-07-12 07:07:40.000000000 -0600
+@@ -167,7 +167,7 @@
+ bashref.html: $(BASHREF_FILES) $(HSUSER) $(RLUSER)
+ 	$(TEXI2HTML) -menu -monolithic -I $(TEXINPUTDIR) $(srcdir)/bashref.texi
+ 
+-bash.info: bashref.info
++bash.info: $(srcdir)/bashref.info
+ 	${SHELL} ${INFOPOST} < $(srcdir)/bashref.info > $@ ; \
+ 
+ bash.txt: bash.1
+@@ -224,8 +224,8 @@
+ 	-$(INSTALL_DATA) $(srcdir)/bash.1 $(DESTDIR)$(man1dir)/bash${man1ext}
+ 	-$(INSTALL_DATA) $(srcdir)/bashbug.1 $(DESTDIR)$(man1dir)/bashbug${man1ext}
+ # uncomment the next line to install the builtins man page
+-#	-$(INSTALL_DATA) $(srcdir)/builtins.1 $(DESTDIR)$(man1dir)/bash_builtins${man1ext}
+-	-$(INSTALL_DATA) $(srcdir)/bash.info $(DESTDIR)$(infodir)/bash.info
++	-$(INSTALL_DATA) $(srcdir)/builtins.1 $(DESTDIR)$(man1dir)/bash_builtins${man1ext}
++	-$(INSTALL_DATA) bash.info $(DESTDIR)$(infodir)/bash.info
+ # run install-info if it is present to update the info directory
+ 	if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then \
+ 		install-info --dir-file=$(DESTDIR)$(infodir)/dir $(DESTDIR)$(infodir)/bash.info; \
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/execute_cmd.c
 --- bash-3.0-orig/execute_cmd.c	2004-07-04 12:12:58.000000000 -0600
 +++ bash-3.0/execute_cmd.c	2005-05-12 20:39:30.000000000 -0600
@@ -15813,7 +15890,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/complete.c bas
  #if defined (VISIBLE_STATS)
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/display.c bash-3.0/lib/readline/display.c
 --- bash-3.0-orig/lib/readline/display.c	2004-05-27 20:57:51.000000000 -0600
-+++ bash-3.0/lib/readline/display.c	2005-07-06 05:59:59.000000000 -0600
++++ bash-3.0/lib/readline/display.c	2005-07-14 07:12:46.000000000 -0600
 @@ -201,7 +201,7 @@
       int *lp, *lip, *niflp, *vlp;
  {
@@ -15869,7 +15946,19 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/display.c bash
  	}
      }
  
-@@ -351,14 +358,14 @@
+@@ -279,7 +286,10 @@
+   if (lp)
+     *lp = rl;
+   if (lip)
+-    *lip = last;
++    /* Cygwin hack - faking that \[\] was always the last part of the prompt
++       avoids some (but not all) double character prompt printing bugs.  */
++    *lip = r - ret;
++/*     *lip = last; */
+   if (niflp)
+     *niflp = invfl;
+   if  (vlp)
+@@ -351,14 +361,14 @@
        local_prompt = expand_prompt (p, &prompt_visible_length,
  				       &prompt_last_invisible,
  				       (int *)NULL,
@@ -15886,7 +15975,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/display.c bash
        *t = c;
        return (prompt_prefix_length);
      }
-@@ -417,7 +424,7 @@
+@@ -417,7 +427,7 @@
    register int in, out, c, linenum, cursor_linenum;
    register char *line;
    int c_pos, inv_botlin, lb_botlin, lb_linenum;
@@ -15895,7 +15984,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/display.c bash
    char *prompt_this_line;
  #if defined (HANDLE_MULTIBYTE)
    wchar_t wc;
-@@ -573,6 +580,7 @@
+@@ -573,6 +583,7 @@
  
  #if defined (HANDLE_MULTIBYTE)
    memset (_rl_wrapped_line, 0, vis_lbsize);
@@ -15903,7 +15992,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/display.c bash
  #endif
  
    /* prompt_invis_chars_first_line is the number of invisible characters in
-@@ -591,13 +599,32 @@
+@@ -591,13 +602,32 @@
           probably too much work for the benefit gained.  How many people have
           prompts that exceed two physical lines?
           Additional logic fix from Edward Catmur <ed@catmur.co.uk> */
