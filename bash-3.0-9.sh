@@ -70,6 +70,7 @@ export src_orig_pkg=${topdir}/${src_orig_pkg_name}
 export src_pkg_name=${FULLPKG}-src.tar.bz2
 export src_patch_name=${FULLPKG}.patch
 export bin_pkg_name=${FULLPKG}.tar.bz2
+export src_official_patches=`echo bash30-[0-9][0-9][0-9]`
 
 export src_pkg=${topdir}/${src_pkg_name}
 export src_patch=${topdir}/${src_patch_name}
@@ -176,9 +177,21 @@ mkdirs() {
   mkdir -p ${srcinstdir} &&
   expr $REL - 1 > ${objdir}/.build )
 }
+fixup() {
+  (cd "$1" &&
+  for f in ${src_official_patches} ; do
+    if [ -f ${topdir}/$f ] ; then
+      echo "APPLYING OFFICIAL PATCH $f"
+      patch -p2 < ${topdir}/$f
+    fi
+  done &&
+  find . \( -name '*.orig' -o -name '*.rej' \) -exec rm -f {} \;
+  )
+}
 prep() {
   (cd ${topdir} && \
   unpack ${src_orig_pkg} && \
+  fixup "${srcdir}" &&
   cd ${topdir} && \
   if [ -f ${src_patch} ] ; then \
     patch -Z -p0 < ${src_patch} ;\
@@ -195,9 +208,7 @@ conf() {
   --mandir='${prefix}/share/man' --infodir='${prefix}/share/info' \
   --libexecdir='${sbindir}' --localstatedir="${localstatedir}" \
   --datadir='${prefix}/share' --without-libiconv-prefix \
-  --without-libintl-prefix )
-  # omitting --with-installed-readline until libreadline has same patches
-  # as the patched readline included with bash
+  --without-libintl-prefix --with-installed-readline )
 }
 reconf() {
   (cd ${topdir} && \
@@ -329,6 +340,7 @@ mkpatch() {
   find . -name "autom4te.cache" | xargs -r rm -rf ; \
   unpack ${src_orig_pkg} && \
   mv ${BASEPKG} ../${BASEPKG}-orig && \
+  fixup "../${BASEPKG}-orig" &&
   cd ${topdir} && \
   diff -urN -x '.build' -x '.inst' -x '.sinst' \
     ${BASEPKG}-orig ${BASEPKG} > \
@@ -353,6 +365,14 @@ spkg() {
   if [ "${SIG}" -eq 1 ] ; then \
     cp $0.sig ${srcinstdir}/ ; \
   fi && \
+  for f in ${src_official_patches} ; do
+    if [ -f ${topdir}/$f ] ; then
+      cp ${topdir}/$f ${srcinstdir}/$f
+    fi
+    if [ -f ${topdir}/$f.sig ] ; then
+      cp ${topdir}/$f.sig ${srcinstdir}/$f.sig
+    fi
+  done &&
   cd ${srcinstdir} && \
   tar cvjf ${src_pkg} * )
 }
@@ -378,6 +398,16 @@ checksig() {
     else \
       echo "ORIGINAL PACKAGE signature missing."; \
     fi; \
+    for f in ${src_official_patches} ; do
+      if [ -f ${topdir}/$f ] ; then
+        if [ -f ${topdir}/$f.sig ] ; then
+          echo "OFFICIAL PATCH $f signature follows:"
+	  /usr/bin/gpg --verify ${topdir}/$f.sig ${topdir}/$f; \
+	else
+	  echo "OFFICIAL PATCH $f signature missing."
+	fi
+      fi
+    done
     if [ -e $0.sig ]; then \
       echo "SCRIPT signature follows:"; \
       /usr/bin/gpg --verify $0.sig $0; \
