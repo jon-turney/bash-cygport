@@ -1,8 +1,8 @@
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README bash-3.0/CYGWIN-PATCHES/bash.README
 --- bash-3.0-orig/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-07-26 21:09:39.000000000 -0600
-@@ -0,0 +1,219 @@
-+bash 3.0-10
++++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-07-30 10:05:21.000000000 -0600
+@@ -0,0 +1,225 @@
++bash 3.0-11
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -24,7 +24,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +  cygwin-1.5.18-1
 +  gcc-3.4.4-1
 +  binutils-20050610-1
-+  readline-5.0-3
++  readline-5.0-4
 +
 +Canonical homepage:
 +  http://www.gnu.org/software/bash
@@ -35,17 +35,17 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.0-10-src.tar.bz2
++  unpack bash-3.0-11-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +	 unpacked under /usr/src automatically
 +  cd /usr/src
-+  ./bash-3.0-10.sh all
++  ./bash-3.0-11.sh all
 +
 +This will create:
-+  /usr/src/bash-3.0-10.tar.bz2
-+  /usr/src/bash-3.0-10-src.tar.bz2
++  /usr/src/bash-3.0-11.tar.bz2
++  /usr/src/bash-3.0-11-src.tar.bz2
 +
-+Or use './bash-3.0-10.sh prep' to get a patched source directory
++Or use './bash-3.0-11.sh prep' to get a patched source directory
 +
 +-------------------------------------------
 +
@@ -133,6 +133,9 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +
 +Port Notes:
 +
++----- version 3.0-11 -- 2005-07-30 -----
++Apply patch from bashdb for better debugger interaction.
++
 +----- version 3.0-10 -- 2005-07-27 -----
 +Disable spawnve patch; it broke interactive shell editing.  Fix name
 +parsing rules to accept a:\file as absolute, not relative.
@@ -219,6 +222,9 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +Earlier versions were maintained by Corinna Vinschen. The history may be found
 +in the cygwin-announce archives.
 +
++For more information about this package, see the upstream documentation in
++/usr/share/doc/bash-3.0.
++
 +Cygwin port maintained by: Eric Blake <ebb9@byu.net>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/manifest.lst bash-3.0/CYGWIN-PATCHES/manifest.lst
@@ -253,8 +259,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.
 +fi
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/setup.hint bash-3.0/CYGWIN-PATCHES/setup.hint
 --- bash-3.0-orig/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/setup.hint	2005-07-26 21:13:37.000000000 -0600
-@@ -0,0 +1,13 @@
++++ bash-3.0/CYGWIN-PATCHES/setup.hint	2005-07-30 10:34:35.000000000 -0600
+@@ -0,0 +1,10 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"
 +ldesc: "Bash is an sh-compatible shell that incorporates useful
@@ -265,9 +271,6 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/setup.hint b
 +run by Bash without modification."
 +category: Base Shells
 +requires: cygwin libintl3 libiconv2 libncurses8 libreadline6
-+prev: 2.05b-17
-+curr: 3.0-8
-+test: 3.0-10
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/Makefile.in bash-3.0/Makefile.in
 --- bash-3.0-orig/Makefile.in	2004-03-17 06:34:39.000000000 -0700
 +++ bash-3.0/Makefile.in	2005-07-26 21:10:06.000000000 -0600
@@ -289,8 +292,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/Makefile.in bash-3.0/Makefi
  TILDE_LDFLAGS = -L$(TILDE_LIBDIR)
  TILDE_DEP = $(TILDE_LIBRARY)
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/bashline.c bash-3.0/bashline.c
---- bash-3.0-orig/bashline.c	2005-07-26 21:24:47.608625000 -0600
-+++ bash-3.0/bashline.c	2005-07-26 21:09:33.000000000 -0600
+--- bash-3.0-orig/bashline.c	2005-07-30 10:55:00.356250000 -0600
++++ bash-3.0/bashline.c	2005-07-30 10:47:13.121875000 -0600
 @@ -1,6 +1,6 @@
  /* bashline.c -- Bash's interface to the readline library. */
  
@@ -13725,7 +13728,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/doc/Makefile.in bash-3.0/do
  		install-info --dir-file=$(DESTDIR)$(infodir)/dir $(DESTDIR)$(infodir)/bash.info; \
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/execute_cmd.c
 --- bash-3.0-orig/execute_cmd.c	2004-07-04 12:12:58.000000000 -0600
-+++ bash-3.0/execute_cmd.c	2005-07-26 21:09:48.000000000 -0600
++++ bash-3.0/execute_cmd.c	2005-07-30 09:57:17.000000000 -0600
 @@ -1,6 +1,6 @@
  /* execute_command.c -- Execute a COMMAND structure. */
  
@@ -13774,7 +13777,204 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
  	  }
        }
  
-@@ -2718,6 +2717,9 @@
+@@ -1622,14 +1621,17 @@
+       if (echo_command_at_execute)
+ 	xtrace_print_for_command_head (for_command);
+ 
+-      /* Save this command unless it's a trap command. */
+-      if (this_command_name == 0 || (STREQ (this_command_name, "trap") == 0))
+-	{
+-	  FREE (the_printed_command_except_trap);
+-	  the_printed_command_except_trap = savestring (the_printed_command);
+-	}
++      if (!signal_in_progress(DEBUG_TRAP)) {
++	/* Save this command unless it's a trap command. */
++	if (this_command_name == 0 || (STREQ (this_command_name, "trap") == 0))
++	  {
++	    FREE (the_printed_command_except_trap);
++	    the_printed_command_except_trap = savestring (the_printed_command);
++	  }
+ 
++      }
+       retval = run_debug_trap ();
++      
+ #if defined (DEBUGGER)
+       /* In debugging mode, if the DEBUG trap returns a non-zero status, we
+ 	 skip the command. */
+@@ -1720,7 +1722,7 @@
+ {
+   WORD_LIST *new;
+   intmax_t expresult;
+-  int r;
++  int r = EXECUTION_SUCCESS;
+ 
+   new = expand_words_no_vars (l);
+   if (new)
+@@ -1731,10 +1733,12 @@
+ 
+       command_string_index = 0;
+       print_arith_command (new);
+-      FREE (the_printed_command_except_trap);
+-      the_printed_command_except_trap = savestring (the_printed_command);
+-
++      if (!signal_in_progress(DEBUG_TRAP)) {
++	FREE (the_printed_command_except_trap);
++	the_printed_command_except_trap = savestring (the_printed_command);
++      }
+       r = run_debug_trap ();
++
+       /* In debugging mode, if the DEBUG trap returns a non-zero status, we
+ 	 skip the command. */
+ #if defined (DEBUGGER)
+@@ -2025,7 +2029,8 @@
+   WORD_LIST *releaser, *list;
+   SHELL_VAR *v;
+   char *identifier, *ps3_prompt, *selection;
+-  int retval, list_len, show_menu, save_line_number;
++  int list_len, show_menu, save_line_number;
++  int retval = EXECUTION_SUCCESS;
+ 
+   if (check_identifier (select_command->name, 1) == 0)
+     return (EXECUTION_FAILURE);
+@@ -2039,10 +2044,17 @@
+   if (echo_command_at_execute)
+     xtrace_print_select_command_head (select_command);
+ 
+-  FREE (the_printed_command_except_trap);
+-  the_printed_command_except_trap = savestring (the_printed_command);
+-
++  if (!signal_in_progress(DEBUG_TRAP)) {
++    /* Save the command unless it was a trap command. */
++    if ( this_command_name == NULL 
++	 || strcmp(this_command_name, "trap") != 0) {
++      FREE (the_printed_command_except_trap);
++      the_printed_command_except_trap = savestring (the_printed_command);
++    }
++    
++  }
+   retval = run_debug_trap ();
++  
+ #if defined (DEBUGGER)
+   /* In debugging mode, if the DEBUG trap returns a non-zero status, we
+      skip the command. */
+@@ -2157,8 +2169,9 @@
+   WORD_LIST *wlist, *es;
+   PATTERN_LIST *clauses;
+   char *word, *pattern;
+-  int retval, match, ignore_return, save_line_number;
+-
++  int match, ignore_return, save_line_number;
++  int retval=EXECUTION_SUCCESS;
++  
+   save_line_number = line_number;
+   line_number = case_command->line;
+ 
+@@ -2168,13 +2181,15 @@
+   if (echo_command_at_execute)
+     xtrace_print_case_command_head (case_command);
+ 
+-  if (this_command_name == 0 || (STREQ (this_command_name, "trap") == 0))
+-    {
+-      FREE (the_printed_command_except_trap);
+-      the_printed_command_except_trap = savestring (the_printed_command);
+-    }
+-
++  if (!signal_in_progress(DEBUG_TRAP)) {
++    if (this_command_name == 0 || (STREQ (this_command_name, "trap") == 0))
++      {
++	FREE (the_printed_command_except_trap);
++	the_printed_command_except_trap = savestring (the_printed_command);
++      }
++  }
+   retval = run_debug_trap();
++  
+ #if defined (DEBUGGER)
+   /* In debugging mode, if the DEBUG trap returns a non-zero status, we
+      skip the command. */
+@@ -2380,8 +2395,9 @@
+ execute_arith_command (arith_command)
+      ARITH_COM *arith_command;
+ {
+-  int expok, save_line_number, retval;
++  int expok, save_line_number;
+   intmax_t expresult;
++  int retval = EXECUTION_SUCCESS;
+   WORD_LIST *new;
+ 
+   expresult = 0;
+@@ -2395,13 +2411,17 @@
+ 
+   command_string_index = 0;
+   print_arith_command (arith_command->exp);
+-  FREE (the_printed_command_except_trap);
+-  the_printed_command_except_trap = savestring (the_printed_command);
+-
+-  /* Run the debug trap before each arithmetic command, but do it after we
+-     update the line number information and before we expand the various
+-     words in the expression. */
++  
++  if (!signal_in_progress(DEBUG_TRAP)) {
++    FREE (the_printed_command_except_trap);
++    the_printed_command_except_trap = savestring (the_printed_command);
++
++    /* Run the debug trap before each arithmetic command, but do it after we
++       update the line number information and before we expand the various
++       words in the expression. */
++  }
+   retval = run_debug_trap ();
++  
+ #if defined (DEBUGGER)
+   /* In debugging mode, if the DEBUG trap returns a non-zero status, we
+      skip the command. */
+@@ -2546,12 +2566,15 @@
+ 
+   command_string_index = 0;
+   print_cond_command (cond_command);
+-  FREE (the_printed_command_except_trap);
+-  the_printed_command_except_trap = savestring (the_printed_command);
+-
+-  /* Run the debug trap before each conditional command, but do it after we
+-     update the line number information. */
++  if (!signal_in_progress(DEBUG_TRAP)) {
++    FREE (the_printed_command_except_trap);
++    the_printed_command_except_trap = savestring (the_printed_command);
++
++    /* Run the debug trap before each conditional command, but do it after we
++       update the line number information. */
++  }
+   retval = run_debug_trap ();
++  
+ #if defined (DEBUGGER)
+   /* In debugging mode, if the DEBUG trap returns a non-zero status, we
+      skip the command. */
+@@ -2699,15 +2722,18 @@
+   command_string_index = 0;
+   print_simple_command (simple_command);
+ 
+-  if (this_command_name == 0 || (STREQ (this_command_name, "trap") == 0))
+-    {
+-      FREE (the_printed_command_except_trap);
+-      the_printed_command_except_trap = savestring (the_printed_command);
+-    }
+-
+-  /* Run the debug trap before each simple command, but do it after we
+-     update the line number information. */
++  if (!signal_in_progress(DEBUG_TRAP)) {
++    if (this_command_name == 0 || (STREQ (this_command_name, "trap") == 0))
++      {
++	FREE (the_printed_command_except_trap);
++	the_printed_command_except_trap = savestring (the_printed_command);
++      }
++    
++    /* Run the debug trap before each simple command, but do it after we
++       update the line number information. */
++  }
+   result = run_debug_trap ();
++  
+ #if defined (DEBUGGER)
+   /* In debugging mode, if the DEBUG trap returns a non-zero status, we
+      skip the command. */
+@@ -2718,6 +2744,9 @@
    first_word_quoted =
      simple_command->words ? (simple_command->words->word->flags & W_QUOTED): 0;
  
@@ -13784,7 +13984,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
    old_last_command_subst_pid = last_command_subst_pid;
    old_last_async_pid = last_asynchronous_pid;
  
-@@ -2757,9 +2759,11 @@
+@@ -2757,9 +2786,11 @@
  	  already_forked = 1;
  	  simple_command->flags |= CMD_NO_FORK;
  
@@ -13799,7 +13999,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
  
  	  /* We need to do this before piping to handle some really
  	     pathological cases where one of the pipe file descriptors
-@@ -2981,9 +2985,9 @@
+@@ -2981,9 +3012,9 @@
    if (command_line == 0)
      command_line = savestring (the_printed_command);
  
@@ -13812,7 +14012,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
  
   return_result:
    bind_lastarg (lastarg);
-@@ -3506,7 +3510,7 @@
+@@ -3506,7 +3537,7 @@
     this gnarly hair, for no good reason.
  
     NOTE: callers expect this to fork or exit(). */
@@ -13821,7 +14021,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
  execute_disk_command (words, redirects, command_line, pipe_in, pipe_out,
  		      async, fds_to_close, cmdflags)
       WORD_LIST *words;
-@@ -3517,10 +3521,41 @@
+@@ -3517,10 +3548,41 @@
       int cmdflags;
  {
    char *pathname, *command, **args;
@@ -13830,8 +14030,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
 +  int spawn = 0;
    pid_t pid;
 +  int result = EXECUTION_SUCCESS;
- 
--  nofork = (cmdflags & CMD_NO_FORK);  /* Don't fork, just exec, if no pipes */
++
 +  if (pipe_in == NO_PIPE && pipe_out == NO_PIPE)
 +    {
 +      if (cmdflags & CMD_NO_FORK)  /* Don't fork, just exec, if no pipes */
@@ -13845,7 +14044,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
 +      else if (!async && !redirects && !job_control)
 +	{
 +	  int i;
-+
+ 
+-  nofork = (cmdflags & CMD_NO_FORK);  /* Don't fork, just exec, if no pipes */
 +	  spawn = 1;
 +	  if (fds_to_close)
 +	    {
@@ -13865,7 +14065,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
    pathname = words->word->word;
  
  #if defined (RESTRICTED_SHELL)
-@@ -3533,7 +3568,7 @@
+@@ -3533,7 +3595,7 @@
  
        /* If we're not going to fork below, we must already be in a child
           process or a context in which it's safe to call exit(2).  */
@@ -13874,7 +14074,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
  	exit (last_command_exit_value);
        else
  	goto parent_return;
-@@ -3552,7 +3587,7 @@
+@@ -3552,7 +3614,7 @@
       of COMMAND, since we want the error messages to be redirected. */
    /* If we can get away without forking and there are no pipes to deal with,
       don't bother to fork, just directly exec the command. */
@@ -13883,7 +14083,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
      pid = 0;
    else
      pid = make_child (savestring (command_line), async);
-@@ -3623,7 +3658,12 @@
+@@ -3623,7 +3685,12 @@
  	 leave it there, in the same format that the user used to
  	 type it in. */
        args = strvec_from_word_list (words, 0, 0, (int *)NULL);
@@ -13897,7 +14097,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
      }
    else
      {
-@@ -3635,6 +3675,8 @@
+@@ -3635,6 +3702,8 @@
  #endif
        FREE (command);
      }
@@ -13927,8 +14127,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/findcmd.c bash-3.0/findcmd.
       support Unix file system semantics.  This may produce wrong
       answers for non-AFS files when ruid != euid.  I hate AFS. */
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/general.c bash-3.0/general.c
---- bash-3.0-orig/general.c	2005-07-26 21:24:47.905500000 -0600
-+++ bash-3.0/general.c	2005-07-26 21:18:15.358625000 -0600
+--- bash-3.0-orig/general.c	2005-07-30 10:55:00.559375000 -0600
++++ bash-3.0/general.c	2005-07-30 10:47:13.528125000 -0600
 @@ -560,6 +560,10 @@
  absolute_program (string)
       const char *string;
@@ -13967,8 +14167,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/general.h bash-3.0/general.
  
  #if 0
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
---- bash-3.0-orig/jobs.c	2005-07-26 21:24:47.421125000 -0600
-+++ bash-3.0/jobs.c	2005-07-26 21:18:15.389875000 -0600
+--- bash-3.0-orig/jobs.c	2005-07-30 10:55:00.200000000 -0600
++++ bash-3.0/jobs.c	2005-07-30 10:47:13.559375000 -0600
 @@ -3,7 +3,7 @@
  /* This file works with both POSIX and BSD systems.  It implements job
     control. */
@@ -14441,8 +14641,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/complete.c bas
  
  #if defined (VISIBLE_STATS)
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/display.c bash-3.0/lib/readline/display.c
---- bash-3.0-orig/lib/readline/display.c	2005-07-26 21:24:46.358625000 -0600
-+++ bash-3.0/lib/readline/display.c	2005-07-26 21:18:15.436750000 -0600
+--- bash-3.0-orig/lib/readline/display.c	2005-07-30 10:54:58.996875000 -0600
++++ bash-3.0/lib/readline/display.c	2005-07-30 10:47:13.606250000 -0600
 @@ -286,7 +286,10 @@
    if (lp)
      *lp = rl;
@@ -14492,8 +14692,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/rltypedefs.h b
  
  #ifdef __cplusplus
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/subst.c bash-3.0/subst.c
---- bash-3.0-orig/subst.c	2005-07-26 21:24:48.046125000 -0600
-+++ bash-3.0/subst.c	2005-07-26 21:18:15.499250000 -0600
+--- bash-3.0-orig/subst.c	2005-07-30 10:55:00.653125000 -0600
++++ bash-3.0/subst.c	2005-07-30 10:47:13.653125000 -0600
 @@ -4,7 +4,7 @@
  /* ``Have a little faith, there's magic in the night.  You ain't a
       beauty, but, hey, you're alright.'' */
@@ -14592,6 +14792,225 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/test.c bash-3.0/test.c
  #  define EACCESS(path, mode)	access(path, mode)
  #else
  #  define EACCESS(path, mode)	test_eaccess(path, mode)
+diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/trap.c bash-3.0/trap.c
+--- bash-3.0-orig/trap.c	2003-12-19 14:28:50.000000000 -0700
++++ bash-3.0/trap.c	2005-07-30 09:57:17.000000000 -0600
+@@ -111,6 +111,12 @@
+ /* The (trapped) signal received while executing in the `wait' builtin */
+ int wait_signal_received;
+ 
++int 
++signal_in_progress(int trap_name)
++{
++  return 0 != (sigmodes[trap_name] & SIG_INPROGRESS);
++}
++
+ /* A value which can never be the target of a trap handler. */
+ #define IMPOSSIBLE_TRAP_HANDLER (SigHandler *)initialize_traps
+ 
+@@ -385,12 +391,12 @@
+ #endif
+ 
+ /* Make COMMAND_STRING be executed when SIGCHLD is caught iff the current
+-   SIGCHLD trap handler is DEFAULT_SIG. */
++   SIGCHLD trap handler is not already trapped. */
+ void
+ maybe_set_sigchld_trap (command_string)
+      char *command_string;
+ {
+-  if ((sigmodes[SIGCHLD] & SIG_TRAPPED) == 0)
++  if (!signal_is_trapped(SIGCHLD))
+     set_signal (SIGCHLD, command_string);
+ }
+ #endif /* JOB_CONTROL && SIGCHLD */
+@@ -434,10 +440,10 @@
+   if (sigmodes[SIGINT] & SIG_HARD_IGNORE)
+     return ((SigHandler *)SIG_IGN);
+ 
+-  else if (sigmodes[SIGINT] & SIG_IGNORED)
++  else if (signal_is_ignored(SIGINT))
+     return ((SigHandler *)set_signal_handler (SIGINT, SIG_IGN)); /* XXX */
+ 
+-  else if (sigmodes[SIGINT] & SIG_TRAPPED)
++  else if (signal_is_trapped(SIGINT))
+     return ((SigHandler *)set_signal_handler (SIGINT, trap_handler));
+ 
+   /* The signal is not trapped, so set the handler to the shell's special
+@@ -454,9 +460,9 @@
+ trap_to_sighandler (sig)
+      int sig;
+ {
+-  if (sigmodes[sig] & (SIG_IGNORED|SIG_HARD_IGNORE))
++  if (!signal_is_ignored(sig) || (sigmodes[sig] & SIG_HARD_IGNORE))
+     return (SIG_IGN);
+-  else if (sigmodes[sig] & SIG_TRAPPED)
++  else if (signal_is_trapped(sig))
+     return (trap_handler);
+   else
+     return (SIG_DFL);
+@@ -483,7 +489,7 @@
+ 
+   /* Make sure we have original_signals[sig] if the signal has not yet
+      been trapped. */
+-  if ((sigmodes[sig] & SIG_TRAPPED) == 0)
++  if (!signal_is_trapped(sig))
+     {
+       /* If we aren't sure of the original value, check it. */
+       if (original_signals[sig] == IMPOSSIBLE_TRAP_HANDLER)
+@@ -518,7 +524,7 @@
+ free_trap_command (sig)
+      int sig;
+ {
+-  if ((sigmodes[sig] & SIG_TRAPPED) && trap_list[sig] &&
++  if (signal_is_trapped(sig) && trap_list[sig] &&
+       (trap_list[sig] != (char *)IGNORE_SIG) &&
+       (trap_list[sig] != (char *)DEFAULT_SIG) &&
+       (trap_list[sig] != (char *)IMPOSSIBLE_TRAP_HANDLER))
+@@ -532,7 +538,7 @@
+      int sig;
+      char *value;
+ {
+-  if ((sigmodes[sig] & SIG_INPROGRESS) == 0)
++  if (!signal_in_progress(sig))
+     free_trap_command (sig);
+   trap_list[sig] = value;
+ 
+@@ -541,7 +547,7 @@
+     sigmodes[sig] |= SIG_IGNORED;
+   else
+     sigmodes[sig] &= ~SIG_IGNORED;
+-  if (sigmodes[sig] & SIG_INPROGRESS)
++  if (signal_in_progress(sig))
+     sigmodes[sig] |= SIG_CHANGED;
+ }
+ 
+@@ -577,7 +583,7 @@
+   if (SPECIAL_TRAP (sig))
+     {
+       if ((sig != DEBUG_TRAP && sig != ERROR_TRAP && sig != RETURN_TRAP) ||
+-	  (sigmodes[sig] & SIG_INPROGRESS) == 0)
++	  !signal_in_progress(sig))
+ 	free_trap_command (sig);
+       trap_list[sig] = (char *)NULL;
+       sigmodes[sig] &= ~SIG_TRAPPED;
+@@ -594,7 +600,7 @@
+     return;
+ 
+   /* If we aren't trapping this signal, don't bother doing anything else. */
+-  if ((sigmodes[sig] & SIG_TRAPPED) == 0)
++  if (!signal_is_trapped(sig))
+     return;
+ 
+   /* Only change the signal handler for SIG if it allows it. */
+@@ -613,7 +619,7 @@
+ ignore_signal (sig)
+      int sig;
+ {
+-  if (SPECIAL_TRAP (sig) && ((sigmodes[sig] & SIG_IGNORED) == 0))
++  if (SPECIAL_TRAP (sig) && (!signal_in_progress(sig)))
+     {
+       change_signal (sig, (char *)IGNORE_SIG);
+       return;
+@@ -627,7 +633,7 @@
+     return;
+ 
+   /* If already trapped and ignored, no change necessary. */
+-  if (sigmodes[sig] & SIG_IGNORED)
++  if (signal_in_progress(sig))
+     return;
+ 
+   /* Only change the signal handler for SIG if it allows it. */
+@@ -653,8 +659,8 @@
+   /* Run the trap only if signal 0 is trapped and not ignored, and we are not
+      currently running in the trap handler (call to exit in the list of
+      commands given to trap 0). */
+-  if ((sigmodes[EXIT_TRAP] & SIG_TRAPPED) &&
+-      (sigmodes[EXIT_TRAP] & (SIG_IGNORED|SIG_INPROGRESS)) == 0)
++  if (signal_is_trapped(EXIT_TRAP) 
++      && !signal_in_progress(EXIT_TRAP) && !signal_is_ignored(EXIT_TRAP))
+     {
+       trap_command = savestring (trap_list[EXIT_TRAP]);
+       sigmodes[EXIT_TRAP] &= ~SIG_TRAPPED;
+@@ -712,9 +718,9 @@
+   trap_exit_value = function_code = 0;
+   /* Run the trap only if SIG is trapped and not ignored, and we are not
+      currently executing in the trap handler. */
+-  if ((sigmodes[sig] & SIG_TRAPPED) && ((sigmodes[sig] & SIG_IGNORED) == 0) &&
++  if ( signal_is_trapped(sig) && !signal_is_ignored(sig) &&
+       (trap_list[sig] != (char *)IMPOSSIBLE_TRAP_HANDLER) &&
+-      ((sigmodes[sig] & SIG_INPROGRESS) == 0))
++      !signal_in_progress(sig))
+     {
+       old_trap = trap_list[sig];
+       sigmodes[sig] |= SIG_INPROGRESS;
+@@ -778,7 +784,8 @@
+ 
+   /* XXX - question:  should the DEBUG trap inherit the RETURN trap? */
+   trap_exit_value = 0;
+-  if ((sigmodes[DEBUG_TRAP] & SIG_TRAPPED) && ((sigmodes[DEBUG_TRAP] & SIG_IGNORED) == 0) && ((sigmodes[DEBUG_TRAP] & SIG_INPROGRESS) == 0))
++  if (signal_is_trapped(DEBUG_TRAP) && !signal_is_ignored(DEBUG_TRAP)
++      && !signal_in_progress(DEBUG_TRAP))
+     {
+       trap_exit_value = _run_trap_internal (DEBUG_TRAP, "debug trap");
+       
+@@ -798,7 +805,8 @@
+ void
+ run_error_trap ()
+ {
+-  if ((sigmodes[ERROR_TRAP] & SIG_TRAPPED) && ((sigmodes[ERROR_TRAP] & SIG_IGNORED) == 0) && (sigmodes[ERROR_TRAP] & SIG_INPROGRESS) == 0)
++  if (signal_is_trapped(ERROR_TRAP) && !signal_is_ignored(ERROR_TRAP)
++      && !signal_in_progress(ERROR_TRAP))
+     _run_trap_internal (ERROR_TRAP, "error trap");
+ }
+ 
+@@ -807,7 +815,8 @@
+ {
+   int old_exit_value;
+ 
+-  if ((sigmodes[RETURN_TRAP] & SIG_TRAPPED) && ((sigmodes[RETURN_TRAP] & SIG_IGNORED) == 0) && (sigmodes[RETURN_TRAP] & SIG_INPROGRESS) == 0)
++  if (signal_is_trapped(RETURN_TRAP) && !signal_is_ignored(RETURN_TRAP) 
++      && !signal_in_progress(RETURN_TRAP))
+     {
+       old_exit_value = last_command_exit_value;
+       _run_trap_internal (RETURN_TRAP, "return trap");
+@@ -868,7 +877,7 @@
+   register int i;
+ 
+   /* Take care of the exit trap first */
+-  if (sigmodes[EXIT_TRAP] & SIG_TRAPPED)
++  if (signal_is_trapped(EXIT_TRAP))
+     {
+       free_trap_command (EXIT_TRAP);
+       trap_list[EXIT_TRAP] = (char *)NULL;
+@@ -877,7 +886,7 @@
+ 
+   for (i = 1; i < NSIG; i++)
+     {
+-      if (sigmodes[i] & SIG_TRAPPED)
++      if (signal_is_trapped(sigmodes[i]))
+ 	{
+ 	  if (trap_list[i] == (char *)IGNORE_SIG)
+ 	    set_signal_handler (i, SIG_IGN);
+@@ -931,7 +940,7 @@
+      int sig;
+ {
+   /* Call the trap handler for SIG if the signal is trapped and not ignored. */
+-  if ((sigmodes[sig] & SIG_TRAPPED) && ((sigmodes[sig] & SIG_IGNORED) == 0))
++  if (signal_is_trapped(sig) && !signal_is_ignored(sig))
+     {
+       switch (sig)
+ 	{
+diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/trap.h bash-3.0/trap.h
+--- bash-3.0-orig/trap.h	2003-05-30 13:28:00.000000000 -0600
++++ bash-3.0/trap.h	2005-07-30 09:57:17.000000000 -0600
+@@ -89,6 +89,7 @@
+ extern int decode_signal __P((char *, int));
+ extern void run_interrupt_trap __P((void));
+ extern int maybe_call_trap_handler __P((int));
++extern int signal_in_progress __P((int));
+ extern int signal_is_trapped __P((int));
+ extern int signal_is_ignored __P((int));
+ extern int signal_is_special __P((int));
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/variables.h bash-3.0/variables.h
 --- bash-3.0-orig/variables.h	2003-07-31 08:26:47.000000000 -0600
 +++ bash-3.0/variables.h	2005-07-26 21:10:18.000000000 -0600

@@ -2,7 +2,7 @@
 #
 # Generic package build script
 #
-fullvers='$Id: generic-build-script,v 1.33 2005/06/22 02:24:26 igor Exp $'
+# $Id: generic-build-script,v 1.34 2005/07/30 16:01:12 igor Exp $
 #
 # Package maintainers: if the original source is not distributed as a
 # (possibly compressed) tarball, set the value of ${src_orig_pkg_name},
@@ -84,6 +84,10 @@ export checkfile=${topdir}/${FULLPKG}.check
 prefix=/usr
 sysconfdir=/etc
 localstatedir=/var
+
+# Interaction with bashdb
+export DEBUGGER_START_FILE=${prefix}/share/bashdb/bashdb-main.inc
+
 if [ -z "$MY_CFLAGS" ]; then
   MY_CFLAGS="-O2"
 fi
@@ -158,8 +162,8 @@ EOF
 
 # Provide version of generic-build-script modified to make this
 version() {
-    vers=`echo "$fullvers" | sed -e 's/.*,v \([0-9.]*\).*/\1/'`
-    echo "${FULLPKG}.sh based on generic-build-script $vers"
+    vers=`echo '$Revision: 1.34 $' | sed -e 's/Revision: //' -e 's/ *\\$//g'`
+    echo "$0 based on generic-build-script $vers"
 }
 
 # unpacks the original package source archive into ./${BASEPKG}/
@@ -427,7 +431,7 @@ checksig() {
 while test -n "$1" ; do
   case $1 in
     help|--help)	help ; STATUS=$? ;;
-    version|--version)	version ; STATUS=$? ;;
+    version|--version)	version ; STATUS=$?;;
     prep)		prep ; STATUS=$? ;;
     mkdirs)		mkdirs ; STATUS=$? ;;
     conf)		conf ; STATUS=$? ;;
