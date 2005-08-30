@@ -2,12 +2,12 @@
 #
 # Generic package build script
 #
-# $Id: generic-build-script,v 1.34 2005/07/30 16:01:12 igor Exp $
+# $Id: generic-build-script,v 1.35 2005/08/23 22:25:02 igor Exp $
 #
 # Package maintainers: if the original source is not distributed as a
 # (possibly compressed) tarball, set the value of ${src_orig_pkg_name},
 # and redefine the unpack() helper function appropriately.
-# Also, if the Makefile rule to run the test suite is not "test", change
+# Also, if the Makefile rule to run the test suite is not "check", change
 # the definition of ${test_rule} below.
 
 # find out where the build script is located
@@ -60,7 +60,8 @@ elif [ -e ${BASEPKG}.tar ] ; then
   export opt_decomp=
   export src_orig_pkg_name=${BASEPKG}.tar
 else
-  echo Cannot find original package.
+  echo "Cannot find PKG:${SHORTPKG} VER:${VER} REL:${REL}.  Rename $0 to"
+  echo "something more appropriate, and try again."
   exit 1
 fi
 
@@ -126,6 +127,8 @@ export test_rule=check
 if [ -z "$SIG" ]; then
   export SIG=1	# set to 1 to turn on signing by default
 fi
+# Sort in POSIX order.
+export LC_ALL=C
 
 # helper functions
 
@@ -142,7 +145,7 @@ Actions are:
     conf, configure	Configure the package (./configure)
     reconf		Rerun configure
     build, make		Build the package (make)
-    check, test	    	Run the testsuite (make ${test_rule})
+    check, test		Run the testsuite (make ${test_rule})
     clean		Remove built files (make clean)
     install		Install package to staging area (make install)
     list		List package contents
@@ -162,7 +165,7 @@ EOF
 
 # Provide version of generic-build-script modified to make this
 version() {
-    vers=`echo '$Revision: 1.34 $' | sed -e 's/Revision: //' -e 's/ *\\$//g'`
+    vers=`echo '$Revision: 1.35 $' | sed -e 's/Revision: //' -e 's/ *\\$//g'`
     echo "$0 based on generic-build-script $vers"
 }
 
@@ -222,7 +225,7 @@ reconf() {
 }
 build() {
   (cd ${objdir} && \
-  CFLAGS="${MY_CFLAGS}" make )
+  make CFLAGS="${MY_CFLAGS}" )
 }
 check() {
   (cd ${objdir} && \
@@ -273,15 +276,15 @@ install() {
     case "$fp" in \
       */) templist="$templist `cd ${srcdir} && find $fp -type f`" ;;
       *)  for f in ${srcdir}/$fp ; do \
-            if [ -f $f ] ; then \
-              templist="$templist $f"; \
-            fi ; \
-          done ;; \
+	    if [ -f $f ] ; then \
+	      templist="$templist $f"; \
+	    fi ; \
+	  done ;; \
     esac ; \
   done && \
   if [ ! "x$templist" = "x" ]; then \
     /usr/bin/install -m 644 $templist \
-         ${instdir}${prefix}/share/doc/${SHORTPKG} ; \
+	 ${instdir}${prefix}/share/doc/${SHORTPKG} ; \
   fi && \
   if [ -f ${srcdir}/CYGWIN-PATCHES/${PKG}.README ]; then \
     /usr/bin/install -m 644 ${srcdir}/CYGWIN-PATCHES/${PKG}.README \
@@ -303,6 +306,11 @@ install() {
     /usr/bin/install -m 755 ${srcdir}/CYGWIN-PATCHES/postinstall.sh \
       ${instdir}${sysconfdir}/postinstall/00${PKG}.sh ; \
   fi && \
+  mkdir -p ${instdir}${sysconfdir}/profile.d &&
+  /usr/bin/install -m 755 ${srcdir}/CYGWIN-PATCHES/postinstall.bat \
+    ${instdir}${sysconfdir}/postinstall/01${PKG}.bat &&
+  /usr/bin/install -m 755 ${srcdir}/CYGWIN-PATCHES/00${PKG}.sh \
+    ${instdir}${sysconfdir}/profile.d/00${PKG}.sh &&
   if [ -f ${srcdir}/CYGWIN-PATCHES/preremove.sh ] ; then \
     if [ ! -d ${instdir}${sysconfdir}/preremove ]; then \
       mkdir -p ${instdir}${sysconfdir}/preremove ; \
@@ -325,7 +333,7 @@ strip() {
 }
 list() {
   (cd ${instdir} && \
-  find . -name "*" ! -type d | sed 's%^\.%  %' ; \
+  find . -name "*" ! -type d | sed 's%^\.%  %' | sort ; \
   true )
 }
 depend() {
@@ -404,8 +412,8 @@ checksig() {
     fi; \
     for f in ${src_official_patches} ; do
       if [ -f ${topdir}/$f ] ; then
-        if [ -f ${topdir}/$f.sig ] ; then
-          echo "OFFICIAL PATCH $f signature follows:"
+	if [ -f ${topdir}/$f.sig ] ; then
+	  echo "OFFICIAL PATCH $f signature follows:"
 	  /usr/bin/gpg --verify ${topdir}/$f.sig ${topdir}/$f; \
 	else
 	  echo "OFFICIAL PATCH $f signature missing."
@@ -431,7 +439,7 @@ checksig() {
 while test -n "$1" ; do
   case $1 in
     help|--help)	help ; STATUS=$? ;;
-    version|--version)	version ; STATUS=$?;;
+    version|--version)	version ; STATUS=$? ;;
     prep)		prep ; STATUS=$? ;;
     mkdirs)		mkdirs ; STATUS=$? ;;
     conf)		conf ; STATUS=$? ;;
@@ -457,7 +465,8 @@ while test -n "$1" ; do
     first)		mkdirs && spkg && finish ; STATUS=$? ;;
     almostall)		checksig && prep && conf && build && install && \
 			strip && pkg && spkg ; STATUS=$? ;;
-    all)		almostall && finish ; STATUS=$? ;;
+    all)		checksig && prep && conf && build && install && \
+			strip && pkg && spkg && finish ; STATUS=$? ;;
     *) echo "Error: bad arguments" ; exit 1 ;;
   esac
   ( exit ${STATUS} ) || exit ${STATUS}

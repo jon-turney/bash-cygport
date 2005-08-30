@@ -1,8 +1,45 @@
+diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/00bash.sh bash-3.0/CYGWIN-PATCHES/00bash.sh
+--- bash-3.0-orig/CYGWIN-PATCHES/00bash.sh	1969-12-31 17:00:00.000000000 -0700
++++ bash-3.0/CYGWIN-PATCHES/00bash.sh	2005-08-29 06:52:33.000000000 -0600
+@@ -0,0 +1,33 @@
++# Bash profile.d script.  This is sourced by the default /etc/profile to
++# ensure that /bin/sh exists and is runnable, updating older copies of ash
++# or bash as appropriate, while leaving other shells (ksh or zsh) alone.
++# Because it is sourced by any shell, including ash, it must be portable and
++# not pollute the environment.
++
++# Short circuit: if sh is not older than bash, stop now.  /bin/test
++# correctly reports that a missing /bin/sh is older than an existing bash.
++
++/bin/test /bin/sh.exe -ot /bin/bash.exe || return 0
++
++# Is /bin/sh missing, or does it have bad dependencies making it unrunnable?
++
++test -f /bin/sh.exe && case `(cygcheck /bin/sh.exe) 2>&1` in
++    *Error:\ could\ not\ find* | *Cannot\ open*) # broken, needs update
++	;;
++    *) # We can run it.  Is the version from ash or bash?
++	case `(/bin/sh.exe --version) 2>&1` in
++	    Illegal\ option\ --* | GNU\ bash*) # ash or older bash
++		;;
++	    *) # anything else - quit now
++		return 0 ;;
++	esac ;;
++esac
++
++# Get here if missing, broken, ash, or old bash, so an update is needed.
++# Use copy, not hard or symlink, since symlinks won't work from Windows cmd
++# and a hardlink to a running shell can't be broken.
++# Record the attempt in /var/log/setup.log.full.
++
++echo "`date '+%Y/%m/%d %T'` /etc/profile.d/00bash.sh:" \
++    "Attempting to update /bin/sh.exe" >> /var/log/setup.log.full
++/bin/cp -fpuv /bin/bash.exe /bin/sh.exe 2>&1 >> /var/log/setup.log.full
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README bash-3.0/CYGWIN-PATCHES/bash.README
 --- bash-3.0-orig/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-07-30 10:05:21.000000000 -0600
-@@ -0,0 +1,225 @@
-+bash 3.0-11
++++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-08-29 06:49:17.000000000 -0600
+@@ -0,0 +1,233 @@
++bash 3.0-12
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -14,14 +51,14 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +As of July, 2005, bash is used as cygwin's /bin/sh.
 +
 +Runtime requirements (these or newer):
-+  cygwin-1.5.18-1
++  cygwin-1.5.19-1
 +  libiconv2-1.9.2-1
 +  libintl3-0.14.1-1
 +  libncurses8-5.4-2
 +  libreadline6-5.0-3
 +
 +Build conditions (these or newer):
-+  cygwin-1.5.18-1
++  cygwin snapshot 20050826 (will become cygwin-1.5.19-1)
 +  gcc-3.4.4-1
 +  binutils-20050610-1
 +  readline-5.0-4
@@ -30,29 +67,31 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +  http://www.gnu.org/software/bash
 +
 +Canonical download:
-+  http://www.gnu.org/software/bash/#downloading 
++  http://www.gnu.org/software/bash/#downloading
 +
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.0-11-src.tar.bz2
++  unpack bash-3.0-12-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +	 unpacked under /usr/src automatically
 +  cd /usr/src
-+  ./bash-3.0-11.sh all
++  ./bash-3.0-12.sh all
 +
 +This will create:
-+  /usr/src/bash-3.0-11.tar.bz2
-+  /usr/src/bash-3.0-11-src.tar.bz2
++  /usr/src/bash-3.0-12.tar.bz2
++  /usr/src/bash-3.0-12-src.tar.bz2
 +
-+Or use './bash-3.0-11.sh prep' to get a patched source directory
++Or use './bash-3.0-12.sh prep' to get a patched source directory
 +
 +-------------------------------------------
 +
 +Files included in the binary distribution:
 +
 +  /etc/postinstall/00bash.sh
++  /etc/postinstall/01bash.bat
 +  /etc/preremove/bash-manifest.lst
++  /etc/profile.d/00bash.sh
 +  /usr/bin/bash.exe
 +  /usr/bin/bashbug
 +  /usr/share/doc/bash-3.0/ABOUT-NLS
@@ -115,7 +154,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +  /usr/share/man/man1/shift.1
 +  /usr/share/man/man1/shopt.1
 +  /usr/share/man/man1/source.1
-+  /usr/share/man/man1/suspend.1  
++  /usr/share/man/man1/suspend.1
 +  /usr/share/man/man1/time.1
 +  /usr/share/man/man1/times.1
 +  /usr/share/man/man1/trap.1
@@ -132,6 +171,12 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +------------------
 +
 +Port Notes:
++
++----- version 3.0-12 -- 2005-08-30 -----
++Improve postinstall to work with current setup.exe, and add a
++profile.d script to try to ensure that /bin/sh exists even if
++postinstall failed.  Improve cd -P to always work, and cd -L to work
++better even in POSIX mode.
 +
 +----- version 3.0-11 -- 2005-07-30 -----
 +Apply patch from bashdb for better debugger interaction.
@@ -232,35 +277,42 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/manifest.lst
 +++ bash-3.0/CYGWIN-PATCHES/manifest.lst	2005-07-26 21:09:39.000000000 -0600
 @@ -0,0 +1 @@
 +usr/bin/sh.exe
+diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.bat bash-3.0/CYGWIN-PATCHES/postinstall.bat
+--- bash-3.0-orig/CYGWIN-PATCHES/postinstall.bat	1969-12-31 17:00:00.000000000 -0700
++++ bash-3.0/CYGWIN-PATCHES/postinstall.bat	2005-08-29 07:12:02.000000000 -0600
+@@ -0,0 +1,8 @@
++@echo off
++rem Bash postinstall script.  Since setup.exe 2.457.2.2 insists on using
++rem /bin/sh, and .bat scripts don't know about cygwin paths, this is a
++rem two-stage install: /etc/postinstall/00bash.sh updates this script, then
++rem this sources the real /etc/profile.d/00bash.sh with bash.
++
++echo If you see this line, run /etc/postinstall/00bash.sh first.
++REM BASHPATH -c '. /etc/profile.d/00bash.sh'
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.sh bash-3.0/CYGWIN-PATCHES/postinstall.sh
 --- bash-3.0-orig/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/postinstall.sh	2005-07-26 21:09:39.000000000 -0600
-@@ -0,0 +1,21 @@
++++ bash-3.0/CYGWIN-PATCHES/postinstall.sh	2005-08-29 07:22:32.000000000 -0600
+@@ -0,0 +1,16 @@
 +#!/bin/bash
-+# Bash postinstall script.  This ensures that /bin/sh exists and is
-+# runnable, updating older copies of ash or bash as appropriate, while
-+# leaving other shells (ksh or zsh) alone.
++# Bash postinstall script.  Since setup.exe 2.457.2.2 insists on using
++# /bin/sh, and .bat scripts don't know about cygwin paths, this is a two-stage
++# install: this script updates 01bash.bat, then that script sources the real
++# postinstall in /etc/profile.d/00bash.sh with bash.
 +
-+update=no
-+# Is /bin/sh missing, or have broken dependencies?
-+case `cygcheck /bin/sh.exe 2>&1` in
-+    *Error:\ could\ not\ find* | *Cannot\ open*) update=yes ;;
-+    *) # We can run it.  Is the version from ash or bash?
-+        case `/bin/sh.exe --version 2>&1` in
-+            Illegal\ option\ --* | GNU\ bash*) update=yes ;;
-+        esac ;;
-+esac
-+# Update, if needed.  Use copy, not hard or symlink, since symlinks won't
-+# work from Windows cmd and a hardlink to a running shell can't be broken.
-+# As a last-ditch fallback, try exec to stop the current running bash.
-+if test $update = yes ; then
-+    cp -fpuv /bin/bash.exe /bin/sh.exe ||
-+    exec cp -fpuv /bin/bash.exe /bin/sh.exe
-+fi
++# Work locally
++cd /etc/postinstall
++# Find the windows path to bash.  Mind those pesky backslashes
++bashpath=$(cygpath -w /bin/bash.exe | sed -e 's,\\,\\\\,g')
++# Create the proper .bat script, use temp file since in-place edits don't work
++sed -e "/^echo/d; s,REM BASHPATH,$bashpath," < ./01bash.bat > ./01bash.bat.t
++# Preserve the original permissions on 01bash.bat, since mv won't
++cp ./01bash.bat.t ./01bash.bat
++# Finally, clean up temp file
++rm ./01bash.bat.t
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/setup.hint bash-3.0/CYGWIN-PATCHES/setup.hint
 --- bash-3.0-orig/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/setup.hint	2005-07-30 10:34:35.000000000 -0600
-@@ -0,0 +1,10 @@
++++ bash-3.0/CYGWIN-PATCHES/setup.hint	2005-08-29 06:43:58.000000000 -0600
+@@ -0,0 +1,13 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"
 +ldesc: "Bash is an sh-compatible shell that incorporates useful
@@ -271,6 +323,9 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/setup.hint b
 +run by Bash without modification."
 +category: Base Shells
 +requires: cygwin libintl3 libiconv2 libncurses8 libreadline6
++prev: 2.05b-17
++curr: 3.0-11
++test: 3.0-12
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/Makefile.in bash-3.0/Makefile.in
 --- bash-3.0-orig/Makefile.in	2004-03-17 06:34:39.000000000 -0700
 +++ bash-3.0/Makefile.in	2005-07-26 21:10:06.000000000 -0600
@@ -292,8 +347,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/Makefile.in bash-3.0/Makefi
  TILDE_LDFLAGS = -L$(TILDE_LIBDIR)
  TILDE_DEP = $(TILDE_LIBRARY)
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/bashline.c bash-3.0/bashline.c
---- bash-3.0-orig/bashline.c	2005-07-30 10:55:00.356250000 -0600
-+++ bash-3.0/bashline.c	2005-07-30 10:47:13.121875000 -0600
+--- bash-3.0-orig/bashline.c	2005-08-29 21:24:37.287000000 -0600
++++ bash-3.0/bashline.c	2005-08-29 21:17:44.646375000 -0600
 @@ -1,6 +1,6 @@
  /* bashline.c -- Bash's interface to the readline library. */
  
@@ -14127,8 +14182,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/findcmd.c bash-3.0/findcmd.
       support Unix file system semantics.  This may produce wrong
       answers for non-AFS files when ruid != euid.  I hate AFS. */
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/general.c bash-3.0/general.c
---- bash-3.0-orig/general.c	2005-07-30 10:55:00.559375000 -0600
-+++ bash-3.0/general.c	2005-07-30 10:47:13.528125000 -0600
+--- bash-3.0-orig/general.c	2005-08-29 21:24:37.615125000 -0600
++++ bash-3.0/general.c	2005-08-29 21:17:44.974500000 -0600
 @@ -560,6 +560,10 @@
  absolute_program (string)
       const char *string;
@@ -14167,8 +14222,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/general.h bash-3.0/general.
  
  #if 0
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
---- bash-3.0-orig/jobs.c	2005-07-30 10:55:00.200000000 -0600
-+++ bash-3.0/jobs.c	2005-07-30 10:47:13.559375000 -0600
+--- bash-3.0-orig/jobs.c	2005-08-29 21:24:37.193250000 -0600
++++ bash-3.0/jobs.c	2005-08-29 21:17:44.990125000 -0600
 @@ -3,7 +3,7 @@
  /* This file works with both POSIX and BSD systems.  It implements job
     control. */
@@ -14641,8 +14696,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/complete.c bas
  
  #if defined (VISIBLE_STATS)
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/display.c bash-3.0/lib/readline/display.c
---- bash-3.0-orig/lib/readline/display.c	2005-07-30 10:54:58.996875000 -0600
-+++ bash-3.0/lib/readline/display.c	2005-07-30 10:47:13.606250000 -0600
+--- bash-3.0-orig/lib/readline/display.c	2005-08-29 21:24:35.583875000 -0600
++++ bash-3.0/lib/readline/display.c	2005-08-29 21:17:45.021375000 -0600
 @@ -286,7 +286,10 @@
    if (lp)
      *lp = rl;
@@ -14691,9 +14746,175 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/rltypedefs.h b
  #endif /* _RL_FUNCTION_TYPEDEF */
  
  #ifdef __cplusplus
+diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/sh/pathcanon.c bash-3.0/lib/sh/pathcanon.c
+--- bash-3.0-orig/lib/sh/pathcanon.c	2003-11-18 10:53:43.000000000 -0700
++++ bash-3.0/lib/sh/pathcanon.c	2005-08-27 15:38:57.000000000 -0600
+@@ -1,6 +1,6 @@
+ /* pathcanon.c -- Canonicalize and manipulate pathnames. */
+ 
+-/* Copyright (C) 2000 Free Software Foundation, Inc.
++/* Copyright (C) 2000, 2005 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -56,7 +56,7 @@
+   /* If the path is the first part of a network path, treat it as
+      existing. */
+   if (path[0] == '/' && path[1] == '/' && !strchr (path + 2, '/'))
+-    return 1; 
++    return 1;
+   /* Otherwise check for /cygdrive prefix. */
+   if (first_time)
+     {
+@@ -68,7 +68,7 @@
+     }
+   return !strcasecmp (path, user) || !strcasecmp (path, system);
+ }
+-#endif /* __CYGWIN__ */	
++#endif /* __CYGWIN__ */
+ 
+ /* Return 1 if PATH corresponds to a directory.  A function for debugging. */
+ static int
+@@ -150,7 +150,7 @@
+       if (ISDIRSEP(p[0])) /* null element */
+ 	p++;
+       else if(p[0] == '.' && PATHSEP(p[1]))	/* . and ./ */
+-	p += 1; 	/* don't count the separator in case it is nul */
++	p += 1;	/* don't count the separator in case it is nul */
+       else if (p[0] == '.' && p[1] == '.' && PATHSEP(p[2])) /* .. and ../ */
+ 	{
+ 	  p += 2; /* skip `..' */
+@@ -193,24 +193,25 @@
+ 	    *q++ = DIRSEP;
+ 	  while (*p && (ISDIRSEP(*p) == 0))
+ 	    *q++ = *p++;
+-	  /* Check here for a valid directory with _path_isdir. */
+-	  if (flags & PATH_CHECKEXISTS)
+-	    {
+-	      char c;
++	}
++    }
+ 
+-	      /* Make sure what we have so far corresponds to a valid
+-		 path before we chop some of it off. */
+-	      c = *q;
+-	      *q = '\0';
+-	      if (_path_isdir (result) == 0)
+-		{
+-		  if ((flags & PATH_NOALLOC) == 0)
+-		    free (result);
+-		  return ((char *)NULL);
+-		}
+-	      *q = c;
+-	    }
++  /* Check here for a valid directory with _path_isdir. */
++  if (flags & PATH_CHECKEXISTS)
++    {
++      char c;
++
++      /* Make sure what we have so far corresponds to a valid
++	 path before we return. */
++      c = *q;
++      *q = '\0';
++      if (_path_isdir (result) == 0)
++	{
++	  if ((flags & PATH_NOALLOC) == 0)
++	    free (result);
++	  return ((char *)NULL);
+ 	}
++      *q = c;
+     }
+ 
+   /* Empty string is really ``.'' or `/', depending on what we started with. */
+diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/sh/pathphys.c bash-3.0/lib/sh/pathphys.c
+--- bash-3.0-orig/lib/sh/pathphys.c	2003-11-18 11:03:15.000000000 -0700
++++ bash-3.0/lib/sh/pathphys.c	2005-08-27 14:38:51.000000000 -0600
+@@ -1,6 +1,6 @@
+ /* pathphys.c -- Return pathname with all symlinks expanded. */
+ 
+-/* Copyright (C) 2000 Free Software Foundation, Inc.
++/* Copyright (C) 2000, 2005 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -35,6 +35,7 @@
+ #include <stdio.h>
+ #include <chartypes.h>
+ #include <errno.h>
++#include <stdlib.h>
+ 
+ #include "shell.h"
+ 
+@@ -76,6 +77,9 @@
+      char *path;
+      int flags;
+ {
++#if defined __CYGWIN__
++  return realpath (path, NULL);
++#else
+   char tbuf[PATH_MAX+1], linkbuf[PATH_MAX+1];
+   char *result, *p, *q, *qsave, *qbase, *workpath;
+   int double_slash_path, linklen, nlink;
+@@ -103,13 +107,8 @@
+ 
+   /* This always gets an absolute pathname. */
+ 
+-  /* POSIX.2 says to leave a leading `//' alone.  On cygwin, we skip over any
+-     leading `x:' (dos drive name). */
+-#if defined (__CYGWIN__)
+-  qbase = (ISALPHA((unsigned char)workpath[0]) && workpath[1] == ':') ? workpath + 3 : workpath + 1;
+-#else
++  /* POSIX.2 says to leave a leading `//' alone.  */
+   qbase = workpath + 1;
+-#endif
+   double_slash_path = DOUBLE_SLASH (workpath);
+   qbase += double_slash_path;
+ 
+@@ -131,7 +130,7 @@
+       if (ISDIRSEP(p[0])) /* null element */
+ 	p++;
+       else if(p[0] == '.' && PATHSEP(p[1]))	/* . and ./ */
+-	p += 1; 	/* don't count the separator in case it is nul */
++	p += 1;	/* don't count the separator in case it is nul */
+       else if (p[0] == '.' && p[1] == '.' && PATHSEP(p[2])) /* .. and ../ */
+ 	{
+ 	  p += 2; /* skip `..' */
+@@ -158,7 +157,7 @@
+ #endif
+ 		  goto error;
+ 		}
+-		
++
+ 	      *q++ = *p++;
+ 	    }
+ 
+@@ -214,14 +213,10 @@
+ 	    {
+ 	      q = result;
+ 	      /* Duplicating some code here... */
+-#if defined (__CYGWIN__)
+-	      qbase = (ISALPHA((unsigned char)workpath[0]) && workpath[1] == ':') ? workpath + 3 : workpath + 1;
+-#else
+ 	      qbase = workpath + 1;
+-#endif
+ 	      double_slash_path = DOUBLE_SLASH (workpath);
+ 	      qbase += double_slash_path;
+-    
++
+ 	      for (p = workpath; p < qbase; )
+ 		*q++ = *p++;
+ 	      qbase = q;
+@@ -249,6 +244,7 @@
+     }
+ 
+   return (result);
++#endif /* ! __CYGWIN__ */
+ }
+ 
+ char *
 diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/subst.c bash-3.0/subst.c
---- bash-3.0-orig/subst.c	2005-07-30 10:55:00.653125000 -0600
-+++ bash-3.0/subst.c	2005-07-30 10:47:13.653125000 -0600
+--- bash-3.0-orig/subst.c	2005-08-29 21:24:37.708875000 -0600
++++ bash-3.0/subst.c	2005-08-29 21:17:45.052625000 -0600
 @@ -4,7 +4,7 @@
  /* ``Have a little faith, there's magic in the night.  You ain't a
       beauty, but, hey, you're alright.'' */
