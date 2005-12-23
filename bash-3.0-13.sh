@@ -2,7 +2,7 @@
 #
 # Generic package build script
 #
-# $Id: generic-build-script,v 1.35 2005/08/23 22:25:02 igor Exp $
+# $Id: generic-build-script,v 1.43 2005/10/18 05:01:36 igor Exp $
 #
 # Package maintainers: if the original source is not distributed as a
 # (possibly compressed) tarball, set the value of ${src_orig_pkg_name},
@@ -60,7 +60,7 @@ elif [ -e ${BASEPKG}.tar ] ; then
   export opt_decomp=
   export src_orig_pkg_name=${BASEPKG}.tar
 else
-  echo "Cannot find PKG:${SHORTPKG} VER:${VER} REL:${REL}.  Rename $0 to"
+  echo "Cannot find PKG:${PKG} VER:${VER} REL:${REL}.  Rename $0 to"
   echo "something more appropriate, and try again."
   exit 1
 fi
@@ -71,7 +71,12 @@ export src_orig_pkg=${topdir}/${src_orig_pkg_name}
 export src_pkg_name=${FULLPKG}-src.tar.bz2
 export src_patch_name=${FULLPKG}.patch
 export bin_pkg_name=${FULLPKG}.tar.bz2
-export src_official_patches=`echo bash30-[0-9][0-9][0-9]`
+export log_pkg_name=${FULLPKG}-BUILDLOGS.tar.bz2
+
+export configurelogname=${FULLPKG}-CONFIGURE.LOG
+export makelogname=${FULLPKG}-MAKE.LOG
+export checklogname=${FULLPKG}-CHECK.LOG
+export installlogname=${FULLPKG}-INSTALL.LOG
 
 export src_pkg=${topdir}/${src_pkg_name}
 export src_patch=${topdir}/${src_patch_name}
@@ -80,7 +85,14 @@ export srcdir=${topdir}/${BASEPKG}
 export objdir=${srcdir}/.build
 export instdir=${srcdir}/.inst
 export srcinstdir=${srcdir}/.sinst
-export checkfile=${topdir}/${FULLPKG}.check
+export buildlogdir=${srcdir}/.buildlogs
+export configurelogfile=${srcinstdir}/${configurelogname}
+export makelogfile=${srcinstdir}/${makelogname}
+export checklogfile=${srcinstdir}/${checklogname}
+export installlogfile=${srcinstdir}/${installlogname}
+
+export patchdir=${srcdir}/patches
+export src_official_patches=${patchdir}/bash30-[0-9][0-9][0-9]
 
 prefix=/usr
 sysconfdir=/etc
@@ -121,11 +133,12 @@ export install_docs="\
 	RELEASE_NOTES \
 	THANKS \
 	TODO \
+	USAGE \
 "
 export install_docs="`for i in ${install_docs}; do echo $i; done | sort -u`"
 export test_rule=check
 if [ -z "$SIG" ]; then
-  export SIG=1	# set to 1 to turn on signing by default
+  export SIG=0	# set to 1 to turn on signing by default
 fi
 # Sort in POSIX order.
 export LC_ALL=C
@@ -165,7 +178,7 @@ EOF
 
 # Provide version of generic-build-script modified to make this
 version() {
-    vers=`echo '$Revision: 1.35 $' | sed -e 's/Revision: //' -e 's/ *\\$//g'`
+    vers=`echo '$Revision: 1.43 $' | sed -e 's/Revision: //' -e 's/ *\\$//g'`
     echo "$0 based on generic-build-script $vers"
 }
 
@@ -178,18 +191,19 @@ unpack() {
 
 mkdirs() {
   (cd ${topdir} && \
-  rm -fr ${objdir} ${instdir} ${srcinstdir} && \
+  rm -fr ${objdir} ${instdir} ${srcinstdir} ${buildlogdir} && \
   mkdir -p ${objdir} && \
   mkdir -p ${instdir} && \
-  mkdir -p ${srcinstdir} &&
+  mkdir -p ${srcinstdir} && \
+  mkdir -p ${buildlogdir} &&
   expr $REL - 1 > ${objdir}/.build )
 }
 fixup() {
   (cd "$1" &&
   for f in ${src_official_patches} ; do
-    if [ -f ${topdir}/$f ] ; then
-      echo "APPLYING OFFICIAL PATCH $f"
-      patch -p2 < ${topdir}/$f
+    if [ -f $f ] ; then
+      echo "APPLYING OFFICIAL PATCH `basename $f`"
+      patch -Z -p2 < $f
     fi
   done &&
   find . \( -name '*.orig' -o -name '*.rej' \) -exec rm -f {} \;
@@ -203,7 +217,11 @@ prep() {
   if [ -f ${src_patch} ] ; then \
     patch -Z -p0 < ${src_patch} ;\
   fi && \
-  mkdirs )
+  mkdirs && \
+  if [ -f ${topdir}/${log_pkg_name} ] ; then \
+    cd ${buildlogdir} && \
+    tar xvjf ${topdir}/${log_pkg_name}
+  fi )
 }
 conf() {
   (cd ${objdir} && \
@@ -215,7 +233,8 @@ conf() {
   --mandir='${prefix}/share/man' --infodir='${prefix}/share/info' \
   --libexecdir='${sbindir}' --localstatedir="${localstatedir}" \
   --datadir='${prefix}/share' --without-libiconv-prefix \
-  --without-libintl-prefix --with-installed-readline )
+  --without-libintl-prefix --with-installed-readline 2>&1 | \
+  tee ${configurelogfile} )
 }
 reconf() {
   (cd ${topdir} && \
@@ -225,22 +244,23 @@ reconf() {
 }
 build() {
   (cd ${objdir} && \
-  make CFLAGS="${MY_CFLAGS}" )
+  make CFLAGS="${MY_CFLAGS}" 2>&1 | tee ${makelogfile} )
 }
 check() {
   (cd ${objdir} && \
-  make ${test_rule} | tee ${checkfile} 2>&1 )
+  make -k ${test_rule} 2>&1 | tee ${checklogfile} )
 }
 clean() {
   (cd ${objdir} && \
   make clean )
 }
 # postinstall named 00bash.sh to ensure /bin/sh exists before other
-# postinstall scripts are run, even when old ash package is uninstalled
+# postinstall scripts are run, even when old ash package is uninstalled.
+# bash.1 cannot be compressed if bash_builtins.1 is to work.
 install() {
   (cd ${objdir} && \
   rm -fr ${instdir}/* && \
-  make install DESTDIR=${instdir} && \
+  make install DESTDIR=${instdir} 2>&1 | tee ${installlogfile} && \
   for f in ${prefix}/share/info/dir ${prefix}/info/dir ; do \
     if [ -f ${instdir}${f} ] ; then \
       rm -f ${instdir}${f} ; \
@@ -255,11 +275,11 @@ install() {
     find ${instdir}${prefix}/share/info -name "*.info" | xargs -r gzip -q ; \
   fi && \
   if [ -d ${instdir}${prefix}/share/man ] ; then \
-    find ${instdir}${prefix}/share/man -name "*.1" -o -name "*.3" -o \
+    find ${instdir}${prefix}/share/man \( -name "*.1" -o -name "*.3" -o \
       -name "*.3x" -o -name "*.3pm" -o -name "*.5" -o -name "*.6" -o \
-      -name "*.7" -o -name "*.8" | xargs -r gzip -q ; \
+      -name "*.7" -o -name "*.8" \) ! -name "bash.1" | xargs -r gzip -q ; \
   fi && \
-  echo '.so man1/bash.1.gz' > ${instdir}${prefix}/share/man/man1/sh.1 &&
+  echo '.so man1/bash.1' > ${instdir}${prefix}/share/man/man1/sh.1 &&
   echo '.so man1/bash_builtins.1.gz' \
     > ${instdir}${prefix}/share/man/man1/alias.1 &&
   for f in bg bind break builtin caller case cd command compgen complete \
@@ -339,8 +359,8 @@ list() {
 depend() {
   (cd ${instdir} && \
   find ${instdir} -name "*.exe" -o -name "*.dll" | xargs -r cygcheck | \
-  sed -e '/\.exe/d' -e 's,\\,/,g' | sort -bu | xargs -r -n1 cygpath -u \
-  | xargs -r cygcheck -f | sed 's%^%  %' | sort -u ; \
+  sed -ne '/^  [^ ]/ s,\\,/,gp' | sort -bu | \
+  xargs -r -n1 cygpath -u | xargs -r cygcheck -f | sed 's%^%  %' | sort -u ; \
   true )
 }
 pkg() {
@@ -354,7 +374,7 @@ mkpatch() {
   mv ${BASEPKG} ../${BASEPKG}-orig && \
   fixup "../${BASEPKG}-orig" &&
   cd ${topdir} && \
-  diff -urN -x '.build' -x '.inst' -x '.sinst' \
+  diff -urN -x '.build' -x '.inst' -x '.sinst' -x 'build' -x 'patches' \
     ${BASEPKG}-orig ${BASEPKG} > \
     ${srcinstdir}/${src_patch_name} ; \
   rm -rf ${BASEPKG}-orig )
@@ -377,15 +397,17 @@ spkg() {
   if [ "${SIG}" -eq 1 ] ; then \
     cp $0.sig ${srcinstdir}/ ; \
   fi && \
-  for f in ${src_official_patches} ; do
-    if [ -f ${topdir}/$f ] ; then
-      cp ${topdir}/$f ${srcinstdir}/$f
-    fi
-    if [ -f ${topdir}/$f.sig ] ; then
-      cp ${topdir}/$f.sig ${srcinstdir}/$f.sig
-    fi
-  done &&
+  mkdir -p ${srcinstdir}/${BASEPKG} &&
+  rm -Rf ${srcinstdir}/${BASEPKG}/patches &&
+  cp -R ${patchdir} ${srcinstdir}/${BASEPKG}/patches &&
   cd ${srcinstdir} && \
+  if [ -e ${configurelogname} -o -e ${makelogname} -o \
+       -e ${checklogname} -o -e ${installlogname} ]; then
+    tar --ignore-failed-read -cvjf ${log_pkg_name} \
+      ${configurelogname} ${makelogname} ${checklogname} ${installlogname} && \
+    rm -f \
+      ${configurelogname} ${makelogname} ${checklogname} ${installlogname} ; \
+  fi && \
   tar cvjf ${src_pkg} * )
 }
 finish() {
@@ -411,10 +433,10 @@ checksig() {
       echo "ORIGINAL PACKAGE signature missing."; \
     fi; \
     for f in ${src_official_patches} ; do
-      if [ -f ${topdir}/$f ] ; then
-	if [ -f ${topdir}/$f.sig ] ; then
+      if [ -f $f ] ; then
+	if [ -f $f.sig ] ; then
 	  echo "OFFICIAL PATCH $f signature follows:"
-	  /usr/bin/gpg --verify ${topdir}/$f.sig ${topdir}/$f; \
+	  /usr/bin/gpg --verify $f.sig $f; \
 	else
 	  echo "OFFICIAL PATCH $f signature missing."
 	fi

@@ -1,4 +1,4 @@
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/00bash.sh bash-3.0/CYGWIN-PATCHES/00bash.sh
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/CYGWIN-PATCHES/00bash.sh bash-3.0/CYGWIN-PATCHES/00bash.sh
 --- bash-3.0-orig/CYGWIN-PATCHES/00bash.sh	1969-12-31 17:00:00.000000000 -0700
 +++ bash-3.0/CYGWIN-PATCHES/00bash.sh	2005-08-29 06:52:33.000000000 -0600
 @@ -0,0 +1,33 @@
@@ -35,11 +35,11 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/00bash.sh ba
 +echo "`date '+%Y/%m/%d %T'` /etc/profile.d/00bash.sh:" \
 +    "Attempting to update /bin/sh.exe" >> /var/log/setup.log.full
 +/bin/cp -fpuv /bin/bash.exe /bin/sh.exe 2>&1 >> /var/log/setup.log.full
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README bash-3.0/CYGWIN-PATCHES/bash.README
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/CYGWIN-PATCHES/bash.README bash-3.0/CYGWIN-PATCHES/bash.README
 --- bash-3.0-orig/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-08-29 06:49:17.000000000 -0600
-@@ -0,0 +1,233 @@
-+bash 3.0-12
++++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-12-23 06:06:55.000000000 -0700
+@@ -0,0 +1,162 @@
++bash 3.0-13
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -51,14 +51,14 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +As of July, 2005, bash is used as cygwin's /bin/sh.
 +
 +Runtime requirements (these or newer):
-+  cygwin-1.5.19-1
-+  libiconv2-1.9.2-1
-+  libintl3-0.14.1-1
++  cygwin-1.5.18-1
++  libiconv2-1.9.2-2
++  libintl3-0.14.5-1
 +  libncurses8-5.4-2
-+  libreadline6-5.0-3
++  libreadline6-5.0-4
 +
 +Build conditions (these or newer):
-+  cygwin snapshot 20050826 (will become cygwin-1.5.19-1)
++  cygwin-1.5.18-1
 +  gcc-3.4.4-1
 +  binutils-20050610-1
 +  readline-5.0-4
@@ -69,108 +69,37 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +Canonical download:
 +  http://www.gnu.org/software/bash/#downloading
 +
++License:
++  GPL
++
++Language:
++  C
++
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.0-12-src.tar.bz2
++  unpack bash-3.0-13-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +	 unpacked under /usr/src automatically
 +  cd /usr/src
-+  ./bash-3.0-12.sh all
++  ./bash-3.0-13.sh all
 +
 +This will create:
-+  /usr/src/bash-3.0-12.tar.bz2
-+  /usr/src/bash-3.0-12-src.tar.bz2
++  /usr/src/bash-3.0-13.tar.bz2
++  /usr/src/bash-3.0-13-src.tar.bz2
 +
-+Or use './bash-3.0-12.sh prep' to get a patched source directory
++Or use './bash-3.0-13.sh prep' to get a patched source directory
 +
-+-------------------------------------------
-+
-+Files included in the binary distribution:
-+
-+  /etc/postinstall/00bash.sh
-+  /etc/postinstall/01bash.bat
-+  /etc/preremove/bash-manifest.lst
-+  /etc/profile.d/00bash.sh
-+  /usr/bin/bash.exe
-+  /usr/bin/bashbug
-+  /usr/share/doc/bash-3.0/ABOUT-NLS
-+  /usr/share/doc/bash-3.0/AUTHORS
-+  /usr/share/doc/bash-3.0/CHANGES
-+  /usr/share/doc/bash-3.0/COPYING
-+  /usr/share/doc/bash-3.0/INSTALL
-+  /usr/share/doc/bash-3.0/NEWS
-+  /usr/share/doc/bash-3.0/NOTES
-+  /usr/share/doc/bash-3.0/README
-+  /usr/share/doc/Cygwin/bash-3.0.README (this file)
-+  /usr/share/info/bash.info.gz
-+  /usr/share/locale/en@boldquot/LC_MESSAGES/bash.mo
-+  /usr/share/locale/en@quot/LC_MESSAGES/bash.mo
-+  /usr/share/man/man1/alias.1
-+  /usr/share/man/man1/bashbug.1.gz
-+  /usr/share/man/man1/bash.1.gz
-+  /usr/share/man/man1/bash_builtins.1.gz
-+  /usr/share/man/man1/bg.1
-+  /usr/share/man/man1/bind.1
-+  /usr/share/man/man1/break.1
-+  /usr/share/man/man1/builtin.1
-+  /usr/share/man/man1/caller.1
-+  /usr/share/man/man1/case.1
-+  /usr/share/man/man1/cd.1
-+  /usr/share/man/man1/command.1
-+  /usr/share/man/man1/compgen.1
-+  /usr/share/man/man1/complete.1
-+  /usr/share/man/man1/continue.1
-+  /usr/share/man/man1/declare.1
-+  /usr/share/man/man1/dirs.1
-+  /usr/share/man/man1/disown.1
-+  /usr/share/man/man1/enable.1
-+  /usr/share/man/man1/eval.1
-+  /usr/share/man/man1/exec.1
-+  /usr/share/man/man1/exit.1
-+  /usr/share/man/man1/export.1
-+  /usr/share/man/man1/fc.1
-+  /usr/share/man/man1/fg.1
-+  /usr/share/man/man1/for.1
-+  /usr/share/man/man1/function.1
-+  /usr/share/man/man1/getopts.1
-+  /usr/share/man/man1/hash.1
-+  /usr/share/man/man1/help.1
-+  /usr/share/man/man1/history.1
-+  /usr/share/man/man1/if.1
-+  /usr/share/man/man1/in.1
-+  /usr/share/man/man1/jobs.1
-+  /usr/share/man/man1/let.1
-+  /usr/share/man/man1/local.1
-+  /usr/share/man/man1/logout.1
-+  /usr/share/man/man1/popd.1
-+  /usr/share/man/man1/pushd.1
-+  /usr/share/man/man1/read.1
-+  /usr/share/man/man1/readonly.1
-+  /usr/share/man/man1/return.1
-+  /usr/share/man/man1/select.1
-+  /usr/share/man/man1/set.1
-+  /usr/share/man/man1/sh.1
-+  /usr/share/man/man1/shift.1
-+  /usr/share/man/man1/shopt.1
-+  /usr/share/man/man1/source.1
-+  /usr/share/man/man1/suspend.1
-+  /usr/share/man/man1/time.1
-+  /usr/share/man/man1/times.1
-+  /usr/share/man/man1/trap.1
-+  /usr/share/man/man1/type.1
-+  /usr/share/man/man1/typeset.1
-+  /usr/share/man/man1/ulimit.1
-+  /usr/share/man/man1/umask.1
-+  /usr/share/man/man1/unalias.1
-+  /usr/share/man/man1/unset.1
-+  /usr/share/man/man1/until.1
-+  /usr/share/man/man1/wait.1
-+  /usr/share/man/man1/while.1
++To find out the files included in the binary distribution, you can use
++"cygcheck -l bash", or browse the listing for the appropriate version
++at <http://cygwin.com/packages/>.
 +
 +------------------
 +
 +Port Notes:
++
++----- version 3.0-13 -- 2005-12-23 -----
++Fix bash_builtins man page.
 +
 +----- version 3.0-12 -- 2005-08-30 -----
 +Improve postinstall to work with current setup.exe, and add a
@@ -272,12 +201,12 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/bash.README 
 +
 +Cygwin port maintained by: Eric Blake <ebb9@byu.net>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/manifest.lst bash-3.0/CYGWIN-PATCHES/manifest.lst
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/CYGWIN-PATCHES/manifest.lst bash-3.0/CYGWIN-PATCHES/manifest.lst
 --- bash-3.0-orig/CYGWIN-PATCHES/manifest.lst	1969-12-31 17:00:00.000000000 -0700
 +++ bash-3.0/CYGWIN-PATCHES/manifest.lst	2005-07-26 21:09:39.000000000 -0600
 @@ -0,0 +1 @@
 +usr/bin/sh.exe
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.bat bash-3.0/CYGWIN-PATCHES/postinstall.bat
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/CYGWIN-PATCHES/postinstall.bat bash-3.0/CYGWIN-PATCHES/postinstall.bat
 --- bash-3.0-orig/CYGWIN-PATCHES/postinstall.bat	1969-12-31 17:00:00.000000000 -0700
 +++ bash-3.0/CYGWIN-PATCHES/postinstall.bat	2005-08-29 07:12:02.000000000 -0600
 @@ -0,0 +1,8 @@
@@ -289,7 +218,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.
 +
 +echo If you see this line, run /etc/postinstall/00bash.sh first.
 +REM BASHPATH -c '. /etc/profile.d/00bash.sh'
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.sh bash-3.0/CYGWIN-PATCHES/postinstall.sh
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/CYGWIN-PATCHES/postinstall.sh bash-3.0/CYGWIN-PATCHES/postinstall.sh
 --- bash-3.0-orig/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
 +++ bash-3.0/CYGWIN-PATCHES/postinstall.sh	2005-08-29 07:22:32.000000000 -0600
 @@ -0,0 +1,16 @@
@@ -309,10 +238,10 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/postinstall.
 +cp ./01bash.bat.t ./01bash.bat
 +# Finally, clean up temp file
 +rm ./01bash.bat.t
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/setup.hint bash-3.0/CYGWIN-PATCHES/setup.hint
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/CYGWIN-PATCHES/setup.hint bash-3.0/CYGWIN-PATCHES/setup.hint
 --- bash-3.0-orig/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/setup.hint	2005-08-29 06:43:58.000000000 -0600
-@@ -0,0 +1,13 @@
++++ bash-3.0/CYGWIN-PATCHES/setup.hint	2005-12-23 07:11:34.000000000 -0700
+@@ -0,0 +1,10 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"
 +ldesc: "Bash is an sh-compatible shell that incorporates useful
@@ -322,11 +251,8 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/CYGWIN-PATCHES/setup.hint b
 +programming and interactive use. In addition, most sh scripts can be
 +run by Bash without modification."
 +category: Base Shells
-+requires: cygwin libintl3 libiconv2 libncurses8 libreadline6
-+prev: 2.05b-17
-+curr: 3.0-11
-+test: 3.0-12
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/Makefile.in bash-3.0/Makefile.in
++requires: cygwin libintl3 libreadline6
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/Makefile.in bash-3.0/Makefile.in
 --- bash-3.0-orig/Makefile.in	2004-03-17 06:34:39.000000000 -0700
 +++ bash-3.0/Makefile.in	2005-07-26 21:10:06.000000000 -0600
 @@ -1,6 +1,6 @@
@@ -346,9 +272,9 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/Makefile.in bash-3.0/Makefi
  TILDE_LIBRARY = $(TILDE_LIBDIR)/libtilde.a
  TILDE_LDFLAGS = -L$(TILDE_LIBDIR)
  TILDE_DEP = $(TILDE_LIBRARY)
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/bashline.c bash-3.0/bashline.c
---- bash-3.0-orig/bashline.c	2005-08-29 21:24:37.287000000 -0600
-+++ bash-3.0/bashline.c	2005-08-29 21:17:44.646375000 -0600
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/bashline.c bash-3.0/bashline.c
+--- bash-3.0-orig/bashline.c	2005-12-23 07:28:58.871125000 -0700
++++ bash-3.0/bashline.c	2005-12-23 07:22:33.683625000 -0700
 @@ -1,6 +1,6 @@
  /* bashline.c -- Bash's interface to the readline library. */
  
@@ -419,7 +345,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/bashline.c bash-3.0/bashlin
  	}
        free (local_dirname);
        *dirname = temp2;
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/config-top.h bash-3.0/config-top.h
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/config-top.h bash-3.0/config-top.h
 --- bash-3.0-orig/config-top.h	2003-08-05 08:36:12.000000000 -0600
 +++ bash-3.0/config-top.h	2005-07-26 21:09:36.000000000 -0600
 @@ -3,7 +3,7 @@
@@ -437,7 +363,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/config-top.h bash-3.0/confi
     sshd and source the .bashrc if so (like the rshd behavior). */
 -/* #define SSH_SOURCE_BASHRC */
 +#define SSH_SOURCE_BASHRC
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/config.h.in bash-3.0/config.h.in
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/config.h.in bash-3.0/config.h.in
 --- bash-3.0-orig/config.h.in	2004-07-21 14:08:31.000000000 -0600
 +++ bash-3.0/config.h.in	2005-07-26 21:09:36.000000000 -0600
 @@ -607,6 +607,9 @@
@@ -460,7 +386,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/config.h.in bash-3.0/config
  /* Define if you have the `dcgettext' function. */
  #undef HAVE_DCGETTEXT
  
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/configure bash-3.0/configure
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/configure bash-3.0/configure
 --- bash-3.0-orig/configure	2004-07-21 14:18:56.000000000 -0600
 +++ bash-3.0/configure	2005-07-26 21:09:37.000000000 -0600
 @@ -1,12 +1,11 @@
@@ -13691,7 +13617,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/configure bash-3.0/configur
  
  
    { echo "$as_me:$LINENO: executing $ac_dest commands" >&5
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/configure.in bash-3.0/configure.in
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/configure.in bash-3.0/configure.in
 --- bash-3.0-orig/configure.in	2004-07-21 14:06:54.000000000 -0600
 +++ bash-3.0/configure.in	2005-07-26 21:09:37.000000000 -0600
 @@ -5,7 +5,7 @@
@@ -13758,7 +13684,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/configure.in bash-3.0/confi
  AC_REPLACE_FUNCS(rename)
  
  dnl checks for c library functions
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/doc/Makefile.in bash-3.0/doc/Makefile.in
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/doc/Makefile.in bash-3.0/doc/Makefile.in
 --- bash-3.0-orig/doc/Makefile.in	2004-07-27 06:57:48.000000000 -0600
 +++ bash-3.0/doc/Makefile.in	2005-07-26 21:09:41.000000000 -0600
 @@ -167,7 +167,7 @@
@@ -13781,7 +13707,27 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/doc/Makefile.in bash-3.0/do
  # run install-info if it is present to update the info directory
  	if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then \
  		install-info --dir-file=$(DESTDIR)$(infodir)/dir $(DESTDIR)$(infodir)/bash.info; \
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/execute_cmd.c
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/doc/builtins.1 bash-3.0/doc/builtins.1
+--- bash-3.0-orig/doc/builtins.1	2004-05-24 08:19:55.000000000 -0600
++++ bash-3.0/doc/builtins.1	2005-12-23 07:19:07.000000000 -0700
+@@ -2,7 +2,7 @@
+ .\" and to get the list of builtins to come up with the man command.
+ .TH BASH_BUILTINS 1 "2004 Apr 20" "GNU Bash-3.0"
+ .SH NAME
+-bash, :, ., [, alias, bg, bind, break, builtin, cd, command, compgen, complete, 
++bash, :, ., [, alias, bg, bind, break, builtin, cd, command, compgen, complete,
+ continue, declare, dirs, disown, echo, enable, eval, exec, exit,
+ export, fc, fg, getopts, hash, help, history, jobs, kill,
+ let, local, logout, popd, printf, pushd, pwd, read, readonly, return, set,
+@@ -10,6 +10,6 @@
+ ulimit, umask, unalias, unset, wait \- bash built-in commands, see \fBbash\fR(1)
+ .SH BASH BUILTIN COMMANDS
+ .nr zZ 1
+-.so bash.1
++.so man1/bash.1
+ .SH SEE ALSO
+ bash(1), sh(1)
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/execute_cmd.c bash-3.0/execute_cmd.c
 --- bash-3.0-orig/execute_cmd.c	2004-07-04 12:12:58.000000000 -0600
 +++ bash-3.0/execute_cmd.c	2005-07-30 09:57:17.000000000 -0600
 @@ -1,6 +1,6 @@
@@ -14161,7 +14107,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/execute_cmd.c bash-3.0/exec
  }
  
  /* CPP defines to decide whether a particular index into the #! line
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/findcmd.c bash-3.0/findcmd.c
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/findcmd.c bash-3.0/findcmd.c
 --- bash-3.0-orig/findcmd.c	2003-09-12 12:50:45.000000000 -0600
 +++ bash-3.0/findcmd.c	2005-07-26 21:09:49.000000000 -0600
 @@ -1,6 +1,6 @@
@@ -14181,9 +14127,9 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/findcmd.c bash-3.0/findcmd.
    /* We have to use access(2) to determine access because AFS does not
       support Unix file system semantics.  This may produce wrong
       answers for non-AFS files when ruid != euid.  I hate AFS. */
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/general.c bash-3.0/general.c
---- bash-3.0-orig/general.c	2005-08-29 21:24:37.615125000 -0600
-+++ bash-3.0/general.c	2005-08-29 21:17:44.974500000 -0600
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/general.c bash-3.0/general.c
+--- bash-3.0-orig/general.c	2005-12-23 07:28:59.168000000 -0700
++++ bash-3.0/general.c	2005-12-23 07:22:34.074250000 -0700
 @@ -560,6 +560,10 @@
  absolute_program (string)
       const char *string;
@@ -14195,7 +14141,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/general.c bash-3.0/general.
    return ((char *)xstrchr (string, '/') != (char *)NULL);
  }
  
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/general.h bash-3.0/general.h
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/general.h bash-3.0/general.h
 --- bash-3.0-orig/general.h	2004-04-14 17:44:58.000000000 -0600
 +++ bash-3.0/general.h	2005-07-26 21:09:49.000000000 -0600
 @@ -248,14 +248,19 @@
@@ -14221,9 +14167,9 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/general.h bash-3.0/general.
  #define PATHSEP(c)	(ISDIRSEP(c) || (c) == 0)
  
  #if 0
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
---- bash-3.0-orig/jobs.c	2005-08-29 21:24:37.193250000 -0600
-+++ bash-3.0/jobs.c	2005-08-29 21:17:44.990125000 -0600
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/jobs.c bash-3.0/jobs.c
+--- bash-3.0-orig/jobs.c	2005-12-23 07:28:58.621125000 -0700
++++ bash-3.0/jobs.c	2005-12-23 07:22:34.089875000 -0700
 @@ -3,7 +3,7 @@
  /* This file works with both POSIX and BSD systems.  It implements job
     control. */
@@ -14583,7 +14529,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.c bash-3.0/jobs.c
  	  nohup_job (i);
      }
  
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.h bash-3.0/jobs.h
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/jobs.h bash-3.0/jobs.h
 --- bash-3.0-orig/jobs.h	2004-03-17 06:34:15.000000000 -0700
 +++ bash-3.0/jobs.h	2005-07-26 21:09:50.000000000 -0600
 @@ -1,6 +1,6 @@
@@ -14629,7 +14575,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/jobs.h bash-3.0/jobs.h
  
  extern int get_tty_state __P((void));
  extern int set_tty_state __P((void));
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/complete.c bash-3.0/lib/readline/complete.c
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/lib/readline/complete.c bash-3.0/lib/readline/complete.c
 --- bash-3.0-orig/lib/readline/complete.c	2004-07-01 11:57:58.000000000 -0600
 +++ bash-3.0/lib/readline/complete.c	2005-07-26 21:09:56.000000000 -0600
 @@ -1,6 +1,6 @@
@@ -14695,9 +14641,9 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/complete.c bas
  	  strcpy (new_full_pathname + slen + 1, to_print);
  
  #if defined (VISIBLE_STATS)
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/display.c bash-3.0/lib/readline/display.c
---- bash-3.0-orig/lib/readline/display.c	2005-08-29 21:24:35.583875000 -0600
-+++ bash-3.0/lib/readline/display.c	2005-08-29 21:17:45.021375000 -0600
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/lib/readline/display.c bash-3.0/lib/readline/display.c
+--- bash-3.0-orig/lib/readline/display.c	2005-12-23 07:28:57.058625000 -0700
++++ bash-3.0/lib/readline/display.c	2005-12-23 07:22:34.105500000 -0700
 @@ -286,7 +286,10 @@
    if (lp)
      *lp = rl;
@@ -14710,7 +14656,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/display.c bash
    if (niflp)
      *niflp = invfl;
    if  (vlp)
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/readline.c bash-3.0/lib/readline/readline.c
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/lib/readline/readline.c bash-3.0/lib/readline/readline.c
 --- bash-3.0-orig/lib/readline/readline.c	2003-09-18 09:04:18.000000000 -0600
 +++ bash-3.0/lib/readline/readline.c	2005-07-26 21:10:00.000000000 -0600
 @@ -996,3 +996,7 @@
@@ -14721,7 +14667,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/readline.c bas
 +/* Cygwin added rl_getenv_hook to the API for dynamic linking, but static
 +   linking does not use it.  */
 +rl_getenv_func_t *rl_getenv_hook = (rl_getenv_func_t *)NULL;
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/readline.h bash-3.0/lib/readline/readline.h
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/lib/readline/readline.h bash-3.0/lib/readline/readline.h
 --- bash-3.0-orig/lib/readline/readline.h	2004-07-13 08:54:27.000000000 -0600
 +++ bash-3.0/lib/readline/readline.h	2005-07-26 21:10:00.000000000 -0600
 @@ -829,6 +829,9 @@
@@ -14734,7 +14680,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/readline.h bas
  #ifdef __cplusplus
  }
  #endif
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/rltypedefs.h bash-3.0/lib/readline/rltypedefs.h
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/lib/readline/rltypedefs.h bash-3.0/lib/readline/rltypedefs.h
 --- bash-3.0-orig/lib/readline/rltypedefs.h	2004-01-28 11:31:26.000000000 -0700
 +++ bash-3.0/lib/readline/rltypedefs.h	2005-07-26 21:10:00.000000000 -0600
 @@ -85,6 +85,8 @@
@@ -14746,7 +14692,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/readline/rltypedefs.h b
  #endif /* _RL_FUNCTION_TYPEDEF */
  
  #ifdef __cplusplus
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/sh/pathcanon.c bash-3.0/lib/sh/pathcanon.c
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/lib/sh/pathcanon.c bash-3.0/lib/sh/pathcanon.c
 --- bash-3.0-orig/lib/sh/pathcanon.c	2003-11-18 10:53:43.000000000 -0700
 +++ bash-3.0/lib/sh/pathcanon.c	2005-08-27 15:38:57.000000000 -0600
 @@ -1,6 +1,6 @@
@@ -14826,7 +14772,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/sh/pathcanon.c bash-3.0
      }
  
    /* Empty string is really ``.'' or `/', depending on what we started with. */
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/sh/pathphys.c bash-3.0/lib/sh/pathphys.c
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/lib/sh/pathphys.c bash-3.0/lib/sh/pathphys.c
 --- bash-3.0-orig/lib/sh/pathphys.c	2003-11-18 11:03:15.000000000 -0700
 +++ bash-3.0/lib/sh/pathphys.c	2005-08-27 14:38:51.000000000 -0600
 @@ -1,6 +1,6 @@
@@ -14912,9 +14858,9 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/lib/sh/pathphys.c bash-3.0/
  }
  
  char *
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/subst.c bash-3.0/subst.c
---- bash-3.0-orig/subst.c	2005-08-29 21:24:37.708875000 -0600
-+++ bash-3.0/subst.c	2005-08-29 21:17:45.052625000 -0600
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/subst.c bash-3.0/subst.c
+--- bash-3.0-orig/subst.c	2005-12-23 07:28:59.464875000 -0700
++++ bash-3.0/subst.c	2005-12-23 07:22:34.152375000 -0700
 @@ -4,7 +4,7 @@
  /* ``Have a little faith, there's magic in the night.  You ain't a
       beauty, but, hey, you're alright.'' */
@@ -14992,7 +14938,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/subst.c bash-3.0/subst.c
  
        /* The currently executing shell is not interactive. */
        interactive = 0;
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/test.c bash-3.0/test.c
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/test.c bash-3.0/test.c
 --- bash-3.0-orig/test.c	2003-12-19 14:27:28.000000000 -0700
 +++ bash-3.0/test.c	2005-07-26 21:10:12.000000000 -0600
 @@ -2,7 +2,7 @@
@@ -15013,7 +14959,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/test.c bash-3.0/test.c
  #  define EACCESS(path, mode)	access(path, mode)
  #else
  #  define EACCESS(path, mode)	test_eaccess(path, mode)
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/trap.c bash-3.0/trap.c
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/trap.c bash-3.0/trap.c
 --- bash-3.0-orig/trap.c	2003-12-19 14:28:50.000000000 -0700
 +++ bash-3.0/trap.c	2005-07-30 09:57:17.000000000 -0600
 @@ -111,6 +111,12 @@
@@ -15221,7 +15167,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/trap.c bash-3.0/trap.c
      {
        switch (sig)
  	{
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/trap.h bash-3.0/trap.h
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/trap.h bash-3.0/trap.h
 --- bash-3.0-orig/trap.h	2003-05-30 13:28:00.000000000 -0600
 +++ bash-3.0/trap.h	2005-07-30 09:57:17.000000000 -0600
 @@ -89,6 +89,7 @@
@@ -15232,7 +15178,7 @@ diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/trap.h bash-3.0/trap.h
  extern int signal_is_trapped __P((int));
  extern int signal_is_ignored __P((int));
  extern int signal_is_special __P((int));
-diff -urN -x .build -x .inst -x .sinst bash-3.0-orig/variables.h bash-3.0/variables.h
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/variables.h bash-3.0/variables.h
 --- bash-3.0-orig/variables.h	2003-07-31 08:26:47.000000000 -0600
 +++ bash-3.0/variables.h	2005-07-26 21:10:18.000000000 -0600
 @@ -250,6 +250,7 @@
