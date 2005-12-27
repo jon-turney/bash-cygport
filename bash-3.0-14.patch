@@ -37,9 +37,9 @@ diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/CYGWIN-
 +/bin/cp -fpuv /bin/bash.exe /bin/sh.exe 2>&1 >> /var/log/setup.log.full
 diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/CYGWIN-PATCHES/bash.README bash-3.0/CYGWIN-PATCHES/bash.README
 --- bash-3.0-orig/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-12-23 06:06:55.000000000 -0700
-@@ -0,0 +1,162 @@
-+bash 3.0-13
++++ bash-3.0/CYGWIN-PATCHES/bash.README	2005-12-26 07:57:50.000000000 -0700
+@@ -0,0 +1,165 @@
++bash 3.0-14
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -78,17 +78,17 @@ diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/CYGWIN-
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.0-13-src.tar.bz2
++  unpack bash-3.0-14-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +	 unpacked under /usr/src automatically
 +  cd /usr/src
-+  ./bash-3.0-13.sh all
++  ./bash-3.0-14.sh all
 +
 +This will create:
-+  /usr/src/bash-3.0-13.tar.bz2
-+  /usr/src/bash-3.0-13-src.tar.bz2
++  /usr/src/bash-3.0-14.tar.bz2
++  /usr/src/bash-3.0-14-src.tar.bz2
 +
-+Or use './bash-3.0-13.sh prep' to get a patched source directory
++Or use './bash-3.0-14.sh prep' to get a patched source directory
 +
 +To find out the files included in the binary distribution, you can use
 +"cygcheck -l bash", or browse the listing for the appropriate version
@@ -97,6 +97,9 @@ diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/CYGWIN-
 +------------------
 +
 +Port Notes:
++
++----- version 3.0-14 -- 2005-12-26 -----
++Avoid realpath until cygwin 1.5.19 is out.
 +
 +----- version 3.0-13 -- 2005-12-23 -----
 +Fix bash_builtins man page.
@@ -273,8 +276,8 @@ diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/Makefil
  TILDE_LDFLAGS = -L$(TILDE_LIBDIR)
  TILDE_DEP = $(TILDE_LIBRARY)
 diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/bashline.c bash-3.0/bashline.c
---- bash-3.0-orig/bashline.c	2005-12-23 07:28:58.871125000 -0700
-+++ bash-3.0/bashline.c	2005-12-23 07:22:33.683625000 -0700
+--- bash-3.0-orig/bashline.c	2005-12-26 08:12:30.853000000 -0700
++++ bash-3.0/bashline.c	2005-12-26 08:05:56.649875000 -0700
 @@ -1,6 +1,6 @@
  /* bashline.c -- Bash's interface to the readline library. */
  
@@ -14128,8 +14131,8 @@ diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/findcmd
       support Unix file system semantics.  This may produce wrong
       answers for non-AFS files when ruid != euid.  I hate AFS. */
 diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/general.c bash-3.0/general.c
---- bash-3.0-orig/general.c	2005-12-23 07:28:59.168000000 -0700
-+++ bash-3.0/general.c	2005-12-23 07:22:34.074250000 -0700
+--- bash-3.0-orig/general.c	2005-12-26 08:12:31.259250000 -0700
++++ bash-3.0/general.c	2005-12-26 08:05:57.149875000 -0700
 @@ -560,6 +560,10 @@
  absolute_program (string)
       const char *string;
@@ -14168,8 +14171,8 @@ diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/general
  
  #if 0
 diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/jobs.c bash-3.0/jobs.c
---- bash-3.0-orig/jobs.c	2005-12-23 07:28:58.621125000 -0700
-+++ bash-3.0/jobs.c	2005-12-23 07:22:34.089875000 -0700
+--- bash-3.0-orig/jobs.c	2005-12-26 08:12:30.790500000 -0700
++++ bash-3.0/jobs.c	2005-12-26 08:05:57.165500000 -0700
 @@ -3,7 +3,7 @@
  /* This file works with both POSIX and BSD systems.  It implements job
     control. */
@@ -14642,8 +14645,8 @@ diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/lib/rea
  
  #if defined (VISIBLE_STATS)
 diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/lib/readline/display.c bash-3.0/lib/readline/display.c
---- bash-3.0-orig/lib/readline/display.c	2005-12-23 07:28:57.058625000 -0700
-+++ bash-3.0/lib/readline/display.c	2005-12-23 07:22:34.105500000 -0700
+--- bash-3.0-orig/lib/readline/display.c	2005-12-26 08:12:29.134250000 -0700
++++ bash-3.0/lib/readline/display.c	2005-12-26 08:05:57.181125000 -0700
 @@ -286,7 +286,10 @@
    if (lp)
      *lp = rl;
@@ -14772,95 +14775,9 @@ diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/lib/sh/
      }
  
    /* Empty string is really ``.'' or `/', depending on what we started with. */
-diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/lib/sh/pathphys.c bash-3.0/lib/sh/pathphys.c
---- bash-3.0-orig/lib/sh/pathphys.c	2003-11-18 11:03:15.000000000 -0700
-+++ bash-3.0/lib/sh/pathphys.c	2005-08-27 14:38:51.000000000 -0600
-@@ -1,6 +1,6 @@
- /* pathphys.c -- Return pathname with all symlinks expanded. */
- 
--/* Copyright (C) 2000 Free Software Foundation, Inc.
-+/* Copyright (C) 2000, 2005 Free Software Foundation, Inc.
- 
-    This file is part of GNU Bash, the Bourne Again SHell.
- 
-@@ -35,6 +35,7 @@
- #include <stdio.h>
- #include <chartypes.h>
- #include <errno.h>
-+#include <stdlib.h>
- 
- #include "shell.h"
- 
-@@ -76,6 +77,9 @@
-      char *path;
-      int flags;
- {
-+#if defined __CYGWIN__
-+  return realpath (path, NULL);
-+#else
-   char tbuf[PATH_MAX+1], linkbuf[PATH_MAX+1];
-   char *result, *p, *q, *qsave, *qbase, *workpath;
-   int double_slash_path, linklen, nlink;
-@@ -103,13 +107,8 @@
- 
-   /* This always gets an absolute pathname. */
- 
--  /* POSIX.2 says to leave a leading `//' alone.  On cygwin, we skip over any
--     leading `x:' (dos drive name). */
--#if defined (__CYGWIN__)
--  qbase = (ISALPHA((unsigned char)workpath[0]) && workpath[1] == ':') ? workpath + 3 : workpath + 1;
--#else
-+  /* POSIX.2 says to leave a leading `//' alone.  */
-   qbase = workpath + 1;
--#endif
-   double_slash_path = DOUBLE_SLASH (workpath);
-   qbase += double_slash_path;
- 
-@@ -131,7 +130,7 @@
-       if (ISDIRSEP(p[0])) /* null element */
- 	p++;
-       else if(p[0] == '.' && PATHSEP(p[1]))	/* . and ./ */
--	p += 1; 	/* don't count the separator in case it is nul */
-+	p += 1;	/* don't count the separator in case it is nul */
-       else if (p[0] == '.' && p[1] == '.' && PATHSEP(p[2])) /* .. and ../ */
- 	{
- 	  p += 2; /* skip `..' */
-@@ -158,7 +157,7 @@
- #endif
- 		  goto error;
- 		}
--		
-+
- 	      *q++ = *p++;
- 	    }
- 
-@@ -214,14 +213,10 @@
- 	    {
- 	      q = result;
- 	      /* Duplicating some code here... */
--#if defined (__CYGWIN__)
--	      qbase = (ISALPHA((unsigned char)workpath[0]) && workpath[1] == ':') ? workpath + 3 : workpath + 1;
--#else
- 	      qbase = workpath + 1;
--#endif
- 	      double_slash_path = DOUBLE_SLASH (workpath);
- 	      qbase += double_slash_path;
--    
-+
- 	      for (p = workpath; p < qbase; )
- 		*q++ = *p++;
- 	      qbase = q;
-@@ -249,6 +244,7 @@
-     }
- 
-   return (result);
-+#endif /* ! __CYGWIN__ */
- }
- 
- char *
 diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.0-orig/subst.c bash-3.0/subst.c
---- bash-3.0-orig/subst.c	2005-12-23 07:28:59.464875000 -0700
-+++ bash-3.0/subst.c	2005-12-23 07:22:34.152375000 -0700
+--- bash-3.0-orig/subst.c	2005-12-26 08:12:31.524875000 -0700
++++ bash-3.0/subst.c	2005-12-26 08:05:57.228000000 -0700
 @@ -4,7 +4,7 @@
  /* ``Have a little faith, there's magic in the night.  You ain't a
       beauty, but, hey, you're alright.'' */
