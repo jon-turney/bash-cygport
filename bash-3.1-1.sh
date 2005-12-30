@@ -92,7 +92,7 @@ export checklogfile=${srcinstdir}/${checklogname}
 export installlogfile=${srcinstdir}/${installlogname}
 
 export patchdir=${srcdir}/patches
-export src_official_patches=${patchdir}/bash30-[0-9][0-9][0-9]
+export src_official_patches=${patchdir}/${PKG}??-[0-9][0-9][0-9]
 
 prefix=/usr
 sysconfdir=/etc
@@ -196,7 +196,7 @@ mkdirs() {
   mkdir -p ${instdir} && \
   mkdir -p ${srcinstdir} && \
   mkdir -p ${buildlogdir} &&
-  expr $REL - 1 > ${objdir}/.build )
+  { expr $REL - 1 > ${objdir}/.build; :; } )
 }
 fixup() {
   (cd "$1" &&

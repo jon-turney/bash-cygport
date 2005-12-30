@@ -1,0 +1,1126 @@
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/CYGWIN-PATCHES/00bash.sh bash-3.1/CYGWIN-PATCHES/00bash.sh
+--- bash-3.1-orig/CYGWIN-PATCHES/00bash.sh	1969-12-31 17:00:00.000000000 -0700
++++ bash-3.1/CYGWIN-PATCHES/00bash.sh	2005-12-30 14:00:27.000000000 -0700
+@@ -0,0 +1,33 @@
++# Bash profile.d script.  This is sourced by the default /etc/profile to
++# ensure that /bin/sh exists and is runnable, updating older copies of ash
++# or bash as appropriate, while leaving other shells (ksh or zsh) alone.
++# Because it is sourced by any shell, including ash, it must be portable and
++# not pollute the environment.
++
++# Short circuit: if sh is not older than bash, stop now.  /bin/test
++# correctly reports that a missing /bin/sh is older than an existing bash.
++
++/bin/test /bin/sh.exe -ot /bin/bash.exe || return 0
++
++# Is /bin/sh missing, or does it have bad dependencies making it unrunnable?
++
++test -f /bin/sh.exe && case `(cygcheck /bin/sh.exe) 2>&1` in
++    *Error:\ could\ not\ find* | *Cannot\ open*) # broken, needs update
++	;;
++    *) # We can run it.  Is the version from ash or bash?
++	case `(/bin/sh.exe --version) 2>&1` in
++	    Illegal\ option\ --* | GNU\ bash*) # ash or older bash
++		;;
++	    *) # anything else - quit now
++		return 0 ;;
++	esac ;;
++esac
++
++# Get here if missing, broken, ash, or old bash, so an update is needed.
++# Use copy, not hard or symlink, since symlinks won't work from Windows cmd
++# and a hardlink to a running shell can't be broken.
++# Record the attempt in /var/log/setup.log.full.
++
++echo "`date '+%Y/%m/%d %T'` /etc/profile.d/00bash.sh:" \
++    "Attempting to update /bin/sh.exe" >> /var/log/setup.log.full
++/bin/cp -fpuv /bin/bash.exe /bin/sh.exe 2>&1 >> /var/log/setup.log.full
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/CYGWIN-PATCHES/bash.README bash-3.1/CYGWIN-PATCHES/bash.README
+--- bash-3.1-orig/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
++++ bash-3.1/CYGWIN-PATCHES/bash.README	2005-12-30 14:33:06.000000000 -0700
+@@ -0,0 +1,169 @@
++bash 3.1-1
++------------------------------------------
++Bash is an sh-compatible shell that incorporates useful features from
++the Korn shell (ksh) and C shell (csh).  It is intended to conform to
++the IEEE POSIX P1003.2/ISO 9945.2 Shell and Tools standard.  It offers
++functional improvements over sh for both programming and interactive
++use. In addition, most sh scripts can be run by Bash without
++modification.
++
++As of July, 2005, bash is used as cygwin's /bin/sh.
++
++Runtime requirements (these or newer):
++  cygwin snapshot 20051222 (or wait for cygwin-1.5.19-1)
++  libintl3-0.14.5-1
++  libreadline6-5.1-1
++
++Build conditions (these or newer):
++  binutils-20050610-1
++  bison-20030307-1
++  cygwin snapshot 20051229
++  gcc-3.4.4-1
++  libiconv2-1.9.2-2
++  libncurses8-5.4-2
++  readline-5.1-1
++
++Canonical homepage:
++  http://www.gnu.org/software/bash
++
++Canonical download:
++  http://www.gnu.org/software/bash/#downloading
++
++License:
++  GPL
++
++Language:
++  C
++
++------------------------------------
++
++Build instructions:
++  unpack bash-3.1-1-src.tar.bz2
++    if you use setup to install this src package, it will be
++	 unpacked under /usr/src automatically
++  cd /usr/src
++  ./bash-3.1-1.sh all
++
++This will create:
++  /usr/src/bash-3.1-1.tar.bz2
++  /usr/src/bash-3.1-1-src.tar.bz2
++
++Or use './bash-3.1-1.sh prep' to get a patched source directory
++
++To find out the files included in the binary distribution, you can use
++"cygcheck -l bash", or browse the listing for the appropriate version
++at <http://cygwin.com/packages/>.
++
++------------------
++
++Port Notes:
++
++----- version 3.1-1 -- 2005-12-30 -----
++New upstream release.
++
++----- version 3.0-14 -- 2005-12-26 -----
++Avoid realpath until cygwin 1.5.19 is out.
++
++----- version 3.0-13 -- 2005-12-23 -----
++Fix bash_builtins man page.
++
++----- version 3.0-12 -- 2005-08-30 -----
++Improve postinstall to work with current setup.exe, and add a
++profile.d script to try to ensure that /bin/sh exists even if
++postinstall failed.  Improve cd -P to always work, and cd -L to work
++better even in POSIX mode.
++
++----- version 3.0-11 -- 2005-07-30 -----
++Apply patch from bashdb for better debugger interaction.
++
++----- version 3.0-10 -- 2005-07-27 -----
++Disable spawnve patch; it broke interactive shell editing.  Fix name
++parsing rules to accept a:\file as absolute, not relative.
++
++----- version 3.0-9 -- 2005-07-22 -----
++Fix postinstall script to not nuke sh.1.  Dynamically link against
++readline again.  Apply patch from Keith Reynolds
++(http://lists.gnu.org/archive/html/bug-bash/2005-07/msg00123.html)
++that uses spawnve() where possible.
++
++----- version 3.0-8 -- 2005-07-15 -----
++Remove preremove script (it wasn't invoked by alternate name, and
++invoking it by the name bash.sh would delete /bin/sh too early).  Fix
++packaging bug that omitted info file, and add man pages for all
++builtins not already claimed by programs.  As a temporary fix for
++tilde expansion, don't link against libreadline, and add a hack that
++tries to work around the extra space in prompt bug (this hack does not
++fix the problem, but does mask the worst of it).
++
++----- version 3.0-7 -- 2005-07-07 -----
++Fix bug in postinstall script.
++
++----- version 3.0-6 -- 2005-07-07 -----
++Use cp, not ln, in the postinstall scripts since a running shell can't
++break a hard link to itself in NTFS.
++
++----- version 3.0-5 -- 2005-07-06 -----
++Update the postinstall scripts to catch more cases, and provide sh man
++page.
++
++----- version 3.0-4 -- 2005-07-05 -----
++Add a preremove script to counteract the postinstall script: delete
++/bin/sh only if it matches /bin/bash.
++
++----- version 3.0-3 -- 2005-07-02 -----
++Fix a heap corruption bug introduced in the last build.  Enable
++SSH_SOURCE_BASHRC.  Link to libreadline dynamically.  Use bash, not
++ash, as /bin/sh.
++
++----- version 3.0-2 -- 2005-05-27 -----
++Fix some bugs with // completion, including an order of magnitude
++speedup by avoiding stat("//server").  Link to libiconv dynamically
++(but libreadline is still static until the // patches are applied
++there, too).
++
++----- version 3.0-1 -- 2005-05-25 -----
++New upstream release, including the first 16 official patches.  New
++maintainer, Eric Blake.  All patches in 2.05b-17 that were not
++accepted upstream have been forward ported.
++
++----- version 2.05b-17 -----
++Applied a patch provided by Pierre Humblet, fixing the PID re-use issues, 
++originally reported in the thread "Bash returns incorrect process status".
++The final patch applied has not been posted to cygwin@cygwin.com but closely
++resembles the one posted in
++	http://sources.redhat.com/ml/cygwin/2004-10/msg01093.html
++
++-- 
++Also applied a patch provided by Corinna Vinschen:
++
++        * bashline.c (bash_directory_completion_hook): avoid turning '/' into
++        '//' when converting/checking path
++
++This patch specifically avoids a problem with tab-completion on some never-
++released Cygwin versions (some snapshots between versions 1.5.9 and 1.5.10)
++but more generally fixes a bug introducing ambiguity as to what directory to
++open and search when asking for root.
++
++----- version 2.05b-16 -----
++Applied a patch provided by cgf: 
++
++	* subst.c (command_substitute): Guard against opening a pipe handle in
++	stdin/stdout/stderr since they may be closed and keeping the pipe
++	handle open in a subprocess will cause hangs.
++
++----- version 2.05b-15 -----
++Applied a temporary patch to fix the problem reported in
++http://www.cygwin.com/ml/cygwin/2003-09/msg00822.html
++
++----- version 2.05b-14 -----
++Additional canonical patches 5 through 7 applied
++
++----- version 2.05b-13 and earlier -----
++Earlier versions were maintained by Corinna Vinschen. The history may be found
++in the cygwin-announce archives.
++
++For more information about this package, see the upstream documentation in
++/usr/share/doc/bash-3.1.
++
++Cygwin port maintained by: Eric Blake <ebb9@byu.net>
++Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/CYGWIN-PATCHES/manifest.lst bash-3.1/CYGWIN-PATCHES/manifest.lst
+--- bash-3.1-orig/CYGWIN-PATCHES/manifest.lst	1969-12-31 17:00:00.000000000 -0700
++++ bash-3.1/CYGWIN-PATCHES/manifest.lst	2005-12-30 14:00:27.000000000 -0700
+@@ -0,0 +1 @@
++usr/bin/sh.exe
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/CYGWIN-PATCHES/postinstall.bat bash-3.1/CYGWIN-PATCHES/postinstall.bat
+--- bash-3.1-orig/CYGWIN-PATCHES/postinstall.bat	1969-12-31 17:00:00.000000000 -0700
++++ bash-3.1/CYGWIN-PATCHES/postinstall.bat	2005-12-30 14:00:27.000000000 -0700
+@@ -0,0 +1,8 @@
++@echo off
++rem Bash postinstall script.  Since setup.exe 2.457.2.2 insists on using
++rem /bin/sh, and .bat scripts don't know about cygwin paths, this is a
++rem two-stage install: /etc/postinstall/00bash.sh updates this script, then
++rem this sources the real /etc/profile.d/00bash.sh with bash.
++
++echo If you see this line, run /etc/postinstall/00bash.sh first.
++REM BASHPATH -c '. /etc/profile.d/00bash.sh'
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/CYGWIN-PATCHES/postinstall.sh bash-3.1/CYGWIN-PATCHES/postinstall.sh
+--- bash-3.1-orig/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
++++ bash-3.1/CYGWIN-PATCHES/postinstall.sh	2005-12-30 14:00:27.000000000 -0700
+@@ -0,0 +1,16 @@
++#!/bin/bash
++# Bash postinstall script.  Since setup.exe 2.457.2.2 insists on using
++# /bin/sh, and .bat scripts don't know about cygwin paths, this is a two-stage
++# install: this script updates 01bash.bat, then that script sources the real
++# postinstall in /etc/profile.d/00bash.sh with bash.
++
++# Work locally
++cd /etc/postinstall
++# Find the windows path to bash.  Mind those pesky backslashes
++bashpath=$(cygpath -w /bin/bash.exe | sed -e 's,\\,\\\\,g')
++# Create the proper .bat script, use temp file since in-place edits don't work
++sed -e "/^echo/d; s,REM BASHPATH,$bashpath," < ./01bash.bat > ./01bash.bat.t
++# Preserve the original permissions on 01bash.bat, since mv won't
++cp ./01bash.bat.t ./01bash.bat
++# Finally, clean up temp file
++rm ./01bash.bat.t
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/CYGWIN-PATCHES/setup.hint bash-3.1/CYGWIN-PATCHES/setup.hint
+--- bash-3.1-orig/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
++++ bash-3.1/CYGWIN-PATCHES/setup.hint	2005-12-30 14:04:17.000000000 -0700
+@@ -0,0 +1,14 @@
++# setup for bash
++sdesc: "The GNU Bourne Again SHell"
++ldesc: "Bash is an sh-compatible shell that incorporates useful
++features from the Korn shell (ksh) and C shell (csh).  It is intended
++to conform to the IEEE POSIX P1003.2/ISO 9945.2 Shell and Tools
++standard.  It offers functional improvements over sh for both
++programming and interactive use. In addition, most sh scripts can be
++run by Bash without modification."
++category: Base Shells
++requires: cygwin libintl3 libreadline6
++prev: 2.05b-17
++curr: 3.0-14
++test: 3.1-1
++#Maintainer: Eric Blake
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/bashline.c bash-3.1/bashline.c
+--- bash-3.1-orig/bashline.c	2005-11-05 13:07:02.000000000 -0700
++++ bash-3.1/bashline.c	2005-12-30 14:45:20.000000000 -0700
+@@ -282,7 +282,7 @@
+      allocate new memory for rl_completer_word_break_characters. */
+ 
+   if (bash_readline_initialized == 0 &&
+-      (rl_completer_word_break_characters == 0 || 
++      (rl_completer_word_break_characters == 0 ||
+        rl_completer_word_break_characters == rl_basic_word_break_characters))
+     {
+       if (on_or_off)
+@@ -906,7 +906,7 @@
+ /* **************************************************************** */
+ 
+ #define COMMAND_SEPARATORS ";|&{(`"
+-/* )} */ 
++/* )} */
+ 
+ static int
+ check_redir (ti)
+@@ -1027,7 +1027,7 @@
+ 	ti--;
+     }
+ #endif
+-      
++
+   in_command_position = 0;
+   if (ti < 0)
+     {
+@@ -1060,7 +1060,7 @@
+      it can be the start or end of an old-style command substitution, or
+      unmatched.  If it's unmatched, both calls to unclosed_pair will
+      succeed.  */
+-  if (*text == '`' && 
++  if (*text == '`' &&
+ 	(in_command_position || (unclosed_pair (rl_line_buffer, start, "`") &&
+ 				 unclosed_pair (rl_line_buffer, end, "`"))))
+     matches = rl_completion_matches (text, command_subst_completion_function);
+@@ -1293,7 +1293,7 @@
+ 	  dequoted_hint = bash_dequote_filename (hint, 0);
+ 	  dequoted_len = strlen (dequoted_hint);
+ 	}
+-      
++
+       path = get_string_value ("PATH");
+       path_index = dot_in_path = 0;
+ 
+@@ -1493,7 +1493,16 @@
+ 
+       /* If we have found a match, and it is an executable file or a
+ 	 directory name, return it. */
+-      if (match && executable_or_directory (val))
++      if (match && (
++#if __CYGWIN__
++                    /* executable_or_directory will do the right thing on
++                       //server, but calling stat("//server") is an order
++                       of magnitude slower than recalling that readdir("//")
++                       only returns directories.  */
++                    (val[0] == '/' && val[1] == '/' && ! strchr (&val[2], '/'))
++                    ||
++#endif
++		    executable_or_directory (val)))
+ 	{
+ 	  free (val);
+ 	  val = "";		/* So it won't be NULL. */
+@@ -2225,6 +2234,16 @@
+   char *fn;
+ 
+   fn = bash_tilde_expand (name, 0);
++#if __CYGWIN__
++  /* Although this leads to false positives if NAME is random, it is worth the
++     speedup to assume //server is a directory rather than waiting the couple
++     of seconds for stat("//server") to complete.  */
++  if (fn[0] == '/' && fn[1] == '/' && ! strchr (&fn[2], '/'))
++    {
++      free (fn);
++      return 1;
++    }
++#endif
+   if (stat (fn, &finfo) != 0)
+     {
+       free (fn);
+@@ -2278,7 +2297,7 @@
+       *dirname = d;
+     }
+ }
+-  
++
+ /* Handle symbolic link references and other directory name
+    expansions while hacking completion. */
+ static int
+@@ -2313,7 +2332,7 @@
+ #endif
+     should_expand_dirname = 0;
+ 
+-  if (should_expand_dirname)  
++  if (should_expand_dirname)
+     {
+       new_dirname = savestring (local_dirname);
+       wl = expand_prompt_string (new_dirname, 0);	/* does the right thing */
+@@ -2678,7 +2697,7 @@
+     rl_explicit_arg = 1;	/* force `*' append */
+   orig_quoting_function = rl_filename_quoting_function;
+   rl_filename_quoting_function = bash_glob_quote_filename;
+-  
++
+   r = bash_glob_completion_internal (rl_completion_mode (bash_glob_complete_word));
+ 
+   rl_filename_quoting_function = orig_quoting_function;
+@@ -2755,7 +2774,7 @@
+       p = r;
+ 
+       t = substring (rl_line_buffer, p, rl_point);
+-    }      
++    }
+ 
+   if (t && glob_pattern_p (t) == 0)
+     rl_explicit_arg = 1;	/* XXX - force glob_complete_word to append `*' */
+@@ -3035,7 +3054,7 @@
+   /* We can have delimited strings even if NEED_DQUOTE == 0, like the command
+      string to bind the key sequence to. */
+   delim = (string[i] == '"' || string[i] == '\'') ? string[i] : 0;
+-    
++
+   if (startp)
+     *startp = delim ? ++i : i;
+ 
+@@ -3108,7 +3127,7 @@
+   /* and bind the key sequence in the current keymap to a function that
+      understands how to execute from CMD_XMAP */
+   rl_bind_keyseq_in_map (kseq, bash_execute_unix_command, kmap);
+-  
++
+   return 0;
+ }
+ 
+@@ -3126,7 +3145,7 @@
+ #if 0
+   qc = (text[0] == '"' || text[0] == '\'') ? text[0] : 0;
+ #else
+-  qc = rl_dispatching ? rl_completion_quote_character : 0;  
++  qc = rl_dispatching ? rl_completion_quote_character : 0;
+ #endif
+   dfn = bash_dequote_filename ((char *)text, qc);
+   m1 = rl_completion_matches (dfn, rl_filename_completion_function);
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/config-top.h bash-3.1/config-top.h
+--- bash-3.1-orig/config-top.h	2005-04-29 14:36:34.000000000 -0600
++++ bash-3.1/config-top.h	2005-12-30 14:49:03.000000000 -0700
+@@ -3,7 +3,7 @@
+ /* This contains various user-settable options not under the control of
+    autoconf. */
+ 
+-/* Copyright (C) 2002 Free Software Foundation, Inc.
++/* Copyright (C) 2002, 2005 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -84,4 +84,4 @@
+ 
+ /* Define this if you want bash to try to check whether it's being run by
+    sshd and source the .bashrc if so (like the rshd behavior). */
+-/* #define SSH_SOURCE_BASHRC */
++#define SSH_SOURCE_BASHRC
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/doc/Makefile.in bash-3.1/doc/Makefile.in
+--- bash-3.1-orig/doc/Makefile.in	2004-07-27 06:57:48.000000000 -0600
++++ bash-3.1/doc/Makefile.in	2005-12-30 14:51:13.000000000 -0700
+@@ -1,6 +1,6 @@
+ # This Makefile is for the Bash/documentation directory -*- text -*-.
+ #
+-# Copyright (C) 2003 Free Software Foundation, Inc.
++# Copyright (C) 2003, 2005 Free Software Foundation, Inc.
+ 
+ # This program is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+@@ -167,7 +167,7 @@
+ bashref.html: $(BASHREF_FILES) $(HSUSER) $(RLUSER)
+ 	$(TEXI2HTML) -menu -monolithic -I $(TEXINPUTDIR) $(srcdir)/bashref.texi
+ 
+-bash.info: bashref.info
++bash.info: $(srcdir)/bashref.info
+ 	${SHELL} ${INFOPOST} < $(srcdir)/bashref.info > $@ ; \
+ 
+ bash.txt: bash.1
+@@ -224,8 +224,8 @@
+ 	-$(INSTALL_DATA) $(srcdir)/bash.1 $(DESTDIR)$(man1dir)/bash${man1ext}
+ 	-$(INSTALL_DATA) $(srcdir)/bashbug.1 $(DESTDIR)$(man1dir)/bashbug${man1ext}
+ # uncomment the next line to install the builtins man page
+-#	-$(INSTALL_DATA) $(srcdir)/builtins.1 $(DESTDIR)$(man1dir)/bash_builtins${man1ext}
+-	-$(INSTALL_DATA) $(srcdir)/bash.info $(DESTDIR)$(infodir)/bash.info
++	-$(INSTALL_DATA) $(srcdir)/builtins.1 $(DESTDIR)$(man1dir)/bash_builtins${man1ext}
++	-$(INSTALL_DATA) bash.info $(DESTDIR)$(infodir)/bash.info
+ # run install-info if it is present to update the info directory
+ 	if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then \
+ 		install-info --dir-file=$(DESTDIR)$(infodir)/dir $(DESTDIR)$(infodir)/bash.info; \
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/doc/builtins.1 bash-3.1/doc/builtins.1
+--- bash-3.1-orig/doc/builtins.1	2004-05-24 08:19:55.000000000 -0600
++++ bash-3.1/doc/builtins.1	2005-12-30 14:51:53.000000000 -0700
+@@ -2,7 +2,7 @@
+ .\" and to get the list of builtins to come up with the man command.
+ .TH BASH_BUILTINS 1 "2004 Apr 20" "GNU Bash-3.0"
+ .SH NAME
+-bash, :, ., [, alias, bg, bind, break, builtin, cd, command, compgen, complete, 
++bash, :, ., [, alias, bg, bind, break, builtin, cd, command, compgen, complete,
+ continue, declare, dirs, disown, echo, enable, eval, exec, exit,
+ export, fc, fg, getopts, hash, help, history, jobs, kill,
+ let, local, logout, popd, printf, pushd, pwd, read, readonly, return, set,
+@@ -10,6 +10,6 @@
+ ulimit, umask, unalias, unset, wait \- bash built-in commands, see \fBbash\fR(1)
+ .SH BASH BUILTIN COMMANDS
+ .nr zZ 1
+-.so bash.1
++.so man1/bash.1
+ .SH SEE ALSO
+ bash(1), sh(1)
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/findcmd.c bash-3.1/findcmd.c
+--- bash-3.1-orig/findcmd.c	2005-08-17 14:49:54.000000000 -0600
++++ bash-3.1/findcmd.c	2005-12-30 14:59:01.000000000 -0700
+@@ -1,6 +1,6 @@
+ /* findcmd.c -- Functions to search for commands by name. */
+ 
+-/* Copyright (C) 1997 Free Software Foundation, Inc.
++/* Copyright (C) 1997, 2005 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -94,7 +94,7 @@
+ 
+   r = FS_EXISTS;
+ 
+-#if defined (AFS)
++#if defined (AFS) || __CYGWIN__
+   /* We have to use access(2) to determine access because AFS does not
+      support Unix file system semantics.  This may produce wrong
+      answers for non-AFS files when ruid != euid.  I hate AFS. */
+@@ -379,9 +379,9 @@
+ 	  name_len = strlen (name);
+ 	  file_to_lose_on = (char *)NULL;
+ 	  dot_found_in_search = 0;
+-      	  stat (".", &dotinfo);
++	  stat (".", &dotinfo);
+ 	  path_list = get_string_value ("PATH");
+-      	  path_index = 0;
++	  path_index = 0;
+ 	}
+ 
+       while (path_list && path_list[path_index])
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/include/posixdir.h bash-3.1/include/posixdir.h
+--- bash-3.1-orig/include/posixdir.h	2004-03-22 14:00:44.000000000 -0700
++++ bash-3.1/include/posixdir.h	2005-12-30 13:59:04.000000000 -0700
+@@ -1,6 +1,6 @@
+ /* posixdir.h -- Posix directory reading includes and defines. */
+ 
+-/* Copyright (C) 1987,1991 Free Software Foundation, Inc.
++/* Copyright (C) 1987,1991,2005 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -50,7 +50,7 @@
+ #  define d_fileno d_ino
+ #endif
+ 
+-#if defined (_POSIX_SOURCE) && (!defined (HAVE_STRUCT_DIRENT_D_INO) || defined (BROKEN_DIRENT_D_INO))
++#if !defined (HAVE_STRUCT_DIRENT_D_INO) || defined (BROKEN_DIRENT_D_INO)
+ /* Posix does not require that the d_ino field be present, and some
+    systems do not provide it. */
+ #  define REAL_DIR_ENTRY(dp) 1
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/lib/readline/complete.c bash-3.1/lib/readline/complete.c
+--- bash-3.1-orig/lib/readline/complete.c	2005-10-07 20:30:18.000000000 -0600
++++ bash-3.1/lib/readline/complete.c	2005-12-30 15:02:33.000000000 -0700
+@@ -277,7 +277,7 @@
+    and a pointer to the quoting character to be used, which the function can
+    reset if desired. */
+ rl_quote_func_t *rl_filename_quoting_function = rl_quote_filename;
+-         
++
+ /* Function to call to remove quoting characters from a filename.  Called
+    before completion is attempted, so the embedded quotes do not interfere
+    with matching names in the file system.  Readline doesn't do anything
+@@ -481,6 +481,16 @@
+   struct stat finfo;
+   int character, r;
+ 
++#ifdef __CYGWIN__
++  /* Cygwin stat("//server") can take several seconds when the server is
++     non-responsive, all to find out it will always behave as a directory.
++     Although this shortcut may sometimes provide a false positive, it is
++     worth the speedup in time if all callers validated that FILENAME exists
++     from a (much faster) readdir rather than calling stat. */
++  if (filename[0] == '/' && filename[1] == '/' && ! strchr (&filename[2], '/'))
++    return '/';
++#endif
++
+ #if defined (HAVE_LSTAT) && defined (S_ISLNK)
+   r = lstat (filename, &finfo);
+ #else
+@@ -873,7 +883,7 @@
+ 	      else if (quote_char == '"')
+ 		found_quote |= RL_QF_DOUBLE_QUOTE;
+ 	      else
+-		found_quote |= RL_QF_OTHER_QUOTE;      
++		found_quote |= RL_QF_OTHER_QUOTE;
+ 	    }
+ 	}
+     }
+@@ -984,7 +994,7 @@
+ 
+   matches = rl_completion_matches (text, our_func);
+   FREE (temp);
+-  return matches;  
++  return matches;
+ }
+ 
+ /* Filter out duplicates in MATCHES.  This frees up the strings in
+@@ -1409,7 +1419,7 @@
+       (*rl_completion_display_matches_hook) (matches, len, max);
+       return;
+     }
+-	
++
+   /* If there are many items, then ask the user if she really wants to
+      see them all. */
+   if (rl_completion_query_items > 0 && len >= rl_completion_query_items)
+@@ -2160,12 +2170,12 @@
+ 
+       if (matches == 0 || postprocess_matches (&matches, matching_filenames) == 0)
+ 	{
+-    	  rl_ding ();
++	  rl_ding ();
+ 	  FREE (matches);
+ 	  matches = (char **)0;
+ 	  FREE (orig_text);
+ 	  orig_text = (char *)0;
+-    	  completion_changed_buffer = 0;
++	  completion_changed_buffer = 0;
+           return (0);
+ 	}
+ 
+@@ -2179,7 +2189,7 @@
+      rl_line_buffer[orig_start] and rl_line_buffer[rl_point] with
+      matches[match_list_index], and add any necessary closing char. */
+ 
+-  if (matches == 0 || match_list_size == 0) 
++  if (matches == 0 || match_list_size == 0)
+     {
+       rl_ding ();
+       FREE (matches);
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/lib/sh/pathcanon.c bash-3.1/lib/sh/pathcanon.c
+--- bash-3.1-orig/lib/sh/pathcanon.c	2005-02-22 15:40:56.000000000 -0700
++++ bash-3.1/lib/sh/pathcanon.c	2005-12-30 15:07:03.000000000 -0700
+@@ -1,6 +1,6 @@
+ /* pathcanon.c -- Canonicalize and manipulate pathnames. */
+ 
+-/* Copyright (C) 2000 Free Software Foundation, Inc.
++/* Copyright (C) 2000, 2005 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -56,7 +56,7 @@
+   /* If the path is the first part of a network path, treat it as
+      existing. */
+   if (path[0] == '/' && path[1] == '/' && !strchr (path + 2, '/'))
+-    return 1; 
++    return 1;
+   /* Otherwise check for /cygdrive prefix. */
+   if (first_time)
+     {
+@@ -68,7 +68,7 @@
+     }
+   return !strcasecmp (path, user) || !strcasecmp (path, system);
+ }
+-#endif /* __CYGWIN__ */	
++#endif /* __CYGWIN__ */
+ 
+ /* Return 1 if PATH corresponds to a directory.  A function for debugging. */
+ static int
+@@ -151,7 +151,7 @@
+       if (ISDIRSEP(p[0])) /* null element */
+ 	p++;
+       else if(p[0] == '.' && PATHSEP(p[1]))	/* . and ./ */
+-	p += 1; 	/* don't count the separator in case it is nul */
++	p += 1;	/* don't count the separator in case it is nul */
+       else if (p[0] == '.' && p[1] == '.' && PATHSEP(p[2])) /* .. and ../ */
+ 	{
+ 	  p += 2; /* skip `..' */
+@@ -194,24 +194,24 @@
+ 	    *q++ = DIRSEP;
+ 	  while (*p && (ISDIRSEP(*p) == 0))
+ 	    *q++ = *p++;
+-	  /* Check here for a valid directory with _path_isdir. */
+-	  if (flags & PATH_CHECKEXISTS)
+-	    {
+-	      char c;
++	}
++    }
++  /* Check here for a valid directory with _path_isdir. */
++  if (flags & PATH_CHECKEXISTS)
++    {
++      char c;
+ 
+-	      /* Make sure what we have so far corresponds to a valid
+-		 path before we chop some of it off. */
+-	      c = *q;
+-	      *q = '\0';
+-	      if (_path_isdir (result) == 0)
+-		{
+-		  if ((flags & PATH_NOALLOC) == 0)
+-		    free (result);
+-		  return ((char *)NULL);
+-		}
+-	      *q = c;
+-	    }
++      /* Make sure what we have so far corresponds to a valid
++	 path before we chop some of it off. */
++      c = *q;
++      *q = '\0';
++      if (_path_isdir (result) == 0)
++	{
++	  if ((flags & PATH_NOALLOC) == 0)
++	    free (result);
++	  return ((char *)NULL);
+ 	}
++      *q = c;
+     }
+ 
+   /* Empty string is really ``.'' or `/', depending on what we started with. */
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/lib/sh/pathphys.c bash-3.1/lib/sh/pathphys.c
+--- bash-3.1-orig/lib/sh/pathphys.c	2005-08-28 13:32:18.000000000 -0600
++++ bash-3.1/lib/sh/pathphys.c	2005-12-30 15:09:37.000000000 -0700
+@@ -1,6 +1,6 @@
+ /* pathphys.c -- Return pathname with all symlinks expanded. */
+ 
+-/* Copyright (C) 2000 Free Software Foundation, Inc.
++/* Copyright (C) 2000, 2005 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -35,7 +35,7 @@
+ #include <stdio.h>
+ #include <chartypes.h>
+ #include <errno.h>
+-
++#include <stdlib.h>
+ #include "shell.h"
+ 
+ #if !defined (MAXSYMLINKS)
+@@ -76,6 +76,10 @@
+      char *path;
+      int flags;
+ {
++#if __CYGWIN__
++  /* realpath does this right without all the hassle */
++  return realpath (path, NULL);
++#else
+   char tbuf[PATH_MAX+1], linkbuf[PATH_MAX+1];
+   char *result, *p, *q, *qsave, *qbase, *workpath;
+   int double_slash_path, linklen, nlink;
+@@ -131,7 +135,7 @@
+       if (ISDIRSEP(p[0])) /* null element */
+ 	p++;
+       else if(p[0] == '.' && PATHSEP(p[1]))	/* . and ./ */
+-	p += 1; 	/* don't count the separator in case it is nul */
++	p += 1;	/* don't count the separator in case it is nul */
+       else if (p[0] == '.' && p[1] == '.' && PATHSEP(p[2])) /* .. and ../ */
+ 	{
+ 	  p += 2; /* skip `..' */
+@@ -158,7 +162,7 @@
+ #endif
+ 		  goto error;
+ 		}
+-		
++
+ 	      *q++ = *p++;
+ 	    }
+ 
+@@ -221,7 +225,7 @@
+ #endif
+ 	      double_slash_path = DOUBLE_SLASH (workpath);
+ 	      qbase += double_slash_path;
+-    
++
+ 	      for (p = workpath; p < qbase; )
+ 		*q++ = *p++;
+ 	      qbase = q;
+@@ -249,6 +253,7 @@
+     }
+ 
+   return (result);
++#endif /* ! __CYGWIN__ */
+ }
+ 
+ char *
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/subst.c bash-3.1/subst.c
+--- bash-3.1-orig/subst.c	2005-10-24 07:51:13.000000000 -0600
++++ bash-3.1/subst.c	2005-12-30 15:42:11.000000000 -0700
+@@ -598,10 +598,10 @@
+       *sindex = i;
+       return (&extract_string_error);
+     }
+-  
++
+   temp = (flags & EX_NOALLOC) ? (char *)NULL : substring (string, *sindex, i);
+   *sindex = i;
+-  
++
+   return (temp);
+ }
+ 
+@@ -954,7 +954,7 @@
+ 		break;
+ 	    }
+ 	}
+-      else		
++      else
+ #endif
+       if (MEMBER (c, charlist))
+ 	break;
+@@ -1027,7 +1027,7 @@
+       *sindex = slen - 1;
+       return ret;
+     }
+-  return 0;  
++  return 0;
+ }
+ #endif
+ 
+@@ -1152,7 +1152,7 @@
+   si = i - *sindex - len_closer + 1;
+   if (flags & EX_NOALLOC)
+     result = (char *)NULL;
+-  else    
++  else
+     {
+       result = (char *)xmalloc (1 + si);
+       strncpy (result, string + *sindex, si);
+@@ -1540,7 +1540,7 @@
+       if (nwp)
+ 	*nwp = 0;
+       if (cwp)
+-	*cwp = 0;	
++	*cwp = 0;
+       return ((WORD_LIST *)NULL);
+     }
+ 
+@@ -2602,7 +2602,7 @@
+    to the != or == operator, and should be treated as a pattern.  In
+    this case, we quote the string specially for the globbing code.  The
+    caller is responsible for removing the backslashes if the unquoted
+-   words is needed later. */   
++   words is needed later. */
+ char *
+ cond_expand_word (w, special)
+      WORD_DESC *w;
+@@ -2876,7 +2876,7 @@
+   register char *s, *t;
+   size_t slen;
+   char *result, *send;
+-  DECLARE_MBSTATE; 
++  DECLARE_MBSTATE;
+ 
+   slen = strlen (string);
+   send = string + slen;
+@@ -3413,7 +3413,7 @@
+       n = wcsrtombs (xret, (const wchar_t **)&ret, n, &ps);
+       xret[n] = '\0';		/* just to make sure */
+       free (oret);
+-      return xret;      
++      return xret;
+     }
+   else
+ #endif
+@@ -3956,7 +3956,7 @@
+ 
+   FREE (pattern);
+   return temp1;
+-}    
++}
+ 
+ /*******************************************
+  *					   *
+@@ -4400,7 +4400,7 @@
+       if (--bufn <= 0)
+ 	{
+ 	  bufn = zread (fd, buf, sizeof (buf));
+-	  if (bufn <= 0) 
++	  if (bufn <= 0)
+ 	    break;
+ 	  bufp = buf;
+ 	}
+@@ -4478,6 +4478,12 @@
+   pid_t pid, old_pid, old_pipeline_pgrp, old_async_pid;
+   char *istring;
+   int result, fildes[2], function_value, pflags, rc;
++#if __CYGWIN__
++  /* Ensure that stdin, stdout, and stderr have a valid file descriptor, so
++     that pipe doesn't end up in those slots; otherwise a hang might
++     result when leaving one end of the pipe open in the subprocess. */
++  int i, closeit[3];
++#endif
+ 
+   istring = (char *)NULL;
+ 
+@@ -4507,6 +4513,18 @@
+   /* Flags to pass to parse_and_execute() */
+   pflags = interactive ? SEVAL_RESETLINE : 0;
+ 
++#if __CYGWIN__
++  /* See comments above */
++  for (i = 0; i <= 2; i++)
++    if (fcntl (i, F_GETFD, &result) != -1)
++      closeit[i] = 0;
++    else
++      {
++	open ("/dev/null", O_RDONLY);
++	closeit[i] = 1;
++      }
++#endif
++
+   /* Pipe the output of executing STRING into the current shell. */
+   if (pipe (fildes) < 0)
+     {
+@@ -4514,6 +4532,12 @@
+       goto error_exit;
+     }
+ 
++#if __CYGWIN__
++  for (i = 0; i <= 2; i++)
++    if (closeit[i])
++      close (i);
++#endif
++
+   old_pid = last_made_pid;
+ #if defined (JOB_CONTROL)
+   old_pipeline_pgrp = pipeline_pgrp;
+@@ -4567,6 +4591,7 @@
+ 	  exit (EXECUTION_FAILURE);
+ 	}
+ 
++#ifndef __CYGWIN__
+       /* If standard output is closed in the parent shell
+ 	 (such as after `exec >&-'), file descriptor 1 will be
+ 	 the lowest available file descriptor, and end up in
+@@ -4582,6 +4607,12 @@
+ 	  (fildes[0] != fileno (stdout)) &&
+ 	  (fildes[0] != fileno (stderr)))
+ 	close (fildes[0]);
++#else /* __CYGWIN__ */
++      /* We already ensured that none of the standard file descriptors were
++	 occupied by either end of the pipe. */
++      close (fildes[1]);
++      close (fildes[0]);
++#endif
+ 
+       /* The currently executing shell is not interactive. */
+       interactive = 0;
+@@ -4826,14 +4857,14 @@
+   ret = 0;
+   temp = 0;
+ 
+-  /* Handle multiple digit arguments, as in ${11}. */  
++  /* Handle multiple digit arguments, as in ${11}. */
+   if (legal_number (name, &arg_index))
+     {
+       tt = get_dollar_var_value (arg_index);
+       if (tt)
+- 	temp = (*tt && (quoted & (Q_DOUBLE_QUOTES|Q_HERE_DOCUMENT)))
+- 		  ? quote_string (tt)
+- 		  : quote_escapes (tt);
++	temp = (*tt && (quoted & (Q_DOUBLE_QUOTES|Q_HERE_DOCUMENT)))
++		  ? quote_string (tt)
++		  : quote_escapes (tt);
+       else
+         temp = (char *)NULL;
+       FREE (tt);
+@@ -4854,9 +4885,9 @@
+     {
+       temp = array_value (name, quoted, &atype);
+       if (atype == 0 && temp)
+- 	temp = (*temp && (quoted & (Q_DOUBLE_QUOTES|Q_HERE_DOCUMENT)))
+- 		  ? quote_string (temp)
+- 		  : quote_escapes (temp);
++	temp = (*temp && (quoted & (Q_DOUBLE_QUOTES|Q_HERE_DOCUMENT)))
++		  ? quote_string (temp)
++		  : quote_escapes (temp);
+     }
+ #endif
+   else if (var = find_variable (name))
+@@ -5077,7 +5108,7 @@
+   return nc;
+ }
+ #endif
+-      
++
+ 
+ /* Handle the parameter brace expansion that requires us to return the
+    length of a parameter. */
+@@ -5438,7 +5469,7 @@
+   return tt;
+ }
+ #endif
+-  
++
+ /* Process a variable substring expansion: ${name:e1[:e2]}.  If VARNAME
+    is `@', use the positional parameters; otherwise, use the value of
+    VARNAME.  If VARNAME is an array variable, use the array elements. */
+@@ -5537,7 +5568,7 @@
+   mtype = mflags & MATCH_TYPEMASK;
+ 
+   /* Special cases:
+-   * 	1.  A null pattern with mtype == MATCH_BEG means to prefix STRING
++   *	1.  A null pattern with mtype == MATCH_BEG means to prefix STRING
+    *	    with REP and return the result.
+    *	2.  A null pattern with mtype == MATCH_END means to append REP to
+    *	    STRING and return the result.
+@@ -5823,7 +5854,7 @@
+ 	  name[1] = string[sindex + 1];
+ 	  strcpy (name + 2, temp1);
+ 	}
+-      else	
++      else
+ 	strcpy (name + 1, temp1);
+       free (temp1);
+     }
+@@ -5954,7 +5985,7 @@
+       return ret;
+     }
+ 
+-#if defined (ARRAY_VARS)      
++#if defined (ARRAY_VARS)
+   /* Process ${!ARRAY[@]} and ${!ARRAY[*]} expansion. */ /* [ */
+   if (want_indir && string[sindex - 1] == RBRACE &&
+       string[sindex - 2] == ']' && valid_array_reference (name+1))
+@@ -5973,7 +6004,7 @@
+ 		*quoted_dollar_atp = 1;
+ 	      if (contains_dollar_at)
+ 		*contains_dollar_at = 1;
+-	    }	    
++	    }
+ 
+ 	  free (temp1);
+ 	  *indexp = sindex;
+@@ -5986,7 +6017,7 @@
+       free (temp1);
+     }
+ #endif /* ARRAY_VARS */
+-      
++
+   /* Make sure that NAME is valid before trying to go on. */
+   if (valid_brace_expansion_word (want_indir ? name + 1 : name,
+ 					var_is_special) == 0)
+@@ -6403,7 +6434,7 @@
+ 	      free (temp);
+ 	      tdesc->word = temp = (char *)NULL;
+ 	    }
+-	    
++
+ 	}
+ 
+       ret = tdesc;
+@@ -6740,7 +6771,7 @@
+ 	     now have a flag that says  to perform tilde expansion on arguments
+ 	     to `assignment builtins' like declare and export that look like
+ 	     assignment statements.  We now do tilde expansion on such words
+-	     even in POSIX mode. */	
++	     even in POSIX mode. */
+ 	  if (word->flags & (W_ASSIGNRHS|W_NOTILDE))
+ 	    goto add_character;
+ 	  /* If we're not in posix mode or forcing assignment-statement tilde
+@@ -6789,7 +6820,7 @@
+ 	    tflag = 0;
+ 
+ 	  temp = bash_tilde_find_word (string + sindex, tflag, &t_index);
+-	    
++
+ 	  word->flags &= ~W_ITILDE;
+ 
+ 	  if (temp && *temp && t_index > 0)
+@@ -6805,7 +6836,7 @@
+ 	      FREE (temp);
+ 	      goto add_character;
+ 	    }
+-	
++
+ 	case '$':
+ 	  if (expanded_something)
+ 	    *expanded_something = 1;
+@@ -6855,7 +6886,7 @@
+ 		return ((temp == &extract_string_error) ? &expand_word_error
+ 							: &expand_word_fatal);
+ 	      }
+-		
++
+ 	    if (expanded_something)
+ 	      *expanded_something = 1;
+ 
+@@ -7488,7 +7519,7 @@
+ }
+ 
+ /**************************************************
+- * 						  *
++ *						  *
+  *    Functions to expand an entire WORD_LIST	  *
+  *						  *
+  **************************************************/
+@@ -7852,7 +7883,7 @@
+ 	  /* Now transform the word as ksh93 appears to do and go on */
+ 	  t = assignment (tlist->word->word, 0);
+ 	  tlist->word->word[t] = '\0';
+-	  tlist->word->flags &= ~(W_ASSIGNMENT|W_NOSPLIT|W_COMPASSIGN|W_ASSIGNARG); 
++	  tlist->word->flags &= ~(W_ASSIGNMENT|W_NOSPLIT|W_COMPASSIGN|W_ASSIGNARG);
+ 	}
+ #endif
+ 
+@@ -7898,7 +7929,7 @@
+       new_list = (WORD_LIST *)list_append (expanded, new_list);
+     }
+ 
+-  if (orig_list)  
++  if (orig_list)
+     dispose_words (orig_list);
+ 
+   if (new_list)
+diff -urN -x .build -x .inst -x .sinst -x build -x patches bash-3.1-orig/test.c bash-3.1/test.c
+--- bash-3.1-orig/test.c	2005-02-19 15:26:37.000000000 -0700
++++ bash-3.1/test.c	2005-12-30 15:26:44.000000000 -0700
+@@ -104,7 +104,7 @@
+ /* We have to use access(2) for machines running AFS, because it's
+    not a Unix file system.  This may produce incorrect answers for
+    non-AFS files.  I hate AFS. */
+-#if defined (AFS)
++#if defined (AFS) || __CYGWIN__
+ #  define EACCESS(path, mode)	access(path, mode)
+ #else
+ #  define EACCESS(path, mode)	test_eaccess(path, mode)
+@@ -320,7 +320,7 @@
+  * term ::=
+  *	'-'('a'|'b'|'c'|'d'|'e'|'f'|'g'|'h'|'k'|'p'|'r'|'s'|'u'|'w'|'x') filename
+  *	'-'('G'|'L'|'O'|'S'|'N') filename
+- * 	'-t' [int]
++ *	'-t' [int]
+  *	'-'('z'|'n') string
+  *	'-o' option
+  *	string
+@@ -404,7 +404,7 @@
+       if (op == EF)
+ 	return (FALSE);
+     }
+-  
++
+   switch (op)
+     {
+     case OT: return (r1 < r2 || (r2 == 0 && st1.st_mtime < st2.st_mtime));
+@@ -592,7 +592,7 @@
+ {
+   intmax_t r;
+   struct stat stat_buf;
+-     
++
+   switch (op[1])
+     {
+     case 'a':			/* file exists in the file system? */
