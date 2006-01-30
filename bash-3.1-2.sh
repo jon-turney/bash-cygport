@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Generic package build script
 #
-# $Id: generic-build-script,v 1.43 2005/10/18 05:01:36 igor Exp $
+# $Id: generic-build-script,v 1.46 2006/01/28 20:33:13 igor Exp $
 #
 # Package maintainers: if the original source is not distributed as a
 # (possibly compressed) tarball, set the value of ${src_orig_pkg_name},
@@ -70,6 +70,7 @@ export src_orig_pkg=${topdir}/${src_orig_pkg_name}
 # determine correct names for generated files
 export src_pkg_name=${FULLPKG}-src.tar.bz2
 export src_patch_name=${FULLPKG}.patch
+export src_patch_tar_name=${FULLPKG}.patch.tar.bz2
 export bin_pkg_name=${FULLPKG}.tar.bz2
 export log_pkg_name=${FULLPKG}-BUILDLOGS.tar.bz2
 
@@ -80,19 +81,19 @@ export installlogname=${FULLPKG}-INSTALL.LOG
 
 export src_pkg=${topdir}/${src_pkg_name}
 export src_patch=${topdir}/${src_patch_name}
+export src_patch_tar=${topdir}/${src_patch_tar_name}
 export bin_pkg=${topdir}/${bin_pkg_name}
 export srcdir=${topdir}/${BASEPKG}
 export objdir=${srcdir}/.build
 export instdir=${srcdir}/.inst
 export srcinstdir=${srcdir}/.sinst
 export buildlogdir=${srcdir}/.buildlogs
+export patchdir=${srcdir}/.patches
+export upstream_patchlist=${srcdir}/CYGWIN-PATCHES/upstream_patches.lst
 export configurelogfile=${srcinstdir}/${configurelogname}
 export makelogfile=${srcinstdir}/${makelogname}
 export checklogfile=${srcinstdir}/${checklogname}
 export installlogfile=${srcinstdir}/${installlogname}
-
-export patchdir=${srcdir}/patches
-export src_official_patches=${patchdir}/${PKG}??-[0-9][0-9][0-9]
 
 prefix=/usr
 sysconfdir=/etc
@@ -166,7 +167,7 @@ Actions are:
     strip		Strip package executables
     pkg, package	Prepare the binary package ${bin_pkg_name}
     mkpatch		Prepare the patch file ${src_patch_name}
-    acceptpatch		Apply a patch to the source
+    acceptpatch		Copy patch file ${src_patch_name} to ${topdir}
     spkg, src-package	Prepare the source package ${src_pkg_name}
     finish		Remove source directory ${srcdir}
     checksig		Validate GPG signatures (requires gpg)
@@ -178,7 +179,7 @@ EOF
 
 # Provide version of generic-build-script modified to make this
 version() {
-    vers=`echo '$Revision: 1.43 $' | sed -e 's/Revision: //' -e 's/ *\\$//g'`
+    vers=`echo '$Revision: 1.46 $' | sed -e 's/Revision: //' -e 's/ *\\$//g'`
     echo "$0 based on generic-build-script $vers"
 }
 
@@ -189,40 +190,70 @@ unpack() {
   tar xv${opt_decomp}f "$1"
 }
 
+# make hidden directories used by g-b-s
 mkdirs() {
   (cd ${topdir} && \
-  rm -fr ${objdir} ${instdir} ${srcinstdir} ${buildlogdir} && \
-  mkdir -p ${objdir} && \
-  mkdir -p ${instdir} && \
-  mkdir -p ${srcinstdir} && \
-  mkdir -p ${buildlogdir} &&
+  rm -fr ${objdir} ${instdir} ${srcinstdir} ${patchdir} && \
+  mkdir -p ${objdir} ${instdir} ${srcinstdir} ${patchdir} &&
   { expr $REL - 1 > ${objdir}/.build; :; } )
 }
-fixup() {
-  (cd "$1" &&
-  for f in ${src_official_patches} ; do
-    if [ -f $f ] ; then
-      echo "APPLYING OFFICIAL PATCH `basename $f`"
-      patch -Z -p2 < $f
-    fi
-  done &&
-  find . \( -name '*.orig' -o -name '*.rej' \) -exec rm -f {} \;
-  )
+mkdirs_log() {
+  (cd ${topdir} && \
+  mkdirs "$@" && \
+  rm -fr ${buildlogdir} && \
+  mkdir -p ${buildlogdir} )
 }
+
+# Internal function for applying upstream patches
+# $1 is directory to patch, $2 is file containing patch names
+fixup() {
+  if [ -f "$2" ] ; then
+    (cd "$1" &&
+    for patch in `cat "$2"` ; do
+      echo "APPLYING UPSTREAM PATCH `basename ${patch}`"
+      patch -Z -p0 < ${srcdir}/${patch}
+    done &&
+    find . \( -name '*.orig' -o -name '*.rej' \) -exec rm -f {} \;
+    )
+  fi
+}
+
+# Unpack the original tarball, and get everything set up for g-b-s
 prep() {
   (cd ${topdir} && \
   unpack ${src_orig_pkg} && \
-  fixup "${srcdir}" &&
+  mkdirs && \
+  if [ -f ${src_patch_tar} ] ; then
+    (cd ${patchdir} &&
+    tar xvjf ${src_patch_tar} &&
+    if [ -f ${src_patch_name} ] ; then
+      mv ${src_patch_name} ${src_patch}
+    fi &&
+    if [ -f upstream_patches.lst ] ; then
+      for patch in `cat upstream_patches.lst` ; do
+	cp -p ${patch} ${srcdir}/${patch} &&
+	if [ -f ${patch}.sig ] ; then
+	  cp -p ${patch}.sig ${srcdir}/${patch}.sig
+	fi
+      done
+    fi )
+  fi &&
+  fixup "${srcdir}" ${patchdir}/upstream_patches.lst &&
   cd ${topdir} && \
   if [ -f ${src_patch} ] ; then \
     patch -Z -p0 < ${src_patch} ;\
-  fi && \
-  mkdirs && \
+  fi )
+}
+prep_log() {
+  prep "$@" && \
+  mkdirs_log && \
   if [ -f ${topdir}/${log_pkg_name} ] ; then \
     cd ${buildlogdir} && \
     tar xvjf ${topdir}/${log_pkg_name}
-  fi )
+  fi
 }
+
+# Configure the package
 conf() {
   (cd ${objdir} && \
   CFLAGS="${MY_CFLAGS}" LDFLAGS="${MY_LDFLAGS}" \
@@ -233,34 +264,59 @@ conf() {
   --mandir='${prefix}/share/man' --infodir='${prefix}/share/info' \
   --libexecdir='${sbindir}' --localstatedir="${localstatedir}" \
   --datadir='${prefix}/share' --without-libiconv-prefix \
-  --without-libintl-prefix --with-installed-readline 2>&1 | \
-  tee ${configurelogfile} )
+  --without-libintl-prefix --with-installed-readline )
 }
+conf_log() {
+  conf "$@" 2>&1 | tee ${configurelogfile}
+  return ${PIPESTATUS[0]}
+}
+
+# Rerun configure
 reconf() {
   (cd ${topdir} && \
   rm -fr ${objdir} && \
   mkdir -p ${objdir} && \
   conf )
 }
+reconf_log() {
+  reconf "$@" 2>&1 | tee ${configurelogfile}
+  return ${PIPESTATUS[0]}
+}
+
+# Run make
 build() {
   (cd ${objdir} && \
-  make CFLAGS="${MY_CFLAGS}" 2>&1 | tee ${makelogfile} )
+  make CFLAGS="${MY_CFLAGS}" )
 }
+build_log() {
+  build "$@" 2>&1 | tee ${makelogfile}
+  return ${PIPESTATUS[0]}
+}
+
+# Run the package testsuite
 check() {
   (cd ${objdir} && \
-  make -k ${test_rule} 2>&1 | tee ${checklogfile} )
+  make -k ${test_rule} )
 }
+check_log() {
+  check "$@" 2>&1 | tee ${checklogfile}
+  return ${PIPESTATUS[0]}
+}
+
+# Remove built files
 clean() {
   (cd ${objdir} && \
   make clean )
 }
+
+# Install the package, with DESTDIR of .inst
 # postinstall named 00bash.sh to ensure /bin/sh exists before other
 # postinstall scripts are run, even when old ash package is uninstalled.
 # bash.1 cannot be compressed if bash_builtins.1 is to work.
 install() {
   (cd ${objdir} && \
   rm -fr ${instdir}/* && \
-  make install DESTDIR=${instdir} 2>&1 | tee ${installlogfile} && \
+  make install DESTDIR=${instdir} && \
   for f in ${prefix}/share/info/dir ${prefix}/info/dir ; do \
     if [ -f ${instdir}${f} ] ; then \
       rm -f ${instdir}${f} ; \
@@ -294,7 +350,7 @@ install() {
   templist="" && \
   for fp in ${install_docs} ; do \
     case "$fp" in \
-      */) templist="$templist `cd ${srcdir} && find $fp -type f`" ;;
+      */) templist="$templist `find ${srcdir}/$fp -type f`" ;;
       *)  for f in ${srcdir}/$fp ; do \
 	    if [ -f $f ] ; then \
 	      templist="$templist $f"; \
@@ -342,20 +398,30 @@ install() {
     if [ ! -d ${instdir}${sysconfdir}/preremove ]; then
       mkdir -p ${instdir}${sysconfdir}/preremove ;
     fi &&
-    /usr/bin/install -m 755 ${srcdir}/CYGWIN-PATCHES/manifest.lst \
+    /usr/bin/install -m 644 ${srcdir}/CYGWIN-PATCHES/manifest.lst \
       ${instdir}${sysconfdir}/preremove/${PKG}-manifest.lst ;
   fi )
 }
+install_log() {
+  install "$@" 2>&1 | tee ${installlogfile}
+  return ${PIPESTATUS[0]}
+}
+
+# Strip binaries
 strip() {
   (cd ${instdir} && \
   find . -name "*.dll" -or -name "*.exe" | xargs -r strip 2>&1 ; \
   true )
 }
+
+# List files that belong to the package
 list() {
   (cd ${instdir} && \
   find . -name "*" ! -type d | sed 's%^\.%  %' | sort ; \
   true )
 }
+
+# List .dll dependencies of the package
 depend() {
   (cd ${instdir} && \
   find ${instdir} -name "*.exe" -o -name "*.dll" | xargs -r cygcheck | \
@@ -363,31 +429,69 @@ depend() {
   xargs -r -n1 cygpath -u | xargs -r cygcheck -f | sed 's%^%  %' | sort -u ; \
   true )
 }
+
+# Build the binary package
 pkg() {
   (cd ${instdir} && \
   tar cvjf ${bin_pkg} * )
 }
+
+# Compare the original tarball with cygwin modifications
 mkpatch() {
   (cd ${srcdir} && \
   find . -name "autom4te.cache" | xargs -r rm -rf ; \
   unpack ${src_orig_pkg} && \
   mv ${BASEPKG} ../${BASEPKG}-orig && \
-  fixup "../${BASEPKG}-orig" &&
+  fixup "../${BASEPKG}-orig" ${upstream_patchlist} &&
   cd ${topdir} && \
-  diff -urN -x '.build' -x '.inst' -x '.sinst' -x 'build' -x 'patches' \
+  rm -f ${BASEPKG}-filter &&
+  if [ -f ${upstream_patchlist} ] ; then
+    cp ${upstream_patchlist} ${BASEPKG}-filter &&
+    for patch in `cat ${upstream_patchlist}` ; do
+      echo ${patch}.sig >> ${BASEPKG}-filter
+    done
+  else
+    touch ${BASEPKG}-filter
+  fi &&
+  for dir in '.build' '.inst' '.sinst' '.buildlogs' '.patches' ; do
+    echo ${dir} >> ${BASEPKG}-filter
+  done &&
+  diff -urN -X ${BASEPKG}-filter \
+    -x 'build' \
     ${BASEPKG}-orig ${BASEPKG} > \
     ${srcinstdir}/${src_patch_name} ; \
-  rm -rf ${BASEPKG}-orig )
+  rm -rf ${BASEPKG}-filter ${BASEPKG}-orig &&
+  if [ -f ${upstream_patchlist} ] ; then
+    rm -Rf ${patchdir} &&
+    mkdir -p ${patchdir} &&
+    mv ${srcinstdir}/${src_patch_name} ${patchdir}/${src_patch_name} &&
+    for patch in `cat ${upstream_patchlist}` ; do
+      cp -p ${srcdir}/${patch} ${patchdir}/ &&
+      if [ -f ${srcdir}/${patch}.sig ] ; then
+	cp -p ${srcdir}/${patch}.sig ${patchdir}/
+      fi
+    done &&
+    cp ${upstream_patchlist} ${patchdir}/upstream_patches.lst &&
+    (cd ${patchdir} &&
+    tar cvjf ${srcinstdir}/${src_patch_tar_name} *
+    )
+  fi
+  )
 }
+
 # Note: maintainer-only functionality
 acceptpatch() {
   cp --backup=numbered ${srcinstdir}/${src_patch_name} ${topdir}
 }
+
+# Build the source tarball
 spkg() {
   (mkpatch && \
-  if [ "${SIG}" -eq 1 ] ; then \
-    name=${srcinstdir}/${src_patch_name} text="PATCH" sigfile ; \
-  fi && \
+  if [ -f ${upstream_patchlist} ] ; then
+    name=${srcinstdir}/${src_patch_tar_name} text="PATCH" sigfile
+  else
+    name=${srcinstdir}/${src_patch_name} text="PATCH" sigfile
+  fi &&
   cp ${src_orig_pkg} ${srcinstdir}/${src_orig_pkg_name} && \
   if [ -e ${src_orig_pkg}.sig ] ; then \
     cp ${src_orig_pkg}.sig ${srcinstdir}/ ; \
@@ -397,10 +501,12 @@ spkg() {
   if [ "${SIG}" -eq 1 ] ; then \
     cp $0.sig ${srcinstdir}/ ; \
   fi && \
-  mkdir -p ${srcinstdir}/${BASEPKG} &&
-  rm -Rf ${srcinstdir}/${BASEPKG}/patches &&
-  cp -R ${patchdir} ${srcinstdir}/${BASEPKG}/patches &&
   cd ${srcinstdir} && \
+  tar cvjf ${src_pkg} * )
+}
+spkg_log() {
+  spkg "$@" && \
+  (cd ${srcinstdir} && \
   if [ -e ${configurelogname} -o -e ${makelogname} -o \
        -e ${checklogname} -o -e ${installlogname} ]; then
     tar --ignore-failed-read -cvjf ${log_pkg_name} \
@@ -408,11 +514,15 @@ spkg() {
     rm -f \
       ${configurelogname} ${makelogname} ${checklogname} ${installlogname} ; \
   fi && \
-  tar cvjf ${src_pkg} * )
+  tar uvjf ${src_pkg} * )
 }
+
+# Clean up everything
 finish() {
   rm -rf ${srcdir}
 }
+
+# Generate GPG signatures
 sigfile() {
   if [ \( "${SIG}" -eq 1 \) -a \( -e $name \) -a \( \( ! -e $name.sig \) -o \( $name -nt $name.sig \) \) ]; then \
     if [ -x /usr/bin/gpg ]; then \
@@ -424,6 +534,8 @@ sigfile() {
     fi; \
   fi
 }
+
+# Validate signatures
 checksig() {
   if [ -x /usr/bin/gpg ]; then \
     if [ -e ${src_orig_pkg}.sig ]; then \
@@ -432,47 +544,78 @@ checksig() {
     else \
       echo "ORIGINAL PACKAGE signature missing."; \
     fi; \
-    for f in ${src_official_patches} ; do
-      if [ -f $f ] ; then
-	if [ -f $f.sig ] ; then
-	  echo "OFFICIAL PATCH $f signature follows:"
-	  /usr/bin/gpg --verify $f.sig $f; \
+    if [ -f ${upstream_patchlist} ] ; then
+      for patch in `cat ${upstream_patchlist}` ; do
+	if [ -f ${srcdir}/${patch}.sig ] ; then
+	  echo "UPSTREAM PATCH ${patch} signature follows:"
+	  /usr/bin/gpg --verify ${srcdir}/${patch}.sig ${srcdir}/${patch}
 	else
-	  echo "OFFICIAL PATCH $f signature missing."
+	  echo "UPSTREAM PATCH ${patch} signature missing."
 	fi
-      fi
-    done
+      done
+    fi
     if [ -e $0.sig ]; then \
       echo "SCRIPT signature follows:"; \
       /usr/bin/gpg --verify $0.sig $0; \
     else \
       echo "SCRIPT signature missing."; \
     fi; \
-    if [ -e ${src_patch}.sig ]; then \
-      echo "PATCH signature follows:"; \
-      /usr/bin/gpg --verify ${src_patch}.sig ${src_patch}; \
-    else \
-      echo "PATCH signature missing."; \
-    fi; \
+    if [ -f ${src_patch_tar} ] ; then
+      if [ -f ${src_patch_tar}.sig ] ; then
+        echo "PATCH signature follows:"; \
+        /usr/bin/gpg --verify ${src_patch_tar}.sig ${src_patch_tar}; \
+      else \
+        echo "PATCH signature missing."; \
+      fi; \
+    elif [ -e ${src_patch} ] ; then
+      if [ -e ${src_patch}.sig ]; then \
+        echo "PATCH signature follows:"; \
+        /usr/bin/gpg --verify ${src_patch}.sig ${src_patch}; \
+      else \
+        echo "PATCH signature missing."; \
+      fi; \
+    fi
   else
     echo "You need the gnupg package installed in order to check signatures." ; \
   fi
 }
+
+f_mkdirs=mkdirs
+f_prep=prep
+f_conf=conf
+f_reconf=conf
+f_build=build
+f_check=check
+f_install=install
+f_spkg=spkg
+
+enablelogging() {
+  f_mkdirs=mkdirs_log && \
+  f_prep=prep_log && \
+  f_conf=conf_log && \
+  f_reconf=reconf_log && \
+  f_build=build_log && \
+  f_check=check_log && \
+  f_install=install_log && \
+  f_spkg=spkg_log
+}
+
 while test -n "$1" ; do
   case $1 in
     help|--help)	help ; STATUS=$? ;;
     version|--version)	version ; STATUS=$? ;;
-    prep)		prep ; STATUS=$? ;;
-    mkdirs)		mkdirs ; STATUS=$? ;;
-    conf)		conf ; STATUS=$? ;;
-    configure)		conf ; STATUS=$? ;;
-    reconf)		reconf ; STATUS=$? ;;
-    build)		build ; STATUS=$? ;;
-    make)		build ; STATUS=$? ;;
-    check)		check ; STATUS=$? ;;
-    test)		check ; STATUS=$? ;;
-    clean)		clean ; STATUS=$? ;;
-    install)		install ; STATUS=$? ;;
+    with_logs|--logs)	enablelogging ; STATUS=$? ;;
+    prep)		$f_prep ; STATUS=$? ;;
+    mkdirs)		$f_mkdirs ; STATUS=$? ;;
+    conf)		$f_conf ; STATUS=$? ;;
+    configure)		$f_conf ; STATUS=$? ;;
+    reconf)		$f_reconf ; STATUS=$? ;;
+    build)		$f_build ; STATUS=$? ;;
+    make)		$f_build ; STATUS=$? ;;
+    check)		$f_check ; STATUS=$? ;;
+    test)		$f_check ; STATUS=$? ;;
+    clean)		$f_clean ; STATUS=$? ;;
+    install)		$f_install ; STATUS=$? ;;
     list)		list ; STATUS=$? ;;
     depend)		depend ; STATUS=$? ;;
     strip)		strip ; STATUS=$? ;;
@@ -480,15 +623,16 @@ while test -n "$1" ; do
     pkg)		pkg ; STATUS=$? ;;
     mkpatch)		mkpatch ; STATUS=$? ;;
     acceptpatch)	acceptpatch ; STATUS=$? ;;
-    src-package)	spkg ; STATUS=$? ;;
-    spkg)		spkg ; STATUS=$? ;;
+    src-package)	$f_spkg ; STATUS=$? ;;
+    spkg)		$f_spkg ; STATUS=$? ;;
     finish)		finish ; STATUS=$? ;;
     checksig)		checksig ; STATUS=$? ;;
-    first)		mkdirs && spkg && finish ; STATUS=$? ;;
-    almostall)		checksig && prep && conf && build && install && \
-			strip && pkg && spkg ; STATUS=$? ;;
-    all)		checksig && prep && conf && build && install && \
-			strip && pkg && spkg && finish ; STATUS=$? ;;
+    first)		$f_mkdirs && $f_spkg && finish ; STATUS=$? ;;
+    almostall)		checksig && $f_prep && $f_conf && $f_build && \
+			$f_install && strip && pkg && $f_spkg ; STATUS=$? ;;
+    all)		checksig && $f_prep && $f_conf && $f_build && \
+			$f_install && strip && pkg && $f_spkg && finish ; \
+			STATUS=$? ;;
     *) echo "Error: bad arguments" ; exit 1 ;;
   esac
   ( exit ${STATUS} ) || exit ${STATUS}
