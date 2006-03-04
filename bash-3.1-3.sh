@@ -457,7 +457,7 @@ mkpatch() {
     echo ${dir} >> ${BASEPKG}-filter
   done &&
   diff -urN -X ${BASEPKG}-filter \
-    -x 'build' \
+    -x 'build' -x 'static' \
     ${BASEPKG}-orig ${BASEPKG} > \
     ${srcinstdir}/${src_patch_name} ; \
   rm -rf ${BASEPKG}-filter ${BASEPKG}-orig &&
