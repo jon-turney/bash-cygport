@@ -2,7 +2,7 @@
 #
 # Generic package build script
 #
-# $Id: generic-build-script,v 1.46 2006/01/28 20:33:13 igor Exp $
+# $Id: generic-build-script,v 1.47 2006/02/01 14:01:14 igor Exp $
 #
 # Package maintainers: if the original source is not distributed as a
 # (possibly compressed) tarball, set the value of ${src_orig_pkg_name},
@@ -150,10 +150,12 @@ export LC_ALL=C
 help() {
 cat <<EOF
 This is the cygwin packaging script for ${FULLPKG}.
-Usage: $0 <action>
-Actions are:
+Usage: $0 [<option>...] <action>...
+Options are:
     help, --help	Print this message
     version, --version	Print the version message
+    with_logs, --logs	Create logs of remaining steps
+Actions are:
     prep		Unpack and patch into ${srcdir}
     mkdirs		Make hidden directories needed during build
     conf, configure	Configure the package (./configure)
@@ -177,20 +179,20 @@ Actions are:
 EOF
 }
 
-# Provide version of generic-build-script modified to make this
+# Provide version of generic-build-script modified to make this script.
 version() {
-    vers=`echo '$Revision: 1.46 $' | sed -e 's/Revision: //' -e 's/ *\\$//g'`
+    vers=`echo '$Revision: 1.47 $' | sed -e 's/Revision: //' -e 's/ *\\$//g'`
     echo "$0 based on generic-build-script $vers"
 }
 
-# unpacks the original package source archive into ./${BASEPKG}/
-# change this if the original package was not tarred
-# or if it doesn't unpack to a correct directory
+# Unpacks the original package source archive into ./${BASEPKG}/.
+# Change this if the original package was not tarred
+# or if it doesn't unpack to a correct directory.
 unpack() {
   tar xv${opt_decomp}f "$1"
 }
 
-# make hidden directories used by g-b-s
+# Make the hidden directories used by this script.
 mkdirs() {
   (cd ${topdir} && \
   rm -fr ${objdir} ${instdir} ${srcinstdir} ${patchdir} && \
@@ -211,14 +213,14 @@ fixup() {
     (cd "$1" &&
     for patch in `cat "$2"` ; do
       echo "APPLYING UPSTREAM PATCH `basename ${patch}`"
-      patch -Z -p0 < ${srcdir}/${patch}
+      patch -p0 < ${srcdir}/${patch}
     done &&
     find . \( -name '*.orig' -o -name '*.rej' \) -exec rm -f {} \;
     )
   fi
 }
 
-# Unpack the original tarball, and get everything set up for g-b-s
+# Unpack the original tarball, and get everything set up for this script.
 prep() {
   (cd ${topdir} && \
   unpack ${src_orig_pkg} && \
@@ -253,7 +255,7 @@ prep_log() {
   fi
 }
 
-# Configure the package
+# Configure the package.
 conf() {
   (cd ${objdir} && \
   CFLAGS="${MY_CFLAGS}" LDFLAGS="${MY_LDFLAGS}" \
@@ -271,7 +273,7 @@ conf_log() {
   return ${PIPESTATUS[0]}
 }
 
-# Rerun configure
+# Rerun configure to pick up changes in the environment.
 reconf() {
   (cd ${topdir} && \
   rm -fr ${objdir} && \
@@ -283,7 +285,7 @@ reconf_log() {
   return ${PIPESTATUS[0]}
 }
 
-# Run make
+# Run make.
 build() {
   (cd ${objdir} && \
   make CFLAGS="${MY_CFLAGS}" )
@@ -293,7 +295,7 @@ build_log() {
   return ${PIPESTATUS[0]}
 }
 
-# Run the package testsuite
+# Run the package testsuite.
 check() {
   (cd ${objdir} && \
   make -k ${test_rule} )
@@ -303,13 +305,13 @@ check_log() {
   return ${PIPESTATUS[0]}
 }
 
-# Remove built files
+# Remove files created by configure and make.
 clean() {
   (cd ${objdir} && \
   make clean )
 }
 
-# Install the package, with DESTDIR of .inst
+# Install the package, with DESTDIR set to '.inst'.
 # postinstall named 00bash.sh to ensure /bin/sh exists before other
 # postinstall scripts are run, even when old ash package is uninstalled.
 # bash.1 cannot be compressed if bash_builtins.1 is to work.
@@ -407,21 +409,23 @@ install_log() {
   return ${PIPESTATUS[0]}
 }
 
-# Strip binaries
+# Strip all binaries.
 strip() {
   (cd ${instdir} && \
   find . -name "*.dll" -or -name "*.exe" | xargs -r strip 2>&1 ; \
   true )
 }
 
-# List files that belong to the package
+# List all non-hidden files that belong to the package.
 list() {
   (cd ${instdir} && \
   find . -name "*" ! -type d | sed 's%^\.%  %' | sort ; \
   true )
 }
 
-# List .dll dependencies of the package
+# List the static .dll dependencies of the package.  This does not pick up
+# dynamic dependencies (whether or not libtool was used), nor does it pick
+# up program dependencies, such as system() depending on /bin/sh.
 depend() {
   (cd ${instdir} && \
   find ${instdir} -name "*.exe" -o -name "*.dll" | xargs -r cygcheck | \
@@ -430,13 +434,13 @@ depend() {
   true )
 }
 
-# Build the binary package
+# Build the binary package tarball.
 pkg() {
   (cd ${instdir} && \
   tar cvjf ${bin_pkg} * )
 }
 
-# Compare the original tarball with cygwin modifications
+# Compare the original tarball against cygwin modifications.
 mkpatch() {
   (cd ${srcdir} && \
   find . -name "autom4te.cache" | xargs -r rm -rf ; \
@@ -484,7 +488,7 @@ acceptpatch() {
   cp --backup=numbered ${srcinstdir}/${src_patch_name} ${topdir}
 }
 
-# Build the source tarball
+# Build the source tarball.
 spkg() {
   (mkpatch && \
   if [ -f ${upstream_patchlist} ] ; then
@@ -517,12 +521,12 @@ spkg_log() {
   tar uvjf ${src_pkg} * )
 }
 
-# Clean up everything
+# Clean up everything.
 finish() {
   rm -rf ${srcdir}
 }
 
-# Generate GPG signatures
+# Generate GPG signatures.
 sigfile() {
   if [ \( "${SIG}" -eq 1 \) -a \( -e $name \) -a \( \( ! -e $name.sig \) -o \( $name -nt $name.sig \) \) ]; then \
     if [ -x /usr/bin/gpg ]; then \
@@ -535,7 +539,7 @@ sigfile() {
   fi
 }
 
-# Validate signatures
+# Validate GPG signatures.
 checksig() {
   if [ -x /usr/bin/gpg ]; then \
     if [ -e ${src_orig_pkg}.sig ]; then \
