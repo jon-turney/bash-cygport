@@ -389,6 +389,8 @@ install() {
     ${instdir}${sysconfdir}/postinstall/01${PKG}.bat &&
   /usr/bin/install -m 755 ${srcdir}/CYGWIN-PATCHES/00${PKG}.sh \
     ${instdir}${sysconfdir}/profile.d/00${PKG}.sh &&
+  /usr/bin/install -m 755 ${srcdir}/CYGWIN-PATCHES/00${PKG}.csh \
+    ${instdir}${sysconfdir}/profile.d/00${PKG}.csh &&
   if [ -f ${srcdir}/CYGWIN-PATCHES/preremove.sh ] ; then \
     if [ ! -d ${instdir}${sysconfdir}/preremove ]; then \
       mkdir -p ${instdir}${sysconfdir}/preremove ; \
