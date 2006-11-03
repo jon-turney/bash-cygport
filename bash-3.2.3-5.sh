@@ -39,7 +39,7 @@ export REL=`echo $tscriptname | sed -e "s/${PKG}\-${VER}\-//"`
 # Normally, these are identical, but if the Cygwin package name is different
 # from the upstream package name, you will want to redefine BASEPKG.
 # Example: For Apache 2, BASEPKG=httpd-2.x.xx but SHORTPKG=apache2-2.x.xx
-export BASEPKG=${PKG}-${VER}
+export BASEPKG=${PKG}-${VER%.*}
 export SHORTPKG=${PKG}-${VER}
 export FULLPKG=${SHORTPKG}-${REL}
 
