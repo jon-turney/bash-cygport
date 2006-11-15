@@ -244,7 +244,8 @@ prep() {
   cd ${topdir} && \
   if [ -f ${src_patch} ] ; then \
     patch -Z -p0 < ${src_patch} ;\
-  fi )
+  fi ) &&
+  (cd ${srcdir} && autoconf)
 }
 prep_log() {
   prep "$@" && \
@@ -463,7 +464,7 @@ mkpatch() {
     echo ${dir} >> ${BASEPKG}-filter
   done &&
   diff -urN -X ${BASEPKG}-filter \
-    -x 'build' -x 'static' \
+    -x 'build' -x 'static' -x 'configure' \
     ${BASEPKG}-orig ${BASEPKG} > \
     ${srcinstdir}/${src_patch_name} ; \
   rm -rf ${BASEPKG}-filter ${BASEPKG}-orig &&
