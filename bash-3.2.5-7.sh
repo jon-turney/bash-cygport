@@ -267,6 +267,7 @@ conf() {
   --mandir='${prefix}/share/man' --infodir='${prefix}/share/info' \
   --libexecdir='${sbindir}' --localstatedir="${localstatedir}" \
   --datadir='${prefix}/share' --without-libiconv-prefix \
+  ac_cv_func_asprintf=no ac_cv_func_vasprintf=no \
   --without-libintl-prefix --with-installed-readline )
 }
 conf_log() {
