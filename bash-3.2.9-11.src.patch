@@ -1,0 +1,888 @@
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/aclocal.m4 src/bash-3.2/aclocal.m4
+--- origsrc/bash-3.2/aclocal.m4	2006-09-12 15:18:07.000000000 -0600
++++ src/bash-3.2/aclocal.m4	2007-01-24 06:54:00.381000000 -0700
+@@ -1574,7 +1574,7 @@
+ AC_CACHE_VAL(bash_cv_dev_stdin,
+ [if test -d /dev/fd && test -r /dev/stdin < /dev/null; then
+    bash_cv_dev_stdin=present
+- elif test -d /proc/self/fd && test -r /dev/stdin < /dev/null; then
++ elif test -d /proc/self/fd && /bin/test -r /dev/stdin < /dev/null; then
+    bash_cv_dev_stdin=present
+  else
+    bash_cv_dev_stdin=absent
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/bashline.c src/bash-3.2/bashline.c
+--- origsrc/bash-3.2/bashline.c	2006-07-29 14:39:30.000000000 -0600
++++ src/bash-3.2/bashline.c	2007-01-24 06:54:00.459125000 -0700
+@@ -1519,6 +1519,15 @@
+       /* If we have found a match, and it is an executable file or a
+ 	 directory name, return it. */
+       if (match && executable_or_directory (val))
++#elif __CYGWIN__
++      /* executable_or_directory will do the right thing on //server,
++	 but calling stat("//server") is an order of magnitude slower
++	 than noting that readdir("//") only returns directories.  */
++      if (match && (searching_path ? executable_file (val)
++		    : ((val[0] == '/' && val[1] == '/'
++			&& ! strchr (&val[2], '/'))
++		       || executable_or_directory (val))))
++
+ #else
+       /* If we have found a match, and it is an executable file, return it.
+ 	 We don't return directory names when searching $PATH, since the
+@@ -2259,6 +2268,16 @@
+   char *fn;
+ 
+   fn = bash_tilde_expand (name, 0);
++#if __CYGWIN__
++  /* Although this leads to false positives if NAME is random, it is worth the
++     speedup to assume //server is a directory rather than waiting the couple
++     of seconds for stat("//server") to complete.  */
++  if (fn[0] == '/' && fn[1] == '/' && ! strchr (&fn[2], '/'))
++    {
++      free (fn);
++      return 1;
++    }
++#endif /* __CYGWIN__ */
+   if (stat (fn, &finfo) != 0)
+     {
+       free (fn);
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/builtins/evalfile.c src/bash-3.2/builtins/evalfile.c
+--- origsrc/bash-3.2/builtins/evalfile.c	2006-07-27 19:41:43.000000000 -0600
++++ src/bash-3.2/builtins/evalfile.c	2007-01-24 06:54:00.459125000 -0700
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1996-2003 Free Software Foundation, Inc.
++/* Copyright (C) 1996-2003, 2006 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -143,10 +143,6 @@
+       return ((flags & FEVAL_BUILTIN) ? EXECUTION_FAILURE : -1);
+     }      
+ 
+-#if defined (__CYGWIN__) && defined (O_TEXT)
+-  setmode (fd, O_TEXT);
+-#endif
+-
+   string = (char *)xmalloc (1 + file_size);
+   result = read (fd, string, file_size);
+   string[result] = '\0';
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/builtins/set.def src/bash-3.2/builtins/set.def
+--- origsrc/bash-3.2/builtins/set.def	2006-07-27 07:41:43.000000000 -0600
++++ src/bash-3.2/builtins/set.def	2007-01-25 07:01:29.271625000 -0700
+@@ -1,7 +1,7 @@
+ This file is set.def, from which is created set.c.
+ It implements the "set" and "unset" builtins in Bash.
+ 
+-Copyright (C) 1987-2004 Free Software Foundation, Inc.
++Copyright (C) 1987-2004, 2007 Free Software Foundation, Inc.
+ 
+ This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -57,6 +57,13 @@
+ #if defined (READLINE)
+ extern int no_line_editing;
+ #endif /* READLINE */
++#if __CYGWIN__
++extern int igncr;
++static int set_minus_o_option_maybe (int, const char *, int);
++# define INTERACTIVE_ONLY ,1
++#else /* ! __CYGWIN__ */
++# define INTERACTIVE_ONLY
++#endif
+ 
+ $BUILTIN set
+ $FUNCTION set_builtin
+@@ -87,6 +94,9 @@
+ #if defined (HISTORY)
+             history      enable command history
+ #endif
++#if __CYGWIN__
++            igncr        on cygwin, ignore \r in line endings
++#endif
+             ignoreeof    the shell will not exit upon reading EOF
+             interactive-comments
+                          allow comments to appear in interactive commands
+@@ -173,28 +183,40 @@
+   int *variable;
+   setopt_set_func_t *set_func;
+   setopt_get_func_t *get_func;
++#if __CYGWIN__
++  /* Cygwin users tend to abuse exporting SHELLOPTS for the
++     cygwin-specific igncr.  As a result, we need to make sure
++     SHELLOPTS parsing does not turn on interactive options when
++     exported from an interactive shell, but parsed in a
++     non-interactive setting, since some interactive options violate
++     POSIX /bin/sh rules.  */
++  int interactive_only;
++#endif /* __CYGWIN__ */
+ } o_options[] = {
+   { "allexport",  'a', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL },
+ #if defined (BRACE_EXPANSION)
+   { "braceexpand",'B', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
+ #endif
+ #if defined (READLINE)
+-  { "emacs",     '\0', (int *)NULL, set_edit_mode, get_edit_mode },
++  { "emacs",     '\0', (int *)NULL, set_edit_mode, get_edit_mode INTERACTIVE_ONLY },
+ #endif
+   { "errexit",	  'e', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
+   { "errtrace",	  'E', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
+   { "functrace",  'T', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
+   { "hashall",    'h', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
+ #if defined (BANG_HISTORY)
+-  { "histexpand", 'H', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
++  { "histexpand", 'H', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL INTERACTIVE_ONLY },
+ #endif /* BANG_HISTORY */
+ #if defined (HISTORY)
+-  { "history",   '\0', &remember_on_history, bash_set_history, (setopt_get_func_t *)NULL },
++  { "history",   '\0', &remember_on_history, bash_set_history, (setopt_get_func_t *)NULL INTERACTIVE_ONLY },
++#endif
++#if __CYGWIN__
++  { "igncr", '\0', &igncr, NULL, (setopt_get_func_t *)NULL },
+ #endif
+   { "ignoreeof", '\0', &ignoreeof, set_ignoreeof, (setopt_get_func_t *)NULL },
+   { "interactive-comments", '\0', &interactive_comments, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL },
+   { "keyword",    'k', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
+-  { "monitor",	  'm', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
++  { "monitor",	  'm', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL INTERACTIVE_ONLY },
+   { "noclobber",  'C', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
+   { "noexec",	  'n', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
+   { "noglob",	  'f', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
+@@ -212,7 +234,7 @@
+   { "privileged", 'p', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
+   { "verbose",	  'v', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
+ #if defined (READLINE)
+-  { "vi",        '\0', (int *)NULL, set_edit_mode, get_edit_mode },
++  { "vi",        '\0', (int *)NULL, set_edit_mode, get_edit_mode INTERACTIVE_ONLY },
+ #endif
+   { "xtrace",	  'x', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
+   {(char *)NULL, 0 , (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL },
+@@ -395,6 +417,15 @@
+ set_minus_o_option (on_or_off, option_name)
+      int on_or_off;
+      char *option_name;
++#if __CYGWIN__
++{
++  /* See cygwin comments above.  */
++  return set_minus_o_option_maybe (on_or_off, option_name, 0);
++}
++static int
++set_minus_o_option_maybe (int on_or_off, const char *option_name,
++			  int avoid_interactive)
++#endif /* __CYGWIN__ */
+ {
+   register int i;
+ 
+@@ -402,6 +433,10 @@
+     {
+       if (STREQ (option_name, o_options[i].name))
+ 	{
++#if __CYGWIN__
++	  if (o_options[i].interactive_only && avoid_interactive)
++	    return EXECUTION_SUCCESS;
++#endif /* __CYGWIN__ */
+ 	  if (o_options[i].letter == 0)
+ 	    {
+ 	      SET_BINARY_O_OPTION_VALUE (i, on_or_off, option_name);
+@@ -527,7 +562,11 @@
+   vptr = 0;
+   while (vname = extract_colon_unit (value, &vptr))
+     {
++#if __CYGWIN__
++      set_minus_o_option_maybe (FLAG_ON, vname, ! interactive_shell);
++#else /* ! __CYGWIN__ */
+       set_minus_o_option (FLAG_ON, vname);
++#endif /* ! __CYGWIN__ */
+       free (vname);
+     }
+ }
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/builtins/shopt.def src/bash-3.2/builtins/shopt.def
+--- origsrc/bash-3.2/builtins/shopt.def	2005-02-19 15:25:03.000000000 -0700
++++ src/bash-3.2/builtins/shopt.def	2007-01-24 06:54:00.521625000 -0700
+@@ -69,6 +69,10 @@
+ extern int xpg_echo;
+ extern int gnu_error_format;
+ 
++#if __CYGWIN__
++extern int igncr;
++#endif
++
+ #if defined (EXTENDED_GLOB)
+ extern int extended_glob;
+ #endif
+@@ -145,6 +149,9 @@
+   { "hostcomplete", &perform_hostname_completion, enable_hostname_completion },
+ #endif
+   { "huponexit", &hup_on_exit, (shopt_set_func_t *)NULL },
++#if __CYGWIN__
++  { "igncr", &igncr, (shopt_set_func_t *)NULL },
++#endif
+   { "interactive_comments", &interactive_comments, set_shellopts_after_change },
+ #if defined (HISTORY)
+   { "lithist", &literal_history, (shopt_set_func_t *)NULL },
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/config-top.h src/bash-3.2/config-top.h
+--- origsrc/bash-3.2/config-top.h	2005-04-29 14:36:34.000000000 -0600
++++ src/bash-3.2/config-top.h	2007-01-24 06:54:00.599750000 -0700
+@@ -3,7 +3,7 @@
+ /* This contains various user-settable options not under the control of
+    autoconf. */
+ 
+-/* Copyright (C) 2002 Free Software Foundation, Inc.
++/* Copyright (C) 2002, 2006 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -84,4 +84,4 @@
+ 
+ /* Define this if you want bash to try to check whether it's being run by
+    sshd and source the .bashrc if so (like the rshd behavior). */
+-/* #define SSH_SOURCE_BASHRC */
++#define SSH_SOURCE_BASHRC
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/doc/Makefile.in src/bash-3.2/doc/Makefile.in
+--- origsrc/bash-3.2/doc/Makefile.in	2004-07-27 06:57:48.000000000 -0600
++++ src/bash-3.2/doc/Makefile.in	2007-01-24 06:54:00.599750000 -0700
+@@ -1,6 +1,6 @@
+ # This Makefile is for the Bash/documentation directory -*- text -*-.
+ #
+-# Copyright (C) 2003 Free Software Foundation, Inc.
++# Copyright (C) 2003, 2006 Free Software Foundation, Inc.
+ 
+ # This program is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+@@ -167,7 +167,7 @@
+ bashref.html: $(BASHREF_FILES) $(HSUSER) $(RLUSER)
+ 	$(TEXI2HTML) -menu -monolithic -I $(TEXINPUTDIR) $(srcdir)/bashref.texi
+ 
+-bash.info: bashref.info
++bash.info: $(srcdir)/bashref.info
+ 	${SHELL} ${INFOPOST} < $(srcdir)/bashref.info > $@ ; \
+ 
+ bash.txt: bash.1
+@@ -224,8 +224,8 @@
+ 	-$(INSTALL_DATA) $(srcdir)/bash.1 $(DESTDIR)$(man1dir)/bash${man1ext}
+ 	-$(INSTALL_DATA) $(srcdir)/bashbug.1 $(DESTDIR)$(man1dir)/bashbug${man1ext}
+ # uncomment the next line to install the builtins man page
+-#	-$(INSTALL_DATA) $(srcdir)/builtins.1 $(DESTDIR)$(man1dir)/bash_builtins${man1ext}
+-	-$(INSTALL_DATA) $(srcdir)/bash.info $(DESTDIR)$(infodir)/bash.info
++	-$(INSTALL_DATA) $(srcdir)/builtins.1 $(DESTDIR)$(man1dir)/bash_builtins${man1ext}
++	-$(INSTALL_DATA) bash.info $(DESTDIR)$(infodir)/bash.info
+ # run install-info if it is present to update the info directory
+ 	if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then \
+ 		install-info --dir-file=$(DESTDIR)$(infodir)/dir $(DESTDIR)$(infodir)/bash.info; \
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/doc/builtins.1 src/bash-3.2/doc/builtins.1
+--- origsrc/bash-3.2/doc/builtins.1	2004-05-24 08:19:55.000000000 -0600
++++ src/bash-3.2/doc/builtins.1	2007-01-24 06:54:00.615375000 -0700
+@@ -10,6 +10,6 @@
+ ulimit, umask, unalias, unset, wait \- bash built-in commands, see \fBbash\fR(1)
+ .SH BASH BUILTIN COMMANDS
+ .nr zZ 1
+-.so bash.1
++.so man1/bash.1
+ .SH SEE ALSO
+ bash(1), sh(1)
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/execute_cmd.c src/bash-3.2/execute_cmd.c
+--- origsrc/bash-3.2/execute_cmd.c	2006-08-25 22:23:17.000000000 -0600
++++ src/bash-3.2/execute_cmd.c	2007-01-25 06:09:46.849750000 -0700
+@@ -1,6 +1,6 @@
+ /* execute_cmd.c -- Execute a COMMAND structure. */
+ 
+-/* Copyright (C) 1987-2005 Free Software Foundation, Inc.
++/* Copyright (C) 1987-2005, 2007 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -4124,6 +4124,11 @@
+ 	dup_error (pipe_in, 0);
+       if (pipe_in > 0)
+ 	close (pipe_in);
++#if __CYGWIN__
++      /* Inform stdio that we just altered the underlying fd (as this
++	 may have changed between text and binary mode).  */
++      freopen (NULL, "r", stdin);
++#endif /* __CYGWIN__ */
+     }
+   if (pipe_out != NO_PIPE)
+     {
+@@ -4139,5 +4144,10 @@
+ 	  if (dup2 (1, 2) < 0)
+ 	    dup_error (1, 2);
+ 	}
++#if __CYGWIN__
++      /* Inform stdio that we just altered the underlying fd (as this
++	 may have changed between text and binary mode).  */
++      freopen (NULL, "w", stdout);
++#endif /* __CYGWIN__ */
+     }
+ }
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/findcmd.c src/bash-3.2/findcmd.c
+--- origsrc/bash-3.2/findcmd.c	2007-01-24 06:50:37.037250000 -0700
++++ src/bash-3.2/findcmd.c	2007-01-24 06:54:00.615375000 -0700
+@@ -1,6 +1,6 @@
+ /* findcmd.c -- Functions to search for commands by name. */
+ 
+-/* Copyright (C) 1997 Free Software Foundation, Inc.
++/* Copyright (C) 1997, 2006 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -94,7 +94,7 @@
+ 
+   r = FS_EXISTS;
+ 
+-#if defined (AFS)
++#if defined (AFS) || __CYGWIN__
+   /* We have to use access(2) to determine access because AFS does not
+      support Unix file system semantics.  This may produce wrong
+      answers for non-AFS files when ruid != euid.  I hate AFS. */
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/input.c src/bash-3.2/input.c
+--- origsrc/bash-3.2/input.c	2006-07-27 19:22:58.000000000 -0600
++++ src/bash-3.2/input.c	2007-01-24 06:54:00.631000000 -0700
+@@ -1,6 +1,6 @@
+ /* input.c -- functions to perform buffered input with synchronization. */
+ 
+-/* Copyright (C) 1992 Free Software Foundation, Inc.
++/* Copyright (C) 1992, 2006 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -43,6 +43,11 @@
+ #include "externs.h"
+ #include "quit.h"
+ 
++#if __CYGWIN__
++# include <sys/cygwin.h>
++int igncr;
++#endif
++
+ #if !defined (errno)
+ extern int errno;
+ #endif /* !errno */
+@@ -172,6 +177,10 @@
+   bp->b_used = bp->b_inputp = bp->b_flag = 0;
+   if (bufsize == 1)
+     bp->b_flag |= B_UNBUFF;
++#if __CYGWIN__
++  if ((fcntl (fd, F_GETFL) & O_TEXT) != 0)
++    bp->b_flag |= B_TEXT;
++#endif
+   return (bp);
+ }
+ 
+@@ -340,11 +349,7 @@
+ }
+ 
+ /* Return 1 if a seek on FD will succeed. */
+-#ifndef __CYGWIN__
+ #  define fd_is_seekable(fd) (lseek ((fd), 0L, SEEK_CUR) >= 0)
+-#else
+-#  define fd_is_seekable(fd) 0
+-#endif /* __CYGWIN__ */
+ 
+ /* Take FD, a file descriptor, and create and return a buffered stream
+    corresponding to it.  If something is wrong and the file descriptor
+@@ -378,6 +383,14 @@
+ {
+   int fd;
+ 
++#if __CYGWIN__
++  /* Normalize DOS paths into Unix; otherwise mount point settings are
++     not honored.  */
++  char posix[PATH_MAX];
++  cygwin_conv_to_posix_path (file, posix);
++  file = posix;
++#endif /* __CYGWIN__ */
++
+   fd = open (file, O_RDONLY);
+   return ((fd >= 0) ? fd_to_buffered_stream (fd) : (BUFFERED_STREAM *)NULL);
+ }
+@@ -453,6 +466,25 @@
+   ssize_t nr;
+ 
+   CHECK_TERMSIG;
++#ifdef __CYGWIN__
++  /* lseek'ing on text files is problematic; lseek reports the true
++     file offset, but read collapses \r\n and returns a character
++     count.  We cannot reliably seek backwards if nr is smaller than
++     the seek offset encountered during the read, and must instead
++     treat the stream as unbuffered.  */
++  if ((bp->b_flag & (B_TEXT | B_UNBUFF)) == B_TEXT)
++    {
++      off_t offset = lseek (bp->b_fd, 0, SEEK_CUR);
++      nr = zread (bp->b_fd, bp->b_buffer, bp->b_size);
++      if (nr > 0 && nr < lseek (bp->b_fd, 0, SEEK_CUR) - offset)
++	{
++	  lseek (bp->b_fd, offset, SEEK_SET);
++	  bp->b_flag |= B_UNBUFF;
++	  nr = zread (bp->b_fd, bp->b_buffer, bp->b_size = 1);
++	}
++    }
++  else
++#endif
+   nr = zread (bp->b_fd, bp->b_buffer, bp->b_size);
+   if (nr <= 0)
+     {
+@@ -465,15 +497,6 @@
+       return (EOF);
+     }
+ 
+-#if defined (__CYGWIN__)
+-  /* If on cygwin, translate \r\n to \n. */
+-  if (nr >= 2 && bp->b_buffer[nr - 2] == '\r' && bp->b_buffer[nr - 1] == '\n')
+-    {
+-      bp->b_buffer[nr - 2] = '\n';
+-      nr--;
+-    }
+-#endif
+-
+   bp->b_used = nr;
+   bp->b_inputp = 0;
+   return (bp->b_buffer[bp->b_inputp++] & 0xFF);
+@@ -522,6 +545,19 @@
+ {
+   CHECK_TERMSIG;
+ 
++#if __CYGWIN__
++  /* shopt igncr means to discard carriage returns from input stream.
++     If cr is the only character in the buffer, then recurse to pick
++     up the next character; otherwise flatten the buffer.  */
++  if (igncr)
++    {
++      int ch;
++      while ((ch = bufstream_getc (buffers[bash_input.location.buffered_fd]))
++	     == '\r')
++	;
++      return ch;
++    }
++#endif /* __CYGWIN__ */
+ #if !defined (DJGPP)
+   return (bufstream_getc (buffers[bash_input.location.buffered_fd]));
+ #else
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/input.h src/bash-3.2/input.h
+--- origsrc/bash-3.2/input.h	2006-03-19 16:31:20.000000000 -0600
++++ src/bash-3.2/input.h	2007-01-24 06:54:00.631000000 -0700
+@@ -1,5 +1,5 @@
+ /* input.h -- Structures and unions used for reading input. */
+-/* Copyright (C) 1993 Free Software Foundation, Inc.
++/* Copyright (C) 1993, 2006 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -47,6 +47,7 @@
+ #define B_ERROR		0x02
+ #define B_UNBUFF	0x04
+ #define B_WASBASHINPUT	0x08
++#define B_TEXT		0x10 /* Text stream, when O_BINARY is nonzero */
+ 
+ /* A buffered stream.  Like a FILE *, but with our own buffering and
+    synchronization.  Look in input.c for the implementation. */
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/lib/sh/pathcanon.c src/bash-3.2/lib/sh/pathcanon.c
+--- origsrc/bash-3.2/lib/sh/pathcanon.c	2005-02-22 15:40:56.000000000 -0700
++++ src/bash-3.2/lib/sh/pathcanon.c	2007-01-24 06:54:00.631000000 -0700
+@@ -1,6 +1,6 @@
+ /* pathcanon.c -- Canonicalize and manipulate pathnames. */
+ 
+-/* Copyright (C) 2000 Free Software Foundation, Inc.
++/* Copyright (C) 2000, 2006 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -194,24 +194,24 @@
+ 	    *q++ = DIRSEP;
+ 	  while (*p && (ISDIRSEP(*p) == 0))
+ 	    *q++ = *p++;
+-	  /* Check here for a valid directory with _path_isdir. */
+-	  if (flags & PATH_CHECKEXISTS)
+-	    {
+-	      char c;
++	}
++    }
++  /* Check here for a valid directory with _path_isdir. */
++  if (flags & PATH_CHECKEXISTS)
++    {
++      char c;
+ 
+-	      /* Make sure what we have so far corresponds to a valid
+-		 path before we chop some of it off. */
+-	      c = *q;
+-	      *q = '\0';
+-	      if (_path_isdir (result) == 0)
+-		{
+-		  if ((flags & PATH_NOALLOC) == 0)
+-		    free (result);
+-		  return ((char *)NULL);
+-		}
+-	      *q = c;
+-	    }
++      /* Make sure what we have so far corresponds to a valid
++	 path before we chop some of it off. */
++      c = *q;
++      *q = '\0';
++      if (_path_isdir (result) == 0)
++	{
++	  if ((flags & PATH_NOALLOC) == 0)
++	    free (result);
++	  return ((char *)NULL);
+ 	}
++      *q = c;
+     }
+ 
+   /* Empty string is really ``.'' or `/', depending on what we started with. */
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/lib/sh/pathphys.c src/bash-3.2/lib/sh/pathphys.c
+--- origsrc/bash-3.2/lib/sh/pathphys.c	2005-08-28 13:32:18.000000000 -0600
++++ src/bash-3.2/lib/sh/pathphys.c	2007-01-24 06:54:00.646625000 -0700
+@@ -1,6 +1,6 @@
+ /* pathphys.c -- Return pathname with all symlinks expanded. */
+ 
+-/* Copyright (C) 2000 Free Software Foundation, Inc.
++/* Copyright (C) 2000, 2006 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -35,6 +35,7 @@
+ #include <stdio.h>
+ #include <chartypes.h>
+ #include <errno.h>
++#include <stdlib.h>
+ 
+ #include "shell.h"
+ 
+@@ -76,6 +77,10 @@
+      char *path;
+      int flags;
+ {
++#if __CYGWIN__
++  /* realpath does this right without all the hassle */
++  return realpath (path, NULL);
++#else
+   char tbuf[PATH_MAX+1], linkbuf[PATH_MAX+1];
+   char *result, *p, *q, *qsave, *qbase, *workpath;
+   int double_slash_path, linklen, nlink;
+@@ -249,6 +254,7 @@
+     }
+ 
+   return (result);
++#endif /* __CYGWIN__ */
+ }
+ 
+ char *
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/lib/sh/snprintf.c src/bash-3.2/lib/sh/snprintf.c
+--- origsrc/bash-3.2/lib/sh/snprintf.c	2007-01-24 06:50:37.584125000 -0700
++++ src/bash-3.2/lib/sh/snprintf.c	2007-01-24 06:54:00.646625000 -0700
+@@ -7,7 +7,7 @@
+    Unix snprintf implementation.
+    derived from inetutils/libinetutils/snprintf.c Version 1.1
+ 
+-   Copyright (C) 2001 Free Software Foundation, Inc.
++   Copyright (C) 2001, 2006 Free Software Foundation, Inc.
+ 
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General License as published by
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/lib/sh/tmpfile.c src/bash-3.2/lib/sh/tmpfile.c
+--- origsrc/bash-3.2/lib/sh/tmpfile.c	2006-07-27 21:55:48.000000000 -0600
++++ src/bash-3.2/lib/sh/tmpfile.c	2007-01-24 06:54:00.662250000 -0700
+@@ -2,7 +2,7 @@
+  * tmpfile.c - functions to create and safely open temp files for the shell.
+  */
+ 
+-/* Copyright (C) 2000 Free Software Foundation, Inc.
++/* Copyright (C) 2000, 2006 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -40,7 +40,7 @@
+ extern int errno;
+ #endif
+ 
+-#define BASEOPENFLAGS	(O_CREAT | O_TRUNC | O_EXCL)
++#define BASEOPENFLAGS	(O_CREAT | O_TRUNC | O_EXCL | O_BINARY)
+ 
+ #define DEFAULT_TMPDIR		"."	/* bogus default, should be changed */
+ #define DEFAULT_NAMEROOT	"shtmp"
+@@ -133,7 +133,13 @@
+ 		(unsigned long) time ((time_t *)0) ^
+ 		(unsigned long) dollar_dollar_pid ^
+ 		(unsigned long) ((flags & MT_USERANDOM) ? get_random_number () : ntmpfiles++);
+-      sprintf (filename, "%s/%s-%lu", tdir, lroot, filenum);
++      r = snprintf (filename, PATH_MAX + 1, "%s/%s-%lu", tdir, lroot, filenum);
++      if (r > PATH_MAX)
++	{
++	  free (filename);
++	  filename = NULL;
++	  break;
++	}
+       if (tmpnamelen > 0 && tmpnamelen < 32)
+ 	filename[tdlen + 1 + tmpnamelen] = '\0';
+ #  ifdef HAVE_LSTAT
+@@ -178,11 +184,20 @@
+ #else /* !USE_MKSTEMP */
+   do
+     {
++      int r;
+       filenum = (filenum << 1) ^
+ 		(unsigned long) time ((time_t *)0) ^
+ 		(unsigned long) dollar_dollar_pid ^
+ 		(unsigned long) ((flags & MT_USERANDOM) ? get_random_number () : ntmpfiles++);
+-      sprintf (filename, "%s/%s-%lu", tdir, lroot, filenum);
++      r = snprintf (filename, PATH_MAX + 1, "%s/%s-%lu", tdir, lroot, filenum);
++      if (r > PATH_MAX)
++	{
++	  free (filename);
++	  if (namep)
++	    *namep = NULL;
++	  errno = ENAMETOOLONG;
++	  return -1;
++	}
+       if (tmpnamelen > 0 && tmpnamelen < 32)
+ 	filename[tdlen + 1 + tmpnamelen] = '\0';
+       fd = open (filename, BASEOPENFLAGS | ((flags & MT_READWRITE) ? O_RDWR : O_WRONLY), 0600);
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/lib/sh/winsize.c src/bash-3.2/lib/sh/winsize.c
+--- origsrc/bash-3.2/lib/sh/winsize.c	2006-07-27 21:57:45.000000000 -0600
++++ src/bash-3.2/lib/sh/winsize.c	2007-01-24 06:54:00.662250000 -0700
+@@ -1,6 +1,6 @@
+ /* Handle window size changes and information. */
+ 
+-/* Copyright (C) 2005 Free Software Foundation, Inc.
++/* Copyright (C) 2005, 2006 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -29,6 +29,7 @@
+ #endif
+ 
+ #include <sys/ioctl.h>
++#include <termios.h>
+ 
+ #if !defined (STRUCT_WINSIZE_IN_SYS_IOCTL)
+ /* For struct winsize on SCO */
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/parse.y src/bash-3.2/parse.y
+--- origsrc/bash-3.2/parse.y	2007-01-24 06:50:35.443500000 -0700
++++ src/bash-3.2/parse.y	2007-01-24 06:54:00.677875000 -0700
+@@ -1295,14 +1295,20 @@
+   string = bash_input.location.string;
+ 
+   /* If the string doesn't exist, or is empty, EOF found. */
+-  if (string && *string)
++  while (string && *string)
+     {
+       c = *string++;
+       bash_input.location.string = string;
++#if __CYGWIN__
++      {
++	extern int igncr;
++	if (igncr && c == '\r')
++	  continue;
++      }
++#endif
+       return (c);
+     }
+-  else
+-    return (EOF);
++  return (EOF);
+ }
+ 
+ static int
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/redir.c src/bash-3.2/redir.c
+--- origsrc/bash-3.2/redir.c	2006-05-23 20:31:35.000000000 -0600
++++ src/bash-3.2/redir.c	2007-01-24 06:54:00.693500000 -0700
+@@ -1,6 +1,6 @@
+ /* redir.c -- Functions to perform input and output redirection. */
+ 
+-/* Copyright (C) 1997-2005 Free Software Foundation, Inc.
++/* Copyright (C) 1997-2006 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -375,7 +375,7 @@
+   char *filename;
+   int r, fd, fd2;
+ 
+-  fd = sh_mktmpfd ("sh-thd", MT_USERANDOM, &filename);
++  fd = sh_mktmpfd ("sh-thd", MT_USERANDOM | MT_USETMPDIR, &filename);
+ 
+   /* If we failed for some reason other than the file existing, abort */
+   if (fd < 0)
+@@ -402,7 +402,7 @@
+   /* In an attempt to avoid races, we close the first fd only after opening
+      the second. */
+   /* Make the document really temporary.  Also make it the input. */
+-  fd2 = open (filename, O_RDONLY, 0600);
++  fd2 = open (filename, O_RDONLY | O_BINARY, 0600);
+ 
+   if (fd2 < 0)
+     {
+@@ -418,14 +418,6 @@
+   if (unlink (filename) < 0)
+     {
+       r = errno;
+-#if defined (__CYGWIN__)
+-      /* Under CygWin 1.1.0, the unlink will fail if the file is
+-	 open. This hack will allow the previous action of silently
+-	 ignoring the error, but will still leave the file there. This
+-	 needs some kind of magic. */
+-      if (r == EACCES)
+-	return (fd2);
+-#endif /* __CYGWIN__ */
+       close (fd2);
+       free (filename);
+       errno = r;
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/shell.c src/bash-3.2/shell.c
+--- origsrc/bash-3.2/shell.c	2006-05-17 06:46:54.000000000 -0600
++++ src/bash-3.2/shell.c	2007-01-24 06:54:00.709125000 -0700
+@@ -1,6 +1,6 @@
+ /* shell.c -- GNU's idea of the POSIX shell specification. */
+ 
+-/* Copyright (C) 1987-2005 Free Software Foundation, Inc.
++/* Copyright (C) 1987-2006 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -306,7 +306,10 @@
+   struct stat sb;
+ 
+   if (stat ("/tmp", &sb) < 0)
+-    internal_warning (_("could not find /tmp, please create!"));
++    {
++      if (mkdir ("/tmp", S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX) != 0)
++	internal_warning (_("could not create /tmp!"));
++    }
+   else
+     {
+       if (S_ISDIR (sb.st_mode) == 0)
+@@ -1344,6 +1347,13 @@
+   SHELL_VAR *funcname_v, *bash_source_v, *bash_lineno_v;
+   ARRAY *funcname_a, *bash_source_a, *bash_lineno_a;
+ #endif
++#if __CYGWIN__
++  /* Normalize DOS paths into Unix; otherwise mount point settings are
++     not honored.  */
++  char posix[PATH_MAX];
++  cygwin_conv_to_posix_path (script_name, posix);
++  script_name = posix;
++#endif /* __CYGWIN__ */
+ 
+   filename = savestring (script_name);
+ 
+@@ -1428,10 +1438,6 @@
+      not match with ours. */
+   fd = move_to_high_fd (fd, 0, -1);
+ 
+-#if defined (__CYGWIN__) && defined (O_TEXT)
+-  setmode (fd, O_TEXT);
+-#endif
+-
+ #if defined (BUFFERED_INPUT)
+   default_buffered_input = fd;
+   SET_CLOSE_ON_EXEC (default_buffered_input);
+@@ -1520,7 +1526,7 @@
+     }
+ #endif /* !BUFFERED_INPUT */
+ }
+-      
++
+ 
+ #if !defined (PROGRAM)
+ #  define PROGRAM "bash"
+diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/subst.c src/bash-3.2/subst.c
+--- origsrc/bash-3.2/subst.c	2007-01-24 06:50:36.209125000 -0700
++++ src/bash-3.2/subst.c	2007-01-25 06:05:12.865375000 -0700
+@@ -4,7 +4,7 @@
+ /* ``Have a little faith, there's magic in the night.  You ain't a
+      beauty, but, hey, you're alright.'' */
+ 
+-/* Copyright (C) 1987-2006 Free Software Foundation, Inc.
++/* Copyright (C) 1987-2007 Free Software Foundation, Inc.
+ 
+    This file is part of GNU Bash, the Bourne Again SHell.
+ 
+@@ -4427,10 +4427,6 @@
+   istring = (char *)NULL;
+   istring_index = istring_size = bufn = 0;
+ 
+-#ifdef __CYGWIN__
+-  setmode (fd, O_TEXT);		/* we don't want CR/LF, we want Unix-style */
+-#endif
+-
+   /* Read the output of the command through the pipe. */
+   while (1)
+     {
+@@ -4452,6 +4448,13 @@
+ #endif
+ 	  continue;
+ 	}
++#if __CYGWIN__
++      {
++	extern int igncr;
++	if (igncr && c == '\r')
++	  continue;
++      }
++#endif /* __CYGWIN__ */
+ 
+       /* Add the character to ISTRING, possibly after resizing it. */
+       RESIZE_MALLOCED_BUFFER (istring, istring_index, 2, istring_size, DEFAULT_ARRAY_SIZE);
+@@ -4517,6 +4520,12 @@
+   pid_t pid, old_pid, old_pipeline_pgrp, old_async_pid;
+   char *istring;
+   int result, fildes[2], function_value, pflags, rc;
++#if __CYGWIN__
++  /* Ensure that stdin, stdout, and stderr have a valid file descriptor, so
++     that pipe doesn't end up in those slots; otherwise a hang might
++     result when leaving one end of the pipe open in the subprocess.  */
++  int i, closeit[3];
++#endif /* __CYGWIN__ */
+ 
+   istring = (char *)NULL;
+ 
+@@ -4546,6 +4555,17 @@
+   /* Flags to pass to parse_and_execute() */
+   pflags = interactive ? SEVAL_RESETLINE : 0;
+ 
++#if __CYGWIN__
++  /* See comments above */
++  for (i = 0; i <= 2; i++)
++    if (fcntl (i, F_GETFD, &result) != -1)
++      closeit[i] = 0;
++    else
++      {
++	open ("/dev/null", O_RDONLY);
++	closeit[i] = 1;
++      }
++#endif /* __CYGWIN__ */
+   /* Pipe the output of executing STRING into the current shell. */
+   if (pipe (fildes) < 0)
+     {
+@@ -4553,6 +4573,12 @@
+       goto error_exit;
+     }
+ 
++#if __CYGWIN__
++  for (i = 0; i <= 2; i++)
++    if (closeit[i])
++      close (i);
++#endif /* __CYGWIN__ */
++
+   old_pid = last_made_pid;
+ #if defined (JOB_CONTROL)
+   old_pipeline_pgrp = pipeline_pgrp;
+@@ -4606,6 +4632,7 @@
+ 	  exit (EXECUTION_FAILURE);
+ 	}
+ 
++#ifndef __CYGWIN__
+       /* If standard output is closed in the parent shell
+ 	 (such as after `exec >&-'), file descriptor 1 will be
+ 	 the lowest available file descriptor, and end up in
+@@ -4621,6 +4648,15 @@
+ 	  (fildes[0] != fileno (stdout)) &&
+ 	  (fildes[0] != fileno (stderr)))
+ 	close (fildes[0]);
++#else /* __CYGWIN__ */
++      /* We already ensured that 0-2 were not occupied by either end
++	 of the pipe.  */
++      close (fildes[0]);
++      close (fildes[1]);
++      /* Inform stdio that we just altered the underlying fd (as this
++	 may have changed between text and binary mode).  */
++      freopen (NULL, "w", stdout);
++#endif /* __CYGWIN__ */
+ 
+       /* The currently executing shell is not interactive. */
+       interactive = 0;

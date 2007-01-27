@@ -1,0 +1,429 @@
+diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/00bash.csh src/bash-3.2/CYGWIN-PATCHES/00bash.csh
+--- origsrc/bash-3.2/CYGWIN-PATCHES/00bash.csh	1969-12-31 17:00:00.000000000 -0700
++++ src/bash-3.2/CYGWIN-PATCHES/00bash.csh	2007-01-24 06:54:00.177875000 -0700
+@@ -0,0 +1,15 @@
++# Bash profile.d script.  This is sourced by the default /etc/csh.cshrc to
++# ensure that /bin/sh exists and is runnable, updating older copies of ash
++# or bash as appropriate, while leaving other shells (ksh or zsh) alone.
++# Because it is sourced by any C-shell, including csh, it must be
++# portable and not pollute the environment.
++
++# Short circuit: if sh is not older than bash, stop now.  '/bin/test a -ot b'
++# has the semantics we desire where missing 'a' is older than existing 'b'.
++/bin/test \! /bin/sh.exe -ot /bin/bash.exe
++if ( $status ) then
++  # Scripting in csh is painful and non-intuitive.  Cheat, and let bash do the
++  # work.  After all, this script belongs to the bash package, and we are not
++  # changing the csh environment, so much as ensuring /bin/sh is up-to-date.
++  /bin/bash.exe -c '. /etc/profile.d/00bash.sh'
++endif
+diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/00bash.sh src/bash-3.2/CYGWIN-PATCHES/00bash.sh
+--- origsrc/bash-3.2/CYGWIN-PATCHES/00bash.sh	1969-12-31 17:00:00.000000000 -0700
++++ src/bash-3.2/CYGWIN-PATCHES/00bash.sh	2007-01-24 06:54:00.193500000 -0700
+@@ -0,0 +1,63 @@
++# Bash profile.d script.
++
++# Copyright (C) 2005, 2006 Eric Blake
++# This file is free software; I give unlimited permission to copy and/or
++# distribute it, with or without modifications, as long as this notice is
++# preserved.
++
++# This is sourced by the default /etc/profile to ensure that /bin/sh
++# exists and is runnable, updating older copies of ash or bash as
++# appropriate, while leaving other shells (ksh or zsh) alone.  Because
++# it is sourced by any bourne shell, including ash, it must be
++# portable and not pollute the environment.
++
++# Short circuit: if sh is not older than bash, stop now.  '/bin/test a -ot b'
++# has the semantics we desire where missing 'a' is older than existing 'b'.
++# Not all test implementations have these semantics, and POSIX does not
++# require support for -ot, so we cannot use a builtin.
++/bin/test /bin/sh.exe -ot /bin/bash.exe || return 0
++
++# Short circuit: if this is /bin/sh, we know that /bin/sh is not missing; and
++# we also know that even if it is out-of-date, we cannot upgrade it since
++# windows refuses to replace in-use executables.  Again, -ef is not required
++# by POSIX.  Rely on /proc semantics to find out who we are, since $0 can
++# be faked.
++/bin/test /bin/sh.exe -ef "`cat /proc/$$/exename`" && return 0
++
++# Is /bin/sh missing, or does it have bad dependencies making it unrunnable?
++test -f /bin/sh.exe && case `(cygcheck /bin/sh.exe) 2>&1` in
++  *Error:\ could\ not\ find* | *Cannot\ open*) # broken, needs update
++    ;;
++  *) # We can run it.  Is the version from ash or bash?
++    case `(/bin/sh.exe --version) 2>&1` in
++      '' | Illegal\ option\ --* | GNU\ bash*) # ash or older bash
++	;;
++      *) # anything else - quit now
++	return 0 ;;
++    esac ;;
++esac
++
++# Get here if missing, broken, ash, or old bash, so an update is needed.
++# Use copy, not hard or symlink, since symlinks won't work from Windows cmd
++# and a hardlink to a running shell can't be broken.  Try in-place copy
++# first, but fall back to --remove-destination in case /bin/sh has different
++# ACLs than /bin/bash.  Drop into a subshell so that we can do redirections;
++# the postinstall script already collects stdout to /var/log/setup.log.full,
++# and passes a parameter (see /etc/postinstall/01bash.bat) so that we will
++# know this; whereas a normal login must do the redirections itself.
++(
++  if test x"$1" != xpostinstall ; then
++    exec >> /var/log/setup.log.full
++  fi
++  exec 2>&1
++  echo "`date '+%Y/%m/%d %T'` /etc/profile.d/00bash.sh:" \
++    "Attempting to update /bin/sh.exe"
++  /bin/cp -fpuv /bin/bash.exe /bin/sh.exe ||
++    /bin/cp -puv --remove-destination /bin/bash.exe /bin/sh.exe
++)
++
++# Local Variables:
++# fill-column: 72
++# mode: sh
++# sh-indentation: 2
++# End:
+diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHES/bash.README
+--- origsrc/bash-3.2/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
++++ src/bash-3.2/CYGWIN-PATCHES/bash.README	2007-01-27 07:37:16.896625000 -0700
+@@ -0,0 +1,309 @@
++bash 3.2.9-11
++------------------------------------------
++Bash is an sh-compatible shell that incorporates useful features from
++the Korn shell (ksh) and C shell (csh).  It is intended to conform to
++the IEEE POSIX P1003.2/ISO 9945.2 Shell and Tools standard.  It offers
++functional improvements over sh for both programming and interactive
++use. In addition, most sh scripts can be run by Bash without
++modification.
++
++As of July, 2005, bash is used as cygwin's /bin/sh.
++
++This package includes all official upstream patches.
++
++There are a few things you should be aware of before using this version:
++1. When using binary mounts, cygwin programs try to emulate Linux.  Bash
++on Linux does not understand \r\n line endings, but interprets the \r
++literally, which leads to syntax errors or odd variable assignments.
++Therefore, you will get the same behavior on Cygwin binary mounts by default.
++2. d2u is your friend.  You can use it to convert any problematic script
++into binary line endings.
++3. Cygwin text mounts automatically work with either line ending style,
++because the \r is stripped before bash reads the file.  If you absolutely
++must use files with \r\n line endings, consider mounting the directory
++where those files live as a text mount.  However, text mounts are not as
++well tested or supported on the cygwin mailing list, so you may encounter
++other problems with other cygwin tools in those directories.
++4. This version of bash has a cygwin-specific shell option, named "igncr"
++to force bash to ignore \r, independently of cygwin's mount style.  As of
++bash-3.2.3-5, it controls regular scripts, command substitution, and
++sourced files.  I hope to convince the upstream bash maintainer to accept
++this patch into the future bash 4.0 even on Linux, rather than keeping it
++a cygwin-specific patch, but only time will tell.  There are several ways
++to activate this option:
++4a. For a single affected script, add this line just after the she-bang:
++ (set -o igncr) 2>/dev/null && set -o igncr; # comment is needed
++4b. For a single script, invoke bash explicitly with the shopt, as in
++'bash -o igncr ./myscript' rather than the simpler './myscript'.
++4c. To affect all scripts, export the environment variable BASH_ENV,
++pointing to a file that sets the shell option as desired.  Bash will
++source this file on startup for every script.
++4d. Added in the bash-3.2-2 release: export the environment variable
++SHELLOPTS with igncr included in it.  It is read-only from within bash,
++but you can set it before invoking bash; once in bash, it auto-tracks the
++current state of 'set -o igncr' or 'shopt -s igncr'.  If exported, then
++all bash child processes inherit the same option settings; with the
++exception added in 3.2.9-11 that certain interactive options are not
++inherited in non-interactive use.
++5. You can also experiment with the IFS variable for controlling how bash
++will treat \r during variable expansion.
++6. Normally, cygwin treats DOS-style paths as binary only.  This release
++of bash includes a hack to check the underlying mount point of files, even
++when passed as DOS style paths, but other cygwin tools do not.  You are
++better off learning how to use POSIX-style paths.
++7. There are varying levels of speed at which bash operates.  The fastest
++is on a binary mount with igncr disabled (the default behavior).  Next
++would be text mounts with igncr disabled and no \r in the underlying file.
++Next would be binary mounts with igncr enabled.  And the slowest that bash
++will operate is on text mounts with igncr enabled.
++8. If you don't like how bash behaves, then propose a patch, rather than
++proposing idle ideas.  This turn of events has already been talked to
++death on the mailing lists by people with many ideas, but few patches.
++
++Runtime requirements (these or newer):
++  cygwin-1.5.24-1
++  libintl8-0.15-1
++  libreadline6-5.2.1-6
++
++Additional build conditions (these or newer):
++  bash-3.2.9-10
++  binutils-20060817-1
++  bison-2.3-1
++  cygport-0.2.8-1 (plus patches)
++  gcc-3.4.4-3
++  gettext-0.15-1
++  libiconv2-1.11-1
++  libncurses8-5.5-3
++  ncurses-5.5-3
++  readline-5.2.1-6
++
++Canonical homepage:
++  http://www.gnu.org/software/bash
++
++Canonical download:
++  http://www.gnu.org/software/bash/#downloading
++
++License:
++  GPLv2+
++
++Language:
++  C
++
++------------------------------------
++
++Build instructions:
++  unpack bash-3.2.9-11-src.tar.bz2
++    if you use setup to install this src package, it will be
++	 unpacked under /usr/src automatically
++  cd /usr/src
++  cygport bash-3.2.9-11 all
++
++This will create:
++  /usr/src/bash-3.2.9-11.tar.bz2
++  /usr/src/bash-3.2.9-11-src.tar.bz2
++
++Or use 'cygport bash-3.2.9-11 prep' to get a patched source directory
++
++To find out the files included in the binary distribution, you can use
++"cygcheck -l bash", or browse the listing for the appropriate version
++at <http://cygwin.com/packages/>.
++
++------------------
++
++Port Notes:
++
++----- version 3.2.9-11 -- 2007-01-27 -----
++Switch to cygport build framework.  Simplify postinstall by assuming
++that the old setup.exe 2.457.2.2 has been phased out.  Fix bug where
++shell builtins incorrectly used pipes in text mode.  Teach SHELLOPTS
++parsing to ignore certain options when in a non-interactive shell.
++
++----- version 3.2.9-10 -- 2006-12-19 -----
++Revert hack for asprintf, now that cygwin 1.5.23 is out.  Beef up
++postinstall script to handle /bin/sh 3.0 .dll dependency issue.
++
++----- version 3.2.9-9 -- 2006-12-15 -----
++Fold in new official upstream patches (two of them already repeated by
++me).  Honor TMPDIR for here-docs.  Try to create /tmp before warning
++that it doesn't exist.  Beef up postinstall script yet again to try to
++capture output better when run by setup.exe.
++
++----- version 3.2.5-8 -- 2006-12-06 -----
++Work around asprintf bug in bash replacement.  Fix tracking of COLUMNS
++and LINES.  Beef up postinstall script to try harder in the case of
++clashing permissions between /bin/sh and /bin/bash.
++
++----- version 3.2.5-7 -- 2006-11-29 -----
++Work around asprintf bug in cygwin 1.5.22.  Improve performance of
++hash builtin.
++
++----- version 3.2.5-6 -- 2006-11-15 -----
++Include official upstream patches 4 and 5.  Don't assume /dev/stdin
++exists on all cygwin installations.
++
++----- version 3.2.3-5 -- 2006-11-02 -----
++Make igncr also affect source built-in.  Include official upstream
++patches 2 and 3.
++
++----- version 3.2-4 -- 2006-10-24 -----
++Make igncr also affect command substitution.  Rebuild against newer
++libintl.
++
++----- version 3.2-3 -- 2006-10-19 -----
++Reinstate cygwin hack to make pipe(2) avoid stdin, stdout, and
++stderr.  Otherwise, when invoked by a non-cygwin app, command
++substitution could hang.
++
++----- version 3.2-2 -- 2006-10-17 -----
++Include official patch 1.  Take two at igncr in SHELLOPTS, since
++previous try was dead-on-arrival.
++
++----- version 3.2-1 -- 2006-10-16 -----
++New upstream version.  Migrate igncr to a set -o option, so that it
++can be inherited via SHELLOPTS.
++
++----- version 3.1-9 -- 2006-10-02 -----
++Two things to try to mitigate complaints on the list.  DOS paths are
++now converted to POSIX paths before opening files, to honor mount
++points no matter what.  A new shopt, igncr, is added that ignores \r
++in binary mode scripts.
++
++----- version 3.1-8 -- 2006-09-14 -----
++The previous version failed to properly handle \r\n in text mounts,
++due to lseek limitations.  This release allows either line ending in
++text mounts, but follows Linux behavior on binary mounts.
++
++----- version 3.1-7 -- 2006-09-08 -----
++Kill crusty old CYGWIN-specific defines that were no longer applicable
++and were causing severe slowdowns.  Reported in this thread:
++http://cygwin.com/ml/cygwin/2006-09/msg00034.html.
++
++----- version 3.1-6 -- 2006-04-29 -----
++Fix bug in 00bash.sh profile script, and add csh profile script.
++
++----- version 3.1-5 -- 2006-04-17 -----
++Incorporate upstream patches through patchlevel 17.  Promote to
++current version.  Force temporary files to be binary.
++
++----- version 3.1-4 -- 2006-03-29 -----
++Incorporate upstream patches through patchlevel 14.
++
++----- version 3.1-3 -- 2006-03-03 -----
++Incorporate upstream patches through patchlevel 11.  Fold in patches
++through readline 5.1-4.  Touch up postinstall scripts to be tolerant
++of reruns.
++
++----- version 3.1-2 -- 2006-01-30 -----
++Incorporate upstream patches through patchlevel 5.  Fix 'exec -l bash'
++to be a login shell.  Apply hack from readline 5.1-2 for prompt display bug.
++
++----- version 3.1-1 -- 2005-12-30 -----
++New upstream release, through patchlevel 1.  Experimental release.
++
++----- version 3.0-14 -- 2005-12-26 -----
++Avoid realpath until cygwin 1.5.19 is out.
++
++----- version 3.0-13 -- 2005-12-23 -----
++Fix bash_builtins man page.
++
++----- version 3.0-12 -- 2005-08-30 -----
++Improve postinstall to work with current setup.exe, and add a
++profile.d script to try to ensure that /bin/sh exists even if
++postinstall failed.  Improve cd -P to always work, and cd -L to work
++better even in POSIX mode.
++
++----- version 3.0-11 -- 2005-07-30 -----
++Apply patch from bashdb for better debugger interaction.
++
++----- version 3.0-10 -- 2005-07-27 -----
++Disable spawnve patch; it broke interactive shell editing.  Fix name
++parsing rules to accept a:\file as absolute, not relative.
++
++----- version 3.0-9 -- 2005-07-22 -----
++Fix postinstall script to not nuke sh.1.  Dynamically link against
++readline again.  Apply patch from Keith Reynolds
++(http://lists.gnu.org/archive/html/bug-bash/2005-07/msg00123.html)
++that uses spawnve() where possible.
++
++----- version 3.0-8 -- 2005-07-15 -----
++Remove preremove script (it wasn't invoked by alternate name, and
++invoking it by the name bash.sh would delete /bin/sh too early).  Fix
++packaging bug that omitted info file, and add man pages for all
++builtins not already claimed by programs.  As a temporary fix for
++tilde expansion, don't link against libreadline, and add a hack that
++tries to work around the extra space in prompt bug (this hack does not
++fix the problem, but does mask the worst of it).
++
++----- version 3.0-7 -- 2005-07-07 -----
++Fix bug in postinstall script.
++
++----- version 3.0-6 -- 2005-07-07 -----
++Use cp, not ln, in the postinstall scripts since a running shell can't
++break a hard link to itself in NTFS.
++
++----- version 3.0-5 -- 2005-07-06 -----
++Update the postinstall scripts to catch more cases, and provide sh man
++page.
++
++----- version 3.0-4 -- 2005-07-05 -----
++Add a preremove script to counteract the postinstall script: delete
++/bin/sh only if it matches /bin/bash.
++
++----- version 3.0-3 -- 2005-07-02 -----
++Fix a heap corruption bug introduced in the last build.  Enable
++SSH_SOURCE_BASHRC.  Link to libreadline dynamically.  Use bash, not
++ash, as /bin/sh.
++
++----- version 3.0-2 -- 2005-05-27 -----
++Fix some bugs with // completion, including an order of magnitude
++speedup by avoiding stat("//server").  Link to libiconv dynamically
++(but libreadline is still static until the // patches are applied
++there, too).
++
++----- version 3.0-1 -- 2005-05-25 -----
++New upstream release, including the first 16 official patches.  New
++maintainer, Eric Blake.  All patches in 2.05b-17 that were not
++accepted upstream have been forward ported.
++
++----- version 2.05b-17 -----
++Applied a patch provided by Pierre Humblet, fixing the PID re-use issues, 
++originally reported in the thread "Bash returns incorrect process status".
++The final patch applied has not been posted to cygwin@cygwin.com but closely
++resembles the one posted in
++	http://sources.redhat.com/ml/cygwin/2004-10/msg01093.html
++
++--
++Also applied a patch provided by Corinna Vinschen:
++
++        * bashline.c (bash_directory_completion_hook): avoid turning '/' into
++        '//' when converting/checking path
++
++This patch specifically avoids a problem with tab-completion on some never-
++released Cygwin versions (some snapshots between versions 1.5.9 and 1.5.10)
++but more generally fixes a bug introducing ambiguity as to what directory to
++open and search when asking for root.
++
++----- version 2.05b-16 -----
++Applied a patch provided by cgf:
++
++	* subst.c (command_substitute): Guard against opening a pipe handle in
++	stdin/stdout/stderr since they may be closed and keeping the pipe
++	handle open in a subprocess will cause hangs.
++
++----- version 2.05b-15 -----
++Applied a temporary patch to fix the problem reported in
++http://www.cygwin.com/ml/cygwin/2003-09/msg00822.html
++
++----- version 2.05b-14 -----
++Additional canonical patches 5 through 7 applied
++
++----- version 2.05b-13 and earlier -----
++Earlier versions were maintained by Corinna Vinschen. The history may be found
++in the cygwin-announce archives.
++
++--------------------
++For more information about this package, see the upstream documentation in
++/usr/share/doc/bash-3.2.9/.
++
++Cygwin port maintained by: Eric Blake <ebb9@byu.net>
++Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
+diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/manifest.lst src/bash-3.2/CYGWIN-PATCHES/manifest.lst
+--- origsrc/bash-3.2/CYGWIN-PATCHES/manifest.lst	1969-12-31 17:00:00.000000000 -0700
++++ src/bash-3.2/CYGWIN-PATCHES/manifest.lst	2007-01-24 06:54:00.240375000 -0700
+@@ -0,0 +1 @@
++usr/bin/sh.exe
+diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/postinstall.sh src/bash-3.2/CYGWIN-PATCHES/postinstall.sh
+--- origsrc/bash-3.2/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
++++ src/bash-3.2/CYGWIN-PATCHES/postinstall.sh	2007-01-26 20:40:33.490375000 -0700
+@@ -0,0 +1,6 @@
++#!/bin/bash
++# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
++# newer, meaning that this is executed by /bin/bash and not /bin/sh (if you
++# are running an older setup.exe, this postinstall script can't do anything).
++
++. /etc/profile.d/00bash.sh postinstall
+diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/setup.hint src/bash-3.2/CYGWIN-PATCHES/setup.hint
+--- origsrc/bash-3.2/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
++++ src/bash-3.2/CYGWIN-PATCHES/setup.hint	2007-01-24 06:54:00.256000000 -0700
+@@ -0,0 +1,11 @@
++# setup for bash
++sdesc: "The GNU Bourne Again SHell"
++ldesc: "Bash is an sh-compatible shell that incorporates useful
++features from the Korn shell (ksh) and C shell (csh).  It is intended
++to conform to the IEEE POSIX P1003.2/ISO 9945.2 Shell and Tools
++standard.  It offers functional improvements over sh for both
++programming and interactive use. In addition, most sh scripts can be
++run by Bash without modification."
++category: Base Shells
++requires: cygwin libintl8 libreadline6
++#Maintainer: Eric Blake
