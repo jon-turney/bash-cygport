@@ -16,7 +16,8 @@ ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-005 \
 ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-006 \
 ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-007 \
 ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-008 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-009 "
+ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-009 \
+ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-010 "
 SRC_URI="\
 ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}.tar.gz \
 ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}.tar.gz.sig \
@@ -51,6 +52,17 @@ gzip()
     *bash.1) ;;
     *) command gzip "$@"
   esac
+}
+
+# Fake out cygport!  This is one awesome hack, since cygport doesn't have any
+# postinstall hooks.  Seriously, though, we MUST install the postinstall script
+# as 00bash.sh until a newer setup.exe is released, otherwise, it doesn't
+# get run first, and people gripe when base-files' postinstall fails because
+# /bin/sh didn't exist.
+prep_gnu_info.sh()
+{
+  command prep_gnu_info.sh "$@" &&
+  mv $D/etc/postinstall/{,00}bash.sh
 }
 
 src_install()
