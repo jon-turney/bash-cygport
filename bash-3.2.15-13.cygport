@@ -17,7 +17,12 @@ ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-006 \
 ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-007 \
 ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-008 \
 ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-009 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-010 "
+ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-010 \
+ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-011 \
+ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-012 \
+ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-013 \
+ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-014 \
+ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-015 "
 SRC_URI="\
 ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}.tar.gz \
 ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}.tar.gz.sig \
