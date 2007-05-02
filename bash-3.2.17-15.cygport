@@ -7,25 +7,29 @@
 
 DESCRIPTION="The GNU Bourne Again SHell"
 HOMEPAGE=http://www.gnu.org/software/$PN
+#REPO=ftp://ftp.gnu.org/pub/gnu
+REPO=ftp://ftp.cwru.edu/pub
 PATCH_URI="\
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-001 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-002 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-003 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-004 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-005 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-006 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-007 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-008 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-009 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-010 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-011 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-012 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-013 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-014 \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}-patches/${PN}32-015 "
+$REPO/$PN/${P%.*}-patches/${PN}32-001 \
+$REPO/$PN/${P%.*}-patches/${PN}32-002 \
+$REPO/$PN/${P%.*}-patches/${PN}32-003 \
+$REPO/$PN/${P%.*}-patches/${PN}32-004 \
+$REPO/$PN/${P%.*}-patches/${PN}32-005 \
+$REPO/$PN/${P%.*}-patches/${PN}32-006 \
+$REPO/$PN/${P%.*}-patches/${PN}32-007 \
+$REPO/$PN/${P%.*}-patches/${PN}32-008 \
+$REPO/$PN/${P%.*}-patches/${PN}32-009 \
+$REPO/$PN/${P%.*}-patches/${PN}32-010 \
+$REPO/$PN/${P%.*}-patches/${PN}32-011 \
+$REPO/$PN/${P%.*}-patches/${PN}32-012 \
+$REPO/$PN/${P%.*}-patches/${PN}32-013 \
+$REPO/$PN/${P%.*}-patches/${PN}32-014 \
+$REPO/$PN/${P%.*}-patches/${PN}32-015 \
+$REPO/$PN/${P%.*}-patches/${PN}32-016 \
+$REPO/$PN/${P%.*}-patches/${PN}32-017 "
 SRC_URI="\
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}.tar.gz \
-ftp://ftp.gnu.org/pub/gnu/$PN/${P%.*}.tar.gz.sig \
+$REPO/$PN/${P%.*}.tar.gz \
+$REPO/$PN/${P%.*}.tar.gz.sig \
 $PATCH_URI \
 ${PATCH_URI// /.sig }"
 SRC_DIR=${P%.*}
