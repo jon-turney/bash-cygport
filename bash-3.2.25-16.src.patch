@@ -1,6 +1,6 @@
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/aclocal.m4 src/bash-3.2/aclocal.m4
 --- origsrc/bash-3.2/aclocal.m4	2006-09-12 15:18:07.000000000 -0600
-+++ src/bash-3.2/aclocal.m4	2007-05-01 20:14:12.937500000 -0600
++++ src/bash-3.2/aclocal.m4	2007-08-23 16:09:38.666250000 -0600
 @@ -1574,7 +1574,7 @@
  AC_CACHE_VAL(bash_cv_dev_stdin,
  [if test -d /dev/fd && test -r /dev/stdin < /dev/null; then
@@ -12,7 +12,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
     bash_cv_dev_stdin=absent
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/bashline.c src/bash-3.2/bashline.c
 --- origsrc/bash-3.2/bashline.c	2006-07-29 14:39:30.000000000 -0600
-+++ src/bash-3.2/bashline.c	2007-05-01 20:14:13.015625000 -0600
++++ src/bash-3.2/bashline.c	2007-08-23 16:09:38.713125000 -0600
 @@ -1519,6 +1519,15 @@
        /* If we have found a match, and it is an executable file or a
  	 directory name, return it. */
@@ -48,7 +48,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
        free (fn);
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/builtins/evalfile.c src/bash-3.2/builtins/evalfile.c
 --- origsrc/bash-3.2/builtins/evalfile.c	2006-07-27 19:41:43.000000000 -0600
-+++ src/bash-3.2/builtins/evalfile.c	2007-05-01 20:14:13.078125000 -0600
++++ src/bash-3.2/builtins/evalfile.c	2007-08-23 16:09:38.744375000 -0600
 @@ -1,4 +1,4 @@
 -/* Copyright (C) 1996-2003 Free Software Foundation, Inc.
 +/* Copyright (C) 1996-2003, 2006 Free Software Foundation, Inc.
@@ -68,7 +68,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
    string[result] = '\0';
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/builtins/set.def src/bash-3.2/builtins/set.def
 --- origsrc/bash-3.2/builtins/set.def	2006-07-27 07:41:43.000000000 -0600
-+++ src/bash-3.2/builtins/set.def	2007-05-01 20:14:13.156250000 -0600
++++ src/bash-3.2/builtins/set.def	2007-08-23 16:09:38.760000000 -0600
 @@ -1,7 +1,7 @@
  This file is set.def, from which is created set.c.
  It implements the "set" and "unset" builtins in Bash.
@@ -197,7 +197,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
  }
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/builtins/shopt.def src/bash-3.2/builtins/shopt.def
 --- origsrc/bash-3.2/builtins/shopt.def	2005-02-19 15:25:03.000000000 -0700
-+++ src/bash-3.2/builtins/shopt.def	2007-05-01 20:14:13.187500000 -0600
++++ src/bash-3.2/builtins/shopt.def	2007-08-23 16:09:38.775625000 -0600
 @@ -69,6 +69,10 @@
  extern int xpg_echo;
  extern int gnu_error_format;
@@ -221,7 +221,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
    { "lithist", &literal_history, (shopt_set_func_t *)NULL },
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/config-top.h src/bash-3.2/config-top.h
 --- origsrc/bash-3.2/config-top.h	2005-04-29 14:36:34.000000000 -0600
-+++ src/bash-3.2/config-top.h	2007-05-01 20:14:13.218750000 -0600
++++ src/bash-3.2/config-top.h	2007-08-23 16:09:38.791250000 -0600
 @@ -3,7 +3,7 @@
  /* This contains various user-settable options not under the control of
     autoconf. */
@@ -239,7 +239,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
 +#define SSH_SOURCE_BASHRC
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/doc/Makefile.in src/bash-3.2/doc/Makefile.in
 --- origsrc/bash-3.2/doc/Makefile.in	2004-07-27 06:57:48.000000000 -0600
-+++ src/bash-3.2/doc/Makefile.in	2007-05-01 20:14:13.265625000 -0600
++++ src/bash-3.2/doc/Makefile.in	2007-08-23 16:09:38.791250000 -0600
 @@ -1,6 +1,6 @@
  # This Makefile is for the Bash/documentation directory -*- text -*-.
  #
@@ -270,7 +270,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
  		install-info --dir-file=$(DESTDIR)$(infodir)/dir $(DESTDIR)$(infodir)/bash.info; \
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/doc/builtins.1 src/bash-3.2/doc/builtins.1
 --- origsrc/bash-3.2/doc/builtins.1	2004-05-24 08:19:55.000000000 -0600
-+++ src/bash-3.2/doc/builtins.1	2007-05-01 20:14:13.296875000 -0600
++++ src/bash-3.2/doc/builtins.1	2007-08-23 16:09:38.806875000 -0600
 @@ -10,6 +10,6 @@
  ulimit, umask, unalias, unset, wait \- bash built-in commands, see \fBbash\fR(1)
  .SH BASH BUILTIN COMMANDS
@@ -280,8 +280,8 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
  .SH SEE ALSO
  bash(1), sh(1)
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/execute_cmd.c src/bash-3.2/execute_cmd.c
---- origsrc/bash-3.2/execute_cmd.c	2007-05-01 19:27:04.531250000 -0600
-+++ src/bash-3.2/execute_cmd.c	2007-05-01 20:14:13.359375000 -0600
+--- origsrc/bash-3.2/execute_cmd.c	2007-08-23 16:06:03.681875000 -0600
++++ src/bash-3.2/execute_cmd.c	2007-08-23 16:09:38.822500000 -0600
 @@ -3719,6 +3719,17 @@
  
        if (command == 0)
@@ -324,8 +324,8 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
      }
  }
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/findcmd.c src/bash-3.2/findcmd.c
---- origsrc/bash-3.2/findcmd.c	2007-05-01 19:27:02.968750000 -0600
-+++ src/bash-3.2/findcmd.c	2007-05-01 20:14:13.375000000 -0600
+--- origsrc/bash-3.2/findcmd.c	2007-08-23 16:06:01.978750000 -0600
++++ src/bash-3.2/findcmd.c	2007-08-23 16:09:38.838125000 -0600
 @@ -1,6 +1,6 @@
  /* findcmd.c -- Functions to search for commands by name. */
  
@@ -345,7 +345,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
       answers for non-AFS files when ruid != euid.  I hate AFS. */
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/input.c src/bash-3.2/input.c
 --- origsrc/bash-3.2/input.c	2006-07-27 19:22:58.000000000 -0600
-+++ src/bash-3.2/input.c	2007-05-01 20:14:13.437500000 -0600
++++ src/bash-3.2/input.c	2007-08-23 16:09:38.853750000 -0600
 @@ -1,6 +1,6 @@
  /* input.c -- functions to perform buffered input with synchronization. */
  
@@ -468,7 +468,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
  #else
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/input.h src/bash-3.2/input.h
 --- origsrc/bash-3.2/input.h	2006-03-19 16:31:20.000000000 -0600
-+++ src/bash-3.2/input.h	2007-05-01 20:14:13.468750000 -0600
++++ src/bash-3.2/input.h	2007-08-23 16:09:38.869375000 -0600
 @@ -1,5 +1,5 @@
  /* input.h -- Structures and unions used for reading input. */
 -/* Copyright (C) 1993 Free Software Foundation, Inc.
@@ -486,7 +486,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
     synchronization.  Look in input.c for the implementation. */
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/lib/sh/pathcanon.c src/bash-3.2/lib/sh/pathcanon.c
 --- origsrc/bash-3.2/lib/sh/pathcanon.c	2005-02-22 15:40:56.000000000 -0700
-+++ src/bash-3.2/lib/sh/pathcanon.c	2007-05-01 20:14:13.531250000 -0600
++++ src/bash-3.2/lib/sh/pathcanon.c	2007-08-23 16:09:38.869375000 -0600
 @@ -1,6 +1,6 @@
  /* pathcanon.c -- Canonicalize and manipulate pathnames. */
  
@@ -538,7 +538,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
    /* Empty string is really ``.'' or `/', depending on what we started with. */
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/lib/sh/pathphys.c src/bash-3.2/lib/sh/pathphys.c
 --- origsrc/bash-3.2/lib/sh/pathphys.c	2005-08-28 13:32:18.000000000 -0600
-+++ src/bash-3.2/lib/sh/pathphys.c	2007-05-01 20:14:13.562500000 -0600
++++ src/bash-3.2/lib/sh/pathphys.c	2007-08-23 16:09:38.885000000 -0600
 @@ -1,6 +1,6 @@
  /* pathphys.c -- Return pathname with all symlinks expanded. */
  
@@ -575,8 +575,8 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
  
  char *
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/lib/sh/snprintf.c src/bash-3.2/lib/sh/snprintf.c
---- origsrc/bash-3.2/lib/sh/snprintf.c	2007-05-01 19:27:03.125000000 -0600
-+++ src/bash-3.2/lib/sh/snprintf.c	2007-05-01 20:14:13.625000000 -0600
+--- origsrc/bash-3.2/lib/sh/snprintf.c	2007-08-23 16:06:02.150625000 -0600
++++ src/bash-3.2/lib/sh/snprintf.c	2007-08-23 16:09:38.900625000 -0600
 @@ -7,7 +7,7 @@
     Unix snprintf implementation.
     derived from inetutils/libinetutils/snprintf.c Version 1.1
@@ -588,7 +588,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
     it under the terms of the GNU General License as published by
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/lib/sh/tmpfile.c src/bash-3.2/lib/sh/tmpfile.c
 --- origsrc/bash-3.2/lib/sh/tmpfile.c	2006-07-27 21:55:48.000000000 -0600
-+++ src/bash-3.2/lib/sh/tmpfile.c	2007-05-01 20:14:13.687500000 -0600
++++ src/bash-3.2/lib/sh/tmpfile.c	2007-08-23 16:09:38.916250000 -0600
 @@ -2,7 +2,7 @@
   * tmpfile.c - functions to create and safely open temp files for the shell.
   */
@@ -646,7 +646,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
        fd = open (filename, BASEOPENFLAGS | ((flags & MT_READWRITE) ? O_RDWR : O_WRONLY), 0600);
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/lib/sh/winsize.c src/bash-3.2/lib/sh/winsize.c
 --- origsrc/bash-3.2/lib/sh/winsize.c	2006-07-27 21:57:45.000000000 -0600
-+++ src/bash-3.2/lib/sh/winsize.c	2007-05-01 20:14:13.687500000 -0600
++++ src/bash-3.2/lib/sh/winsize.c	2007-08-23 16:09:38.931875000 -0600
 @@ -1,6 +1,6 @@
  /* Handle window size changes and information. */
  
@@ -664,8 +664,8 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
  #if !defined (STRUCT_WINSIZE_IN_SYS_IOCTL)
  /* For struct winsize on SCO */
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/parse.y src/bash-3.2/parse.y
---- origsrc/bash-3.2/parse.y	2007-05-01 19:27:01.750000000 -0600
-+++ src/bash-3.2/parse.y	2007-05-01 20:14:13.812500000 -0600
+--- origsrc/bash-3.2/parse.y	2007-08-23 16:06:05.228750000 -0600
++++ src/bash-3.2/parse.y	2007-08-23 16:09:38.947500000 -0600
 @@ -1,6 +1,6 @@
  /* Yacc grammar for bash. */
  
@@ -698,7 +698,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
  }
  
  static int
-@@ -4520,6 +4526,17 @@
+@@ -4522,6 +4528,17 @@
       parser's complaining about by looking at current_token. */
    if (current_token != 0 && EOF_Reached == 0 && (msg = error_token_from_token (current_token)))
      {
@@ -718,7 +718,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
  
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/redir.c src/bash-3.2/redir.c
 --- origsrc/bash-3.2/redir.c	2006-05-23 20:31:35.000000000 -0600
-+++ src/bash-3.2/redir.c	2007-05-01 20:14:13.875000000 -0600
++++ src/bash-3.2/redir.c	2007-08-23 16:09:38.994375000 -0600
 @@ -1,6 +1,6 @@
  /* redir.c -- Functions to perform input and output redirection. */
  
@@ -762,7 +762,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
        errno = r;
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/shell.c src/bash-3.2/shell.c
 --- origsrc/bash-3.2/shell.c	2006-05-17 06:46:54.000000000 -0600
-+++ src/bash-3.2/shell.c	2007-05-01 20:14:13.921875000 -0600
++++ src/bash-3.2/shell.c	2007-08-23 16:09:39.010000000 -0600
 @@ -1,6 +1,6 @@
  /* shell.c -- GNU's idea of the POSIX shell specification. */
  
@@ -818,9 +818,9 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
  #if !defined (PROGRAM)
  #  define PROGRAM "bash"
 diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh -x missing -x mkinstalldirs -x autom4te.cache -x '*compile' -x Makefile.in.in -x 'intltool*.in' -x 'xml-i18n-*.in' -x '*.pyc' -x '*.mo' -x '*.gmo' -x ABOUT-NLS -x Makevars.template -x COPYING -x INSTALL -x mdate-sh -x '*.orig' -x '*.rej' -x '*~' -x '*.temp' -x texinfo.tex -x ylwrap -x configure -x gnome-doc-utils.make -x gnome-doc-utils.m4 -x intltool.m4 -x omf.make -x xmldocs.make origsrc/bash-3.2/subst.c src/bash-3.2/subst.c
---- origsrc/bash-3.2/subst.c	2007-05-01 19:27:04.562500000 -0600
-+++ src/bash-3.2/subst.c	2007-05-01 20:14:14.046875000 -0600
-@@ -4459,10 +4459,6 @@
+--- origsrc/bash-3.2/subst.c	2007-08-23 16:06:05.603750000 -0600
++++ src/bash-3.2/subst.c	2007-08-23 16:09:39.041250000 -0600
+@@ -4463,10 +4463,6 @@
    istring = (char *)NULL;
    istring_index = istring_size = bufn = 0;
  
@@ -831,7 +831,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
    /* Read the output of the command through the pipe. */
    while (1)
      {
-@@ -4484,6 +4480,13 @@
+@@ -4488,6 +4484,13 @@
  #endif
  	  continue;
  	}
@@ -845,7 +845,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
  
        /* Add the character to ISTRING, possibly after resizing it. */
        RESIZE_MALLOCED_BUFFER (istring, istring_index, 2, istring_size, DEFAULT_ARRAY_SIZE);
-@@ -4557,6 +4560,12 @@
+@@ -4561,6 +4564,12 @@
    pid_t pid, old_pid, old_pipeline_pgrp, old_async_pid;
    char *istring;
    int result, fildes[2], function_value, pflags, rc;
@@ -858,7 +858,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
  
    istring = (char *)NULL;
  
-@@ -4586,6 +4595,17 @@
+@@ -4590,6 +4599,17 @@
    /* Flags to pass to parse_and_execute() */
    pflags = interactive ? SEVAL_RESETLINE : 0;
  
@@ -876,7 +876,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
    /* Pipe the output of executing STRING into the current shell. */
    if (pipe (fildes) < 0)
      {
-@@ -4593,6 +4613,12 @@
+@@ -4597,6 +4617,12 @@
        goto error_exit;
      }
  
@@ -889,7 +889,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
    old_pid = last_made_pid;
  #if defined (JOB_CONTROL)
    old_pipeline_pgrp = pipeline_pgrp;
-@@ -4646,6 +4672,7 @@
+@@ -4650,6 +4676,7 @@
  	  exit (EXECUTION_FAILURE);
  	}
  
@@ -897,7 +897,7 @@ diff -urN -x CYGWIN-PATCHES -x ltmain.sh -x 'config.*' -x depcomp -x install-sh 
        /* If standard output is closed in the parent shell
  	 (such as after `exec >&-'), file descriptor 1 will be
  	 the lowest available file descriptor, and end up in
-@@ -4661,6 +4688,17 @@
+@@ -4665,6 +4692,17 @@
  	  (fildes[0] != fileno (stdout)) &&
  	  (fildes[0] != fileno (stderr)))
  	close (fildes[0]);

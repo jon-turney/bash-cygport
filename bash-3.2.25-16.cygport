@@ -7,8 +7,8 @@
 
 DESCRIPTION="The GNU Bourne Again SHell"
 HOMEPAGE=http://www.gnu.org/software/$PN
-#REPO=ftp://ftp.gnu.org/pub/gnu
-REPO=ftp://ftp.cwru.edu/pub
+REPO=ftp://ftp.gnu.org/pub/gnu
+#REPO=ftp://ftp.cwru.edu/pub
 PATCH_URI="\
 $REPO/$PN/${P%.*}-patches/${PN}32-001 \
 $REPO/$PN/${P%.*}-patches/${PN}32-002 \
@@ -26,7 +26,16 @@ $REPO/$PN/${P%.*}-patches/${PN}32-013 \
 $REPO/$PN/${P%.*}-patches/${PN}32-014 \
 $REPO/$PN/${P%.*}-patches/${PN}32-015 \
 $REPO/$PN/${P%.*}-patches/${PN}32-016 \
-$REPO/$PN/${P%.*}-patches/${PN}32-017 "
+$REPO/$PN/${P%.*}-patches/${PN}32-017 \
+$REPO/$PN/${P%.*}-patches/${PN}32-018 \
+$REPO/$PN/${P%.*}-patches/${PN}32-019 \
+$REPO/$PN/${P%.*}-patches/${PN}32-020 \
+$REPO/$PN/${P%.*}-patches/${PN}32-021 \
+$REPO/$PN/${P%.*}-patches/${PN}32-022 \
+$REPO/$PN/${P%.*}-patches/${PN}32-023 \
+$REPO/$PN/${P%.*}-patches/${PN}32-024 \
+$REPO/$PN/${P%.*}-patches/${PN}32-025 \
+"
 SRC_URI="\
 $REPO/$PN/${P%.*}.tar.gz \
 $REPO/$PN/${P%.*}.tar.gz.sig \
