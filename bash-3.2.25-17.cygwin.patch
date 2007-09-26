@@ -1,6 +1,6 @@
 diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/00bash.csh src/bash-3.2/CYGWIN-PATCHES/00bash.csh
 --- origsrc/bash-3.2/CYGWIN-PATCHES/00bash.csh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/00bash.csh	2007-08-23 16:06:30.556875000 -0600
++++ src/bash-3.2/CYGWIN-PATCHES/00bash.csh	2007-09-26 19:50:08.843750000 -0600
 @@ -0,0 +1,15 @@
 +# Bash profile.d script.  This is sourced by the default /etc/csh.cshrc to
 +# ensure that /bin/sh exists and is runnable, updating older copies of ash
@@ -19,7 +19,7 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/00bash.csh src/bash-3.2/CYGWIN-PATCHES
 +endif
 diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/00bash.sh src/bash-3.2/CYGWIN-PATCHES/00bash.sh
 --- origsrc/bash-3.2/CYGWIN-PATCHES/00bash.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/00bash.sh	2007-08-23 16:06:30.556875000 -0600
++++ src/bash-3.2/CYGWIN-PATCHES/00bash.sh	2007-09-26 19:50:08.843750000 -0600
 @@ -0,0 +1,63 @@
 +# Bash profile.d script.
 +
@@ -86,9 +86,9 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/00bash.sh src/bash-3.2/CYGWIN-PATCHES/
 +# End:
 diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHES/bash.README
 --- origsrc/bash-3.2/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/bash.README	2007-08-23 16:09:20.041250000 -0600
-@@ -0,0 +1,327 @@
-+bash 3.2.25-16
++++ src/bash-3.2/CYGWIN-PATCHES/bash.README	2007-09-26 19:50:56.531250000 -0600
+@@ -0,0 +1,332 @@
++bash 3.2.25-17
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -182,17 +182,17 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHE
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.2.25-16-src.tar.bz2
++  unpack bash-3.2.25-17-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +	 unpacked under /usr/src automatically
 +  cd /usr/src
-+  cygport bash-3.2.25-16 all
++  cygport bash-3.2.25-17 all
 +
 +This will create:
-+  /usr/src/bash-3.2.25-16.tar.bz2
-+  /usr/src/bash-3.2.25-16-src.tar.bz2
++  /usr/src/bash-3.2.25-17.tar.bz2
++  /usr/src/bash-3.2.25-17-src.tar.bz2
 +
-+Or use 'cygport bash-3.2.25-16 prep' to get a patched source directory
++Or use 'cygport bash-3.2.25-17 prep' to get a patched source directory
 +
 +To find out the files included in the binary distribution, you can use
 +"cygcheck -l bash", or browse the listing for the appropriate version
@@ -201,6 +201,11 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHE
 +------------------
 +
 +Port Notes:
++
++----- version 3.2.25-17 -- 2007-09-26 -----
++The fix in -14 was insufficient for redirected builtin in subshell
++whose output was a pipe.  Add some retries if fork fails with EAGAIN.
++Provide /dev/std{in,out,err} in postinstall.
 +
 +----- version 3.2.25-16 -- 2007-08-23 -----
 +Fold in new official upstream patches.
@@ -417,23 +422,44 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHE
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/manifest.lst src/bash-3.2/CYGWIN-PATCHES/manifest.lst
 --- origsrc/bash-3.2/CYGWIN-PATCHES/manifest.lst	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/manifest.lst	2007-08-23 16:06:30.603750000 -0600
++++ src/bash-3.2/CYGWIN-PATCHES/manifest.lst	2007-09-26 19:50:08.875000000 -0600
 @@ -0,0 +1 @@
 +usr/bin/sh.exe
 diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/postinstall.sh src/bash-3.2/CYGWIN-PATCHES/postinstall.sh
 --- origsrc/bash-3.2/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/postinstall.sh	2007-08-23 16:06:30.619375000 -0600
-@@ -0,0 +1,6 @@
++++ src/bash-3.2/CYGWIN-PATCHES/postinstall.sh	2007-09-26 20:12:24.781250000 -0600
+@@ -0,0 +1,27 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
 +# newer, meaning that this is executed by /bin/bash and not /bin/sh (if you
 +# are running an older setup.exe, this postinstall script can't do anything).
++#
++# Copyright (C) 2007 Eric Blake
++# This file is free software; I give unlimited permission to copy and/or
++# distribute it, with or without modifications, as long as this notice is
++# preserved.
 +
-+. /etc/profile.d/00bash.sh postinstall
++
++# Track any failure in this script.
++result=0
++
++# Install /dev/fd, /dev/std{in,out,err}.  The bash builtin test was compiled
++# to assume these exist, so use /bin/test to really check.
++DEVDIR="$(cygpath -au "C:/$(cygpath -am /dev/)" | sed 's|/c/\(.\):/|/\1/|')"
++mkdir -p "$DEVDIR" || result=1
++/bin/test -e /dev/stdin  || ln -s /proc/self/fd/0 /dev/stdin  || result=1
++/bin/test -e /dev/stdout || ln -s /proc/self/fd/1 /dev/stdout || result=1
++/bin/test -e /dev/stderr || ln -s /proc/self/fd/2 /dev/stderr || result=1
++/bin/test -e /dev/fd     || ln -s /proc/self/fd   /dev/fd     || result=1
++
++# Install /bin/sh, provided it is ash or an older version of bash.
++. /etc/profile.d/00bash.sh postinstall || result=1
++
++exit $result
 diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/setup.hint src/bash-3.2/CYGWIN-PATCHES/setup.hint
 --- origsrc/bash-3.2/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/setup.hint	2007-08-23 16:06:30.635000000 -0600
-@@ -0,0 +1,11 @@
++++ src/bash-3.2/CYGWIN-PATCHES/setup.hint	2007-09-26 20:14:24.984375000 -0600
+@@ -0,0 +1,14 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"
 +ldesc: "Bash is an sh-compatible shell that incorporates useful
@@ -445,3 +471,6 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/setup.hint src/bash-3.2/CYGWIN-PATCHES
 +category: Base Shells
 +requires: cygwin libintl8 libreadline6
 +#Maintainer: Eric Blake
++prev: 3.1-6
++curr: 3.2.25-16
++test: 3.2.25-17

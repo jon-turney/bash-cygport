@@ -44,7 +44,7 @@ ${PATCH_URI// /.sig }"
 SRC_DIR=${P%.*}
 
 CYGCONF_ARGS="--without-libintl-prefix --without-libiconv-prefix \
---with-installed-readline"
+--with-installed-readline bash_cv_dev_stdin=present bash_cv_dev_fd=standard"
 
 # Interaction with bashdb
 export DEBUGGER_START_FILE=/usr/share/bashdb/bashdb-main.inc
