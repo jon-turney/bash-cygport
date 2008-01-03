@@ -1,6 +1,6 @@
 # bash.cygport - directions for packaging bash for cygwin
 
-# Copyright (C) 2007 Eric Blake
+# Copyright (C) 2007, 2008 Eric Blake
 # This file is free software; I give unlimited permission to copy and/or
 # distribute it, with or without modifications, as long as this notice is
 # preserved.
@@ -35,6 +35,14 @@ $REPO/$PN/${P%.*}-patches/${PN}32-022 \
 $REPO/$PN/${P%.*}-patches/${PN}32-023 \
 $REPO/$PN/${P%.*}-patches/${PN}32-024 \
 $REPO/$PN/${P%.*}-patches/${PN}32-025 \
+$REPO/$PN/${P%.*}-patches/${PN}32-026 \
+$REPO/$PN/${P%.*}-patches/${PN}32-027 \
+$REPO/$PN/${P%.*}-patches/${PN}32-028 \
+$REPO/$PN/${P%.*}-patches/${PN}32-029 \
+$REPO/$PN/${P%.*}-patches/${PN}32-030 \
+$REPO/$PN/${P%.*}-patches/${PN}32-031 \
+$REPO/$PN/${P%.*}-patches/${PN}32-032 \
+$REPO/$PN/${P%.*}-patches/${PN}32-033 \
 "
 SRC_URI="\
 $REPO/$PN/${P%.*}.tar.gz \
