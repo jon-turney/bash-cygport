@@ -43,6 +43,12 @@ $REPO/$PN/${P%.*}-patches/${PN}32-030 \
 $REPO/$PN/${P%.*}-patches/${PN}32-031 \
 $REPO/$PN/${P%.*}-patches/${PN}32-032 \
 $REPO/$PN/${P%.*}-patches/${PN}32-033 \
+$REPO/$PN/${P%.*}-patches/${PN}32-034 \
+$REPO/$PN/${P%.*}-patches/${PN}32-035 \
+$REPO/$PN/${P%.*}-patches/${PN}32-036 \
+$REPO/$PN/${P%.*}-patches/${PN}32-037 \
+$REPO/$PN/${P%.*}-patches/${PN}32-038 \
+$REPO/$PN/${P%.*}-patches/${PN}32-039 \
 "
 SRC_URI="\
 $REPO/$PN/${P%.*}.tar.gz \
