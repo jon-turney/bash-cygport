@@ -1,94 +1,8 @@
-diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/00bash.csh src/bash-3.2/CYGWIN-PATCHES/00bash.csh
---- origsrc/bash-3.2/CYGWIN-PATCHES/00bash.csh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/00bash.csh	2008-05-03 07:15:23.357875000 -0600
-@@ -0,0 +1,15 @@
-+# Bash profile.d script.  This is sourced by the default /etc/csh.cshrc to
-+# ensure that /bin/sh exists and is runnable, updating older copies of ash
-+# or bash as appropriate, while leaving other shells (ksh or zsh) alone.
-+# Because it is sourced by any C-shell, including csh, it must be
-+# portable and not pollute the environment.
-+
-+# Short circuit: if sh is not older than bash, stop now.  '/bin/test a -ot b'
-+# has the semantics we desire where missing 'a' is older than existing 'b'.
-+/bin/test \! /bin/sh.exe -ot /bin/bash.exe
-+if ( $status ) then
-+  # Scripting in csh is painful and non-intuitive.  Cheat, and let bash do the
-+  # work.  After all, this script belongs to the bash package, and we are not
-+  # changing the csh environment, so much as ensuring /bin/sh is up-to-date.
-+  /bin/bash.exe -c '. /etc/profile.d/00bash.sh'
-+endif
-diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/00bash.sh src/bash-3.2/CYGWIN-PATCHES/00bash.sh
---- origsrc/bash-3.2/CYGWIN-PATCHES/00bash.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/00bash.sh	2008-05-03 07:15:23.373500000 -0600
-@@ -0,0 +1,63 @@
-+# Bash profile.d script.
-+
-+# Copyright (C) 2005, 2006 Eric Blake
-+# This file is free software; I give unlimited permission to copy and/or
-+# distribute it, with or without modifications, as long as this notice is
-+# preserved.
-+
-+# This is sourced by the default /etc/profile to ensure that /bin/sh
-+# exists and is runnable, updating older copies of ash or bash as
-+# appropriate, while leaving other shells (ksh or zsh) alone.  Because
-+# it is sourced by any bourne shell, including ash, it must be
-+# portable and not pollute the environment.
-+
-+# Short circuit: if sh is not older than bash, stop now.  '/bin/test a -ot b'
-+# has the semantics we desire where missing 'a' is older than existing 'b'.
-+# Not all test implementations have these semantics, and POSIX does not
-+# require support for -ot, so we cannot use a builtin.
-+/bin/test /bin/sh.exe -ot /bin/bash.exe || return 0
-+
-+# Short circuit: if this is /bin/sh, we know that /bin/sh is not missing; and
-+# we also know that even if it is out-of-date, we cannot upgrade it since
-+# windows refuses to replace in-use executables.  Again, -ef is not required
-+# by POSIX.  Rely on /proc semantics to find out who we are, since $0 can
-+# be faked.
-+/bin/test /bin/sh.exe -ef "`cat /proc/$$/exename`" && return 0
-+
-+# Is /bin/sh missing, or does it have bad dependencies making it unrunnable?
-+test -f /bin/sh.exe && case `(cygcheck /bin/sh.exe) 2>&1` in
-+  *Error:\ could\ not\ find* | *Cannot\ open*) # broken, needs update
-+    ;;
-+  *) # We can run it.  Is the version from ash or bash?
-+    case `(/bin/sh.exe --version) 2>&1` in
-+      '' | Illegal\ option\ --* | GNU\ bash*) # ash or older bash
-+	;;
-+      *) # anything else - quit now
-+	return 0 ;;
-+    esac ;;
-+esac
-+
-+# Get here if missing, broken, ash, or old bash, so an update is needed.
-+# Use copy, not hard or symlink, since symlinks won't work from Windows cmd
-+# and a hardlink to a running shell can't be broken.  Try in-place copy
-+# first, but fall back to --remove-destination in case /bin/sh has different
-+# ACLs than /bin/bash.  Drop into a subshell so that we can do redirections;
-+# the postinstall script already collects stdout to /var/log/setup.log.full,
-+# and passes a parameter (see /etc/postinstall/01bash.bat) so that we will
-+# know this; whereas a normal login must do the redirections itself.
-+(
-+  if test x"$1" != xpostinstall ; then
-+    exec >> /var/log/setup.log.full
-+  fi
-+  exec 2>&1
-+  echo "`date '+%Y/%m/%d %T'` /etc/profile.d/00bash.sh:" \
-+    "Attempting to update /bin/sh.exe"
-+  /bin/cp -fpuv /bin/bash.exe /bin/sh.exe ||
-+    /bin/cp -puv --remove-destination /bin/bash.exe /bin/sh.exe
-+)
-+
-+# Local Variables:
-+# fill-column: 72
-+# mode: sh
-+# sh-indentation: 2
-+# End:
 diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHES/bash.README
 --- origsrc/bash-3.2/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/bash.README	2008-05-03 07:20:46.873500000 -0600
-@@ -0,0 +1,339 @@
-+bash 3.2.39-19
++++ src/bash-3.2/CYGWIN-PATCHES/bash.README	2008-08-10 20:35:03.063625000 -0600
+@@ -0,0 +1,342 @@
++bash 3.2.39-20
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -151,15 +65,15 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHE
 +death on the mailing lists by people with many ideas, but few patches.
 +
 +Runtime requirements (these or newer):
-+  cygwin-1.5.25-12
++  cygwin-1.5.25-15
 +  libintl8-0.15-1
 +  libreadline6-5.2.12-10
 +
 +Additional build conditions (these or newer):
-+  bash-3.2.33-18
-+  binutils-20060817-1
++  bash-3.2.39-19
++  binutils-20080624-2
 +  bison-2.3-1
-+  cygport-0.3.9-1 (plus patches)
++  cygport-0.3.12-1
 +  gcc-3.4.4-3
 +  gettext-0.15-1
 +  libiconv2-1.11-1
@@ -182,17 +96,17 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHE
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.2.39-19-src.tar.bz2
++  unpack bash-3.2.39-20-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +	 unpacked under /usr/src automatically
 +  cd /usr/src
-+  cygport bash-3.2.39-19 all
++  cygport bash-3.2.39-20 all
 +
 +This will create:
-+  /usr/src/bash-3.2.39-19.tar.bz2
-+  /usr/src/bash-3.2.39-19-src.tar.bz2
++  /usr/src/bash-3.2.39-20.tar.bz2
++  /usr/src/bash-3.2.39-20-src.tar.bz2
 +
-+Or use 'cygport bash-3.2.39-19 prep' to get a patched source directory
++Or use 'cygport bash-3.2.39-20 prep' to get a patched source directory
 +
 +To find out the files included in the binary distribution, you can use
 +"cygcheck -l bash", or browse the listing for the appropriate version
@@ -201,6 +115,9 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHE
 +------------------
 +
 +Port Notes:
++
++----- version 3.2.39-20 -- 2008-08-11 -----
++Install /bin/sh always, simplifying postinstall logic.
 +
 +----- version 3.2.39-19 -- 2008-05-02 -----
 +Fold in new official upstream patches.
@@ -427,21 +344,16 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHE
 +
 +Cygwin port maintained by: Eric Blake <ebb9@byu.net>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
-diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/manifest.lst src/bash-3.2/CYGWIN-PATCHES/manifest.lst
---- origsrc/bash-3.2/CYGWIN-PATCHES/manifest.lst	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/manifest.lst	2008-05-03 07:15:23.514125000 -0600
-@@ -0,0 +1 @@
-+usr/bin/sh.exe
 diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/postinstall.sh src/bash-3.2/CYGWIN-PATCHES/postinstall.sh
 --- origsrc/bash-3.2/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/postinstall.sh	2008-05-03 07:15:23.529750000 -0600
-@@ -0,0 +1,27 @@
++++ src/bash-3.2/CYGWIN-PATCHES/postinstall.sh	2008-08-10 20:19:11.829250000 -0600
+@@ -0,0 +1,24 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
 +# newer, meaning that this is executed by /bin/bash and not /bin/sh (if you
 +# are running an older setup.exe, this postinstall script can't do anything).
 +#
-+# Copyright (C) 2007 Eric Blake
++# Copyright (C) 2007, 2008 Eric Blake
 +# This file is free software; I give unlimited permission to copy and/or
 +# distribute it, with or without modifications, as long as this notice is
 +# preserved.
@@ -459,13 +371,10 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/postinstall.sh src/bash-3.2/CYGWIN-PAT
 +/bin/test -e /dev/stderr || ln -s /proc/self/fd/2 /dev/stderr || result=1
 +/bin/test -e /dev/fd     || ln -s /proc/self/fd   /dev/fd     || result=1
 +
-+# Install /bin/sh, provided it is ash or an older version of bash.
-+. /etc/profile.d/00bash.sh postinstall || result=1
-+
-+exit $result
++test $result = 0 || exit $result
 diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/setup.hint src/bash-3.2/CYGWIN-PATCHES/setup.hint
 --- origsrc/bash-3.2/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/setup.hint	2008-05-03 07:16:28.295375000 -0600
++++ src/bash-3.2/CYGWIN-PATCHES/setup.hint	2008-08-10 20:11:40.572500000 -0600
 @@ -0,0 +1,11 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"
