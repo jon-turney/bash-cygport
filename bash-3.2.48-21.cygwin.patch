@@ -1,8 +1,7 @@
-diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHES/bash.README
 --- origsrc/bash-3.2/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/bash.README	2008-08-10 20:35:03.063625000 -0600
-@@ -0,0 +1,342 @@
-+bash 3.2.39-20
++++ src/bash-3.2/CYGWIN-PATCHES/bash.README	2008-11-29 08:38:07.890625000 -0700
+@@ -0,0 +1,346 @@
++bash 3.2.48-21
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -96,17 +95,17 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHE
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.2.39-20-src.tar.bz2
++  unpack bash-3.2.48-21-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +	 unpacked under /usr/src automatically
 +  cd /usr/src
-+  cygport bash-3.2.39-20 all
++  cygport bash-3.2.48-21 all
 +
 +This will create:
-+  /usr/src/bash-3.2.39-20.tar.bz2
-+  /usr/src/bash-3.2.39-20-src.tar.bz2
++  /usr/src/bash-3.2.48-21.tar.bz2
++  /usr/src/bash-3.2.48-21-src.tar.bz2
 +
-+Or use 'cygport bash-3.2.39-20 prep' to get a patched source directory
++Or use 'cygport bash-3.2.48-21 prep' to get a patched source directory
 +
 +To find out the files included in the binary distribution, you can use
 +"cygcheck -l bash", or browse the listing for the appropriate version
@@ -115,6 +114,10 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHE
 +------------------
 +
 +Port Notes:
++
++----- version 3.2.48-21 -- 2008-11-29 -----
++Fold in new official upstream patches.  Work around an issue with
++using shared readline library.
 +
 +----- version 3.2.39-20 -- 2008-08-11 -----
 +Install /bin/sh always, simplifying postinstall logic.
@@ -340,13 +343,12 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/bash.README src/bash-3.2/CYGWIN-PATCHE
 +
 +--------------------
 +For more information about this package, see the upstream documentation in
-+/usr/share/doc/bash-3.2.39/.
++/usr/share/doc/bash-3.2.48/.
 +
 +Cygwin port maintained by: Eric Blake <ebb9@byu.net>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
-diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/postinstall.sh src/bash-3.2/CYGWIN-PATCHES/postinstall.sh
 --- origsrc/bash-3.2/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/postinstall.sh	2008-08-10 20:19:11.829250000 -0600
++++ src/bash-3.2/CYGWIN-PATCHES/postinstall.sh	2008-11-29 07:58:50.156250000 -0700
 @@ -0,0 +1,24 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
@@ -372,9 +374,8 @@ diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/postinstall.sh src/bash-3.2/CYGWIN-PAT
 +/bin/test -e /dev/fd     || ln -s /proc/self/fd   /dev/fd     || result=1
 +
 +test $result = 0 || exit $result
-diff -urN origsrc/bash-3.2/CYGWIN-PATCHES/setup.hint src/bash-3.2/CYGWIN-PATCHES/setup.hint
 --- origsrc/bash-3.2/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/setup.hint	2008-08-10 20:11:40.572500000 -0600
++++ src/bash-3.2/CYGWIN-PATCHES/setup.hint	2008-11-29 07:58:50.171875000 -0700
 @@ -0,0 +1,11 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"
