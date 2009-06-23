@@ -1,7 +1,7 @@
 --- origsrc/bash-3.2/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/bash.README	2008-11-29 08:38:07.890625000 -0700
-@@ -0,0 +1,346 @@
-+bash 3.2.48-21
++++ src/bash-3.2/CYGWIN-PATCHES/bash.README	2009-06-23 15:07:29.271719800 -0600
+@@ -0,0 +1,350 @@
++bash 3.2.49-22
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -65,20 +65,21 @@
 +
 +Runtime requirements (these or newer):
 +  cygwin-1.5.25-15
-+  libintl8-0.15-1
-+  libreadline6-5.2.12-10
++  libintl8-0.17-4
++  libreadline6-5.2.14-12
 +
 +Additional build conditions (these or newer):
-+  bash-3.2.39-19
++  bash-3.2.48-21
 +  binutils-20080624-2
 +  bison-2.3-1
-+  cygport-0.3.12-1
-+  gcc-3.4.4-3
-+  gettext-0.15-1
-+  libiconv2-1.11-1
-+  libncurses8-5.5-3
-+  ncurses-5.5-3
-+  readline-5.2.12-10
++  cygport-0.4.4-1
++  gcc-3.4.4-999
++  gettext-0.17-4
++  libiconv2-1.13-1
++  libncurses8-5.5-4
++  ncurses-5.7-5
++  readline-5.2.14-12
++  rebase-3.0-2
 +
 +Canonical homepage:
 +  http://www.gnu.org/software/bash
@@ -95,17 +96,17 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.2.48-21-src.tar.bz2
++  unpack bash-3.2.49-22-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +	 unpacked under /usr/src automatically
 +  cd /usr/src
-+  cygport bash-3.2.48-21 all
++  cygport bash-3.2.49-22 all
 +
 +This will create:
-+  /usr/src/bash-3.2.48-21.tar.bz2
-+  /usr/src/bash-3.2.48-21-src.tar.bz2
++  /usr/src/bash-3.2.49-22.tar.bz2
++  /usr/src/bash-3.2.49-22-src.tar.bz2
 +
-+Or use 'cygport bash-3.2.48-21 prep' to get a patched source directory
++Or use 'cygport bash-3.2.49-22 prep' to get a patched source directory
 +
 +To find out the files included in the binary distribution, you can use
 +"cygcheck -l bash", or browse the listing for the appropriate version
@@ -114,6 +115,9 @@
 +------------------
 +
 +Port Notes:
++
++----- version 3.2.49-22 -- 2009-06-23 -----
++Fold in new official upstream patch.  Enable TS-aware flag.
 +
 +----- version 3.2.48-21 -- 2008-11-29 -----
 +Fold in new official upstream patches.  Work around an issue with
@@ -306,7 +310,7 @@
 +accepted upstream have been forward ported.
 +
 +----- version 2.05b-17 -----
-+Applied a patch provided by Pierre Humblet, fixing the PID re-use issues, 
++Applied a patch provided by Pierre Humblet, fixing the PID re-use issues,
 +originally reported in the thread "Bash returns incorrect process status".
 +The final patch applied has not been posted to cygwin@cygwin.com but closely
 +resembles the one posted in
@@ -315,8 +319,8 @@
 +--
 +Also applied a patch provided by Corinna Vinschen:
 +
-+        * bashline.c (bash_directory_completion_hook): avoid turning '/' into
-+        '//' when converting/checking path
++       * bashline.c (bash_directory_completion_hook): avoid turning '/' into
++       '//' when converting/checking path
 +
 +This patch specifically avoids a problem with tab-completion on some never-
 +released Cygwin versions (some snapshots between versions 1.5.9 and 1.5.10)
@@ -343,12 +347,12 @@
 +
 +--------------------
 +For more information about this package, see the upstream documentation in
-+/usr/share/doc/bash-3.2.48/.
++/usr/share/doc/bash-3.2.49/.
 +
 +Cygwin port maintained by: Eric Blake <ebb9@byu.net>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 --- origsrc/bash-3.2/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/postinstall.sh	2008-11-29 07:58:50.156250000 -0700
++++ src/bash-3.2/CYGWIN-PATCHES/postinstall.sh	2009-06-23 15:03:08.585888200 -0600
 @@ -0,0 +1,24 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
@@ -375,7 +379,7 @@
 +
 +test $result = 0 || exit $result
 --- origsrc/bash-3.2/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/setup.hint	2008-11-29 07:58:50.171875000 -0700
++++ src/bash-3.2/CYGWIN-PATCHES/setup.hint	2009-06-23 15:03:08.601513100 -0600
 @@ -0,0 +1,11 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"

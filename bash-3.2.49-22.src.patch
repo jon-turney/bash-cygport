@@ -1,6 +1,6 @@
 --- origsrc/bash-3.2/aclocal.m4	2006-09-12 15:18:07.000000000 -0600
-+++ src/bash-3.2/aclocal.m4	2008-11-29 07:59:08.828125000 -0700
-@@ -1574,7 +1574,7 @@
++++ src/bash-3.2/aclocal.m4	2009-06-23 15:07:57.255915700 -0600
+@@ -1574,7 +1574,7 @@ AC_DEFUN(BASH_CHECK_DEV_STDIN,
  AC_CACHE_VAL(bash_cv_dev_stdin,
  [if test -d /dev/fd && test -r /dev/stdin < /dev/null; then
     bash_cv_dev_stdin=present
@@ -9,9 +9,9 @@
     bash_cv_dev_stdin=present
   else
     bash_cv_dev_stdin=absent
---- origsrc/bash-3.2/bashline.c	2008-11-29 07:57:46.984375000 -0700
-+++ src/bash-3.2/bashline.c	2008-11-29 08:36:54.953125000 -0700
-@@ -409,11 +409,12 @@
+--- origsrc/bash-3.2/bashline.c	2009-06-23 14:54:21.714260200 -0600
++++ src/bash-3.2/bashline.c	2009-06-23 15:07:57.271540600 -0600
+@@ -409,11 +409,12 @@ initialize_readline ()
    kseq[0] = CTRL('J');
    kseq[1] = '\0';
    func = rl_function_of_keyseq (kseq, emacs_meta_keymap, (int *)NULL);
@@ -26,7 +26,7 @@
      rl_unbind_key_in_map (CTRL('M'), emacs_meta_keymap);
  #if defined (VI_MODE)
    rl_unbind_key_in_map (CTRL('E'), vi_movement_keymap);
-@@ -432,7 +433,8 @@
+@@ -432,7 +433,8 @@ initialize_readline ()
    kseq[0] = '~';
    kseq[1] = '\0';
    func = rl_function_of_keyseq (kseq, emacs_meta_keymap, (int *)NULL);
@@ -36,7 +36,7 @@
      rl_bind_keyseq_in_map (kseq, bash_complete_username, emacs_meta_keymap);
  
    rl_bind_key_if_unbound_in_map ('~', bash_possible_username_completions, emacs_ctlx_keymap);
-@@ -455,7 +457,8 @@
+@@ -455,7 +457,8 @@ initialize_readline ()
    kseq[0] = TAB;
    kseq[1] = '\0';
    func = rl_function_of_keyseq (kseq, emacs_meta_keymap, (int *)NULL);
@@ -46,7 +46,7 @@
      rl_bind_key_in_map (TAB, dynamic_complete_history, emacs_meta_keymap);
  
    /* Tell the completer that we want a crack first. */
-@@ -1519,6 +1522,15 @@
+@@ -1519,6 +1522,15 @@ command_word_completion_function (hint_t
        /* If we have found a match, and it is an executable file or a
  	 directory name, return it. */
        if (match && executable_or_directory (val))
@@ -62,7 +62,7 @@
  #else
        /* If we have found a match, and it is an executable file, return it.
  	 We don't return directory names when searching $PATH, since the
-@@ -2259,6 +2271,16 @@
+@@ -2259,6 +2271,16 @@ test_for_directory (name)
    char *fn;
  
    fn = bash_tilde_expand (name, 0);
@@ -80,14 +80,14 @@
      {
        free (fn);
 --- origsrc/bash-3.2/builtins/evalfile.c	2006-07-27 19:41:43.000000000 -0600
-+++ src/bash-3.2/builtins/evalfile.c	2008-11-29 07:59:08.843750000 -0700
++++ src/bash-3.2/builtins/evalfile.c	2009-06-23 15:07:57.271540600 -0600
 @@ -1,4 +1,4 @@
 -/* Copyright (C) 1996-2003 Free Software Foundation, Inc.
 +/* Copyright (C) 1996-2003, 2006 Free Software Foundation, Inc.
  
     This file is part of GNU Bash, the Bourne Again SHell.
  
-@@ -143,10 +143,6 @@
+@@ -143,10 +143,6 @@ file_error_and_exit:
        return ((flags & FEVAL_BUILTIN) ? EXECUTION_FAILURE : -1);
      }      
  
@@ -98,8 +98,8 @@
    string = (char *)xmalloc (1 + file_size);
    result = read (fd, string, file_size);
    string[result] = '\0';
---- origsrc/bash-3.2/builtins/set.def	2008-11-29 07:57:48.328125000 -0700
-+++ src/bash-3.2/builtins/set.def	2008-11-29 08:07:30.078125000 -0700
+--- origsrc/bash-3.2/builtins/set.def	2009-06-23 14:54:22.479880300 -0600
++++ src/bash-3.2/builtins/set.def	2009-06-23 15:07:57.287165500 -0600
 @@ -1,7 +1,7 @@
  This file is set.def, from which is created set.c.
  It implements the "set" and "unset" builtins in Bash.
@@ -109,7 +109,7 @@
  
  This file is part of GNU Bash, the Bourne Again SHell.
  
-@@ -57,6 +57,13 @@
+@@ -57,6 +57,13 @@ extern int dont_save_function_defs;
  #if defined (READLINE)
  extern int no_line_editing;
  #endif /* READLINE */
@@ -123,7 +123,7 @@
  
  $BUILTIN set
  $FUNCTION set_builtin
-@@ -87,6 +94,9 @@
+@@ -87,6 +94,9 @@ $SHORT_DOC set [--abefhkmnptuvxBCHP] [-o
  #if defined (HISTORY)
              history      enable command history
  #endif
@@ -133,7 +133,7 @@
              ignoreeof    the shell will not exit upon reading EOF
              interactive-comments
                           allow comments to appear in interactive commands
-@@ -173,28 +183,40 @@
+@@ -173,28 +183,40 @@ struct {
    int *variable;
    setopt_set_func_t *set_func;
    setopt_get_func_t *get_func;
@@ -178,7 +178,7 @@
    { "noclobber",  'C', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
    { "noexec",	  'n', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
    { "noglob",	  'f', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
-@@ -212,7 +234,7 @@
+@@ -212,7 +234,7 @@ struct {
    { "privileged", 'p', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
    { "verbose",	  'v', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
  #if defined (READLINE)
@@ -187,7 +187,7 @@
  #endif
    { "xtrace",	  'x', (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL  },
    {(char *)NULL, 0 , (int *)NULL, (setopt_set_func_t *)NULL, (setopt_get_func_t *)NULL },
-@@ -399,6 +421,15 @@
+@@ -399,6 +421,15 @@ int
  set_minus_o_option (on_or_off, option_name)
       int on_or_off;
       char *option_name;
@@ -203,7 +203,7 @@
  {
    register int i;
  
-@@ -406,6 +437,10 @@
+@@ -406,6 +437,10 @@ set_minus_o_option (on_or_off, option_na
      {
        if (STREQ (option_name, o_options[i].name))
  	{
@@ -214,7 +214,7 @@
  	  if (o_options[i].letter == 0)
  	    {
  	      SET_BINARY_O_OPTION_VALUE (i, on_or_off, option_name);
-@@ -531,7 +566,11 @@
+@@ -531,7 +566,11 @@ parse_shellopts (value)
    vptr = 0;
    while (vname = extract_colon_unit (value, &vptr))
      {
@@ -226,9 +226,9 @@
        free (vname);
      }
  }
---- origsrc/bash-3.2/builtins/shopt.def	2008-11-29 07:57:47.656250000 -0700
-+++ src/bash-3.2/builtins/shopt.def	2008-11-29 07:59:08.875000000 -0700
-@@ -69,6 +69,10 @@
+--- origsrc/bash-3.2/builtins/shopt.def	2009-06-23 14:54:22.073632900 -0600
++++ src/bash-3.2/builtins/shopt.def	2009-06-23 15:07:57.287165500 -0600
+@@ -69,6 +69,10 @@ extern int hup_on_exit;
  extern int xpg_echo;
  extern int gnu_error_format;
  
@@ -239,7 +239,7 @@
  #if defined (EXTENDED_GLOB)
  extern int extended_glob;
  #endif
-@@ -149,6 +153,9 @@
+@@ -149,6 +153,9 @@ static struct {
    { "hostcomplete", &perform_hostname_completion, enable_hostname_completion },
  #endif
    { "huponexit", &hup_on_exit, (shopt_set_func_t *)NULL },
@@ -250,7 +250,7 @@
  #if defined (HISTORY)
    { "lithist", &literal_history, (shopt_set_func_t *)NULL },
 --- origsrc/bash-3.2/config-top.h	2005-04-29 14:36:34.000000000 -0600
-+++ src/bash-3.2/config-top.h	2008-11-29 07:59:08.890625000 -0700
++++ src/bash-3.2/config-top.h	2009-06-23 15:07:57.287165500 -0600
 @@ -3,7 +3,7 @@
  /* This contains various user-settable options not under the control of
     autoconf. */
@@ -267,7 +267,7 @@
 -/* #define SSH_SOURCE_BASHRC */
 +#define SSH_SOURCE_BASHRC
 --- origsrc/bash-3.2/doc/Makefile.in	2004-07-27 06:57:48.000000000 -0600
-+++ src/bash-3.2/doc/Makefile.in	2008-11-29 07:59:08.890625000 -0700
++++ src/bash-3.2/doc/Makefile.in	2009-06-23 15:07:57.302790400 -0600
 @@ -1,6 +1,6 @@
  # This Makefile is for the Bash/documentation directory -*- text -*-.
  #
@@ -276,7 +276,7 @@
  
  # This program is free software; you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
-@@ -168,7 +168,7 @@
+@@ -168,7 +168,7 @@ bashref.html: $(BASHREF_FILES) $(HSUSER)
  	$(TEXI2HTML) -menu -monolithic -I $(TEXINPUTDIR) $(srcdir)/bashref.texi
  
  bash.info: bashref.info
@@ -285,7 +285,7 @@
  
  bash.txt: bash.1
  bash.ps: bash.1
-@@ -224,8 +224,8 @@
+@@ -224,8 +224,8 @@ install: info installdirs bash.info
  	-$(INSTALL_DATA) $(srcdir)/bash.1 $(DESTDIR)$(man1dir)/bash${man1ext}
  	-$(INSTALL_DATA) $(srcdir)/bashbug.1 $(DESTDIR)$(man1dir)/bashbug${man1ext}
  # uncomment the next line to install the builtins man page
@@ -297,8 +297,8 @@
  	if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then \
  		install-info --dir-file=$(DESTDIR)$(infodir)/dir $(DESTDIR)$(infodir)/bash.info; \
 --- origsrc/bash-3.2/doc/builtins.1	2004-05-24 08:19:55.000000000 -0600
-+++ src/bash-3.2/doc/builtins.1	2008-11-29 07:59:08.906250000 -0700
-@@ -10,6 +10,6 @@
++++ src/bash-3.2/doc/builtins.1	2009-06-23 15:07:57.302790400 -0600
+@@ -10,6 +10,6 @@ shift, shopt, source, suspend, test, tim
  ulimit, umask, unalias, unset, wait \- bash built-in commands, see \fBbash\fR(1)
  .SH BASH BUILTIN COMMANDS
  .nr zZ 1
@@ -306,9 +306,9 @@
 +.so man1/bash.1
  .SH SEE ALSO
  bash(1), sh(1)
---- origsrc/bash-3.2/execute_cmd.c	2008-11-29 07:57:49.546875000 -0700
-+++ src/bash-3.2/execute_cmd.c	2008-11-29 07:59:08.921875000 -0700
-@@ -3727,6 +3727,17 @@
+--- origsrc/bash-3.2/execute_cmd.c	2009-06-23 14:54:23.151751000 -0600
++++ src/bash-3.2/execute_cmd.c	2009-06-23 15:07:57.302790400 -0600
+@@ -3727,6 +3727,17 @@ execute_disk_command (words, redirects, 
  
        if (command == 0)
  	{
@@ -326,7 +326,7 @@
  	  internal_error (_("%s: command not found"), pathname);
  	  exit (EX_NOTFOUND);	/* Posix.2 says the exit status is 127 */
  	}
-@@ -4139,6 +4150,11 @@
+@@ -4139,6 +4150,11 @@ do_piping (pipe_in, pipe_out)
  	dup_error (pipe_in, 0);
        if (pipe_in > 0)
  	close (pipe_in);
@@ -338,7 +338,7 @@
      }
    if (pipe_out != NO_PIPE)
      {
-@@ -4154,5 +4170,12 @@
+@@ -4154,5 +4170,12 @@ do_piping (pipe_in, pipe_out)
  	  if (dup2 (1, 2) < 0)
  	    dup_error (1, 2);
  	}
@@ -351,8 +351,8 @@
 +#endif /* __CYGWIN__ */
      }
  }
---- origsrc/bash-3.2/findcmd.c	2008-11-29 07:57:37.250000000 -0700
-+++ src/bash-3.2/findcmd.c	2008-11-29 07:59:08.937500000 -0700
+--- origsrc/bash-3.2/findcmd.c	2009-06-23 14:54:16.370544400 -0600
++++ src/bash-3.2/findcmd.c	2009-06-23 15:07:57.302790400 -0600
 @@ -1,6 +1,6 @@
  /* findcmd.c -- Functions to search for commands by name. */
  
@@ -361,7 +361,7 @@
  
     This file is part of GNU Bash, the Bourne Again SHell.
  
-@@ -94,7 +94,7 @@
+@@ -94,7 +94,7 @@ file_status (name)
  
    r = FS_EXISTS;
  
@@ -371,7 +371,7 @@
       support Unix file system semantics.  This may produce wrong
       answers for non-AFS files when ruid != euid.  I hate AFS. */
 --- origsrc/bash-3.2/input.c	2006-07-27 19:22:58.000000000 -0600
-+++ src/bash-3.2/input.c	2008-11-29 07:59:08.953125000 -0700
++++ src/bash-3.2/input.c	2009-06-23 15:07:57.318415300 -0600
 @@ -1,6 +1,6 @@
  /* input.c -- functions to perform buffered input with synchronization. */
  
@@ -392,7 +392,7 @@
  #if !defined (errno)
  extern int errno;
  #endif /* !errno */
-@@ -172,6 +177,10 @@
+@@ -172,6 +177,10 @@ make_buffered_stream (fd, buffer, bufsiz
    bp->b_used = bp->b_inputp = bp->b_flag = 0;
    if (bufsize == 1)
      bp->b_flag |= B_UNBUFF;
@@ -403,7 +403,7 @@
    return (bp);
  }
  
-@@ -340,11 +349,7 @@
+@@ -340,11 +349,7 @@ duplicate_buffered_stream (fd1, fd2)
  }
  
  /* Return 1 if a seek on FD will succeed. */
@@ -415,7 +415,7 @@
  
  /* Take FD, a file descriptor, and create and return a buffered stream
     corresponding to it.  If something is wrong and the file descriptor
-@@ -378,6 +383,14 @@
+@@ -378,6 +383,14 @@ open_buffered_stream (file)
  {
    int fd;
  
@@ -430,7 +430,7 @@
    fd = open (file, O_RDONLY);
    return ((fd >= 0) ? fd_to_buffered_stream (fd) : (BUFFERED_STREAM *)NULL);
  }
-@@ -453,6 +466,25 @@
+@@ -453,6 +466,25 @@ b_fill_buffer (bp)
    ssize_t nr;
  
    CHECK_TERMSIG;
@@ -456,7 +456,7 @@
    nr = zread (bp->b_fd, bp->b_buffer, bp->b_size);
    if (nr <= 0)
      {
-@@ -465,15 +497,6 @@
+@@ -465,15 +497,6 @@ b_fill_buffer (bp)
        return (EOF);
      }
  
@@ -472,7 +472,7 @@
    bp->b_used = nr;
    bp->b_inputp = 0;
    return (bp->b_buffer[bp->b_inputp++] & 0xFF);
-@@ -522,6 +545,19 @@
+@@ -522,6 +545,19 @@ buffered_getchar ()
  {
    CHECK_TERMSIG;
  
@@ -493,7 +493,7 @@
    return (bufstream_getc (buffers[bash_input.location.buffered_fd]));
  #else
 --- origsrc/bash-3.2/input.h	2006-03-19 16:31:20.000000000 -0600
-+++ src/bash-3.2/input.h	2008-11-29 07:59:08.953125000 -0700
++++ src/bash-3.2/input.h	2009-06-23 15:07:57.318415300 -0600
 @@ -1,5 +1,5 @@
  /* input.h -- Structures and unions used for reading input. */
 -/* Copyright (C) 1993 Free Software Foundation, Inc.
@@ -501,7 +501,7 @@
  
     This file is part of GNU Bash, the Bourne Again SHell.
  
-@@ -47,6 +47,7 @@
+@@ -47,6 +47,7 @@ enum stream_type {st_none, st_stdin, st_
  #define B_ERROR		0x02
  #define B_UNBUFF	0x04
  #define B_WASBASHINPUT	0x08
@@ -509,9 +509,9 @@
  
  /* A buffered stream.  Like a FILE *, but with our own buffering and
     synchronization.  Look in input.c for the implementation. */
---- origsrc/bash-3.2/jobs.c	2008-11-29 07:57:46.312500000 -0700
-+++ src/bash-3.2/jobs.c	2008-11-29 07:59:08.968750000 -0700
-@@ -1690,7 +1690,22 @@
+--- origsrc/bash-3.2/jobs.c	2009-06-23 14:54:21.354887500 -0600
++++ src/bash-3.2/jobs.c	2009-06-23 15:07:57.318415300 -0600
+@@ -1690,7 +1690,22 @@ make_child (command, async_p)
  #endif /* BUFFERED_INPUT */
  
    /* Create the child, handle severe errors. */
@@ -535,7 +535,7 @@
        sys_error ("fork");
  
 --- origsrc/bash-3.2/lib/sh/pathcanon.c	2005-02-22 15:40:56.000000000 -0700
-+++ src/bash-3.2/lib/sh/pathcanon.c	2008-11-29 07:59:08.984375000 -0700
++++ src/bash-3.2/lib/sh/pathcanon.c	2009-06-23 15:07:57.318415300 -0600
 @@ -1,6 +1,6 @@
  /* pathcanon.c -- Canonicalize and manipulate pathnames. */
  
@@ -544,7 +544,7 @@
  
     This file is part of GNU Bash, the Bourne Again SHell.
  
-@@ -194,24 +194,24 @@
+@@ -194,24 +194,24 @@ sh_canonpath (path, flags)
  	    *q++ = DIRSEP;
  	  while (*p && (ISDIRSEP(*p) == 0))
  	    *q++ = *p++;
@@ -586,7 +586,7 @@
  
    /* Empty string is really ``.'' or `/', depending on what we started with. */
 --- origsrc/bash-3.2/lib/sh/pathphys.c	2005-08-28 13:32:18.000000000 -0600
-+++ src/bash-3.2/lib/sh/pathphys.c	2008-11-29 07:59:09.000000000 -0700
++++ src/bash-3.2/lib/sh/pathphys.c	2009-06-23 15:07:57.334040200 -0600
 @@ -1,6 +1,6 @@
  /* pathphys.c -- Return pathname with all symlinks expanded. */
  
@@ -603,7 +603,7 @@
  
  #include "shell.h"
  
-@@ -76,6 +77,10 @@
+@@ -76,6 +77,10 @@ sh_physpath (path, flags)
       char *path;
       int flags;
  {
@@ -614,7 +614,7 @@
    char tbuf[PATH_MAX+1], linkbuf[PATH_MAX+1];
    char *result, *p, *q, *qsave, *qbase, *workpath;
    int double_slash_path, linklen, nlink;
-@@ -249,6 +254,7 @@
+@@ -249,6 +254,7 @@ error:
      }
  
    return (result);
@@ -622,8 +622,8 @@
  }
  
  char *
---- origsrc/bash-3.2/lib/sh/snprintf.c	2008-11-29 07:57:37.546875000 -0700
-+++ src/bash-3.2/lib/sh/snprintf.c	2008-11-29 07:59:09.000000000 -0700
+--- origsrc/bash-3.2/lib/sh/snprintf.c	2009-06-23 14:54:16.526793400 -0600
++++ src/bash-3.2/lib/sh/snprintf.c	2009-06-23 15:07:57.334040200 -0600
 @@ -7,7 +7,7 @@
     Unix snprintf implementation.
     derived from inetutils/libinetutils/snprintf.c Version 1.1
@@ -634,7 +634,7 @@
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General License as published by
 --- origsrc/bash-3.2/lib/sh/tmpfile.c	2006-07-27 21:55:48.000000000 -0600
-+++ src/bash-3.2/lib/sh/tmpfile.c	2008-11-29 07:59:09.015625000 -0700
++++ src/bash-3.2/lib/sh/tmpfile.c	2009-06-23 15:07:57.334040200 -0600
 @@ -2,7 +2,7 @@
   * tmpfile.c - functions to create and safely open temp files for the shell.
   */
@@ -653,7 +653,7 @@
  
  #define DEFAULT_TMPDIR		"."	/* bogus default, should be changed */
  #define DEFAULT_NAMEROOT	"shtmp"
-@@ -91,7 +91,7 @@
+@@ -91,7 +91,7 @@ get_tmpdir (flags)
    char *tdir;
  
    tdir = (flags & MT_USETMPDIR) ? get_string_value ("TMPDIR") : (char *)NULL;
@@ -662,7 +662,7 @@
      tdir = get_sys_tmpdir ();
  
  #if defined (HAVE_PATHCONF) && defined (_PC_NAME_MAX)
-@@ -133,7 +133,13 @@
+@@ -133,7 +133,13 @@ sh_mktmpname (nameroot, flags)
  		(unsigned long) time ((time_t *)0) ^
  		(unsigned long) dollar_dollar_pid ^
  		(unsigned long) ((flags & MT_USERANDOM) ? get_random_number () : ntmpfiles++);
@@ -677,7 +677,7 @@
        if (tmpnamelen > 0 && tmpnamelen < 32)
  	filename[tdlen + 1 + tmpnamelen] = '\0';
  #  ifdef HAVE_LSTAT
-@@ -178,11 +184,20 @@
+@@ -178,11 +184,20 @@ sh_mktmpfd (nameroot, flags, namep)
  #else /* !USE_MKSTEMP */
    do
      {
@@ -700,7 +700,7 @@
  	filename[tdlen + 1 + tmpnamelen] = '\0';
        fd = open (filename, BASEOPENFLAGS | ((flags & MT_READWRITE) ? O_RDWR : O_WRONLY), 0600);
 --- origsrc/bash-3.2/lib/sh/winsize.c	2006-07-27 21:57:45.000000000 -0600
-+++ src/bash-3.2/lib/sh/winsize.c	2008-11-29 07:59:09.031250000 -0700
++++ src/bash-3.2/lib/sh/winsize.c	2009-06-23 15:07:57.334040200 -0600
 @@ -1,6 +1,6 @@
  /* Handle window size changes and information. */
  
@@ -717,8 +717,8 @@
  
  #if !defined (STRUCT_WINSIZE_IN_SYS_IOCTL)
  /* For struct winsize on SCO */
---- origsrc/bash-3.2/parse.y	2008-11-29 07:57:46.968750000 -0700
-+++ src/bash-3.2/parse.y	2008-11-29 07:59:09.046875000 -0700
+--- origsrc/bash-3.2/parse.y	2009-06-23 14:54:21.714260200 -0600
++++ src/bash-3.2/parse.y	2009-06-23 15:07:57.349665100 -0600
 @@ -1,6 +1,6 @@
  /* Yacc grammar for bash. */
  
@@ -727,7 +727,7 @@
  
     This file is part of GNU Bash, the Bourne Again SHell.
  
-@@ -1295,14 +1295,20 @@
+@@ -1295,14 +1295,20 @@ yy_string_get ()
    string = bash_input.location.string;
  
    /* If the string doesn't exist, or is empty, EOF found. */
@@ -751,7 +751,7 @@
  }
  
  static int
-@@ -4522,6 +4528,17 @@
+@@ -4522,6 +4528,17 @@ report_syntax_error (message)
       parser's complaining about by looking at current_token. */
    if (current_token != 0 && EOF_Reached == 0 && (msg = error_token_from_token (current_token)))
      {
@@ -770,7 +770,7 @@
        free (msg);
  
 --- origsrc/bash-3.2/redir.c	2006-05-23 20:31:35.000000000 -0600
-+++ src/bash-3.2/redir.c	2008-11-29 07:59:09.062500000 -0700
++++ src/bash-3.2/redir.c	2009-06-23 15:07:57.349665100 -0600
 @@ -1,6 +1,6 @@
  /* redir.c -- Functions to perform input and output redirection. */
  
@@ -779,7 +779,7 @@
  
     This file is part of GNU Bash, the Bourne Again SHell.
  
-@@ -375,7 +375,7 @@
+@@ -375,7 +375,7 @@ here_document_to_fd (redirectee, ri)
    char *filename;
    int r, fd, fd2;
  
@@ -788,7 +788,7 @@
  
    /* If we failed for some reason other than the file existing, abort */
    if (fd < 0)
-@@ -402,7 +402,7 @@
+@@ -402,7 +402,7 @@ here_document_to_fd (redirectee, ri)
    /* In an attempt to avoid races, we close the first fd only after opening
       the second. */
    /* Make the document really temporary.  Also make it the input. */
@@ -797,7 +797,7 @@
  
    if (fd2 < 0)
      {
-@@ -418,14 +418,6 @@
+@@ -418,14 +418,6 @@ here_document_to_fd (redirectee, ri)
    if (unlink (filename) < 0)
      {
        r = errno;
@@ -813,7 +813,7 @@
        free (filename);
        errno = r;
 --- origsrc/bash-3.2/shell.c	2006-05-17 06:46:54.000000000 -0600
-+++ src/bash-3.2/shell.c	2008-11-29 07:59:09.078125000 -0700
++++ src/bash-3.2/shell.c	2009-06-23 15:07:57.349665100 -0600
 @@ -1,6 +1,6 @@
  /* shell.c -- GNU's idea of the POSIX shell specification. */
  
@@ -822,7 +822,7 @@
  
     This file is part of GNU Bash, the Bourne Again SHell.
  
-@@ -306,7 +306,10 @@
+@@ -306,7 +306,10 @@ _cygwin32_check_tmp ()
    struct stat sb;
  
    if (stat ("/tmp", &sb) < 0)
@@ -834,7 +834,7 @@
    else
      {
        if (S_ISDIR (sb.st_mode) == 0)
-@@ -1344,6 +1347,13 @@
+@@ -1344,6 +1347,13 @@ open_shell_script (script_name)
    SHELL_VAR *funcname_v, *bash_source_v, *bash_lineno_v;
    ARRAY *funcname_a, *bash_source_a, *bash_lineno_a;
  #endif
@@ -848,7 +848,7 @@
  
    filename = savestring (script_name);
  
-@@ -1428,10 +1438,6 @@
+@@ -1428,10 +1438,6 @@ open_shell_script (script_name)
       not match with ours. */
    fd = move_to_high_fd (fd, 0, -1);
  
@@ -859,7 +859,7 @@
  #if defined (BUFFERED_INPUT)
    default_buffered_input = fd;
    SET_CLOSE_ON_EXEC (default_buffered_input);
-@@ -1520,7 +1526,7 @@
+@@ -1520,7 +1526,7 @@ unset_bash_input (check_zero)
      }
  #endif /* !BUFFERED_INPUT */
  }
@@ -868,9 +868,9 @@
  
  #if !defined (PROGRAM)
  #  define PROGRAM "bash"
---- origsrc/bash-3.2/subst.c	2008-11-29 07:57:50.187500000 -0700
-+++ src/bash-3.2/subst.c	2008-11-29 07:59:09.093750000 -0700
-@@ -4464,10 +4464,6 @@
+--- origsrc/bash-3.2/subst.c	2009-06-23 14:54:23.495498800 -0600
++++ src/bash-3.2/subst.c	2009-06-23 15:07:57.365290000 -0600
+@@ -4464,10 +4464,6 @@ read_comsub (fd, quoted)
    istring = (char *)NULL;
    istring_index = istring_size = bufn = 0;
  
@@ -881,7 +881,7 @@
    /* Read the output of the command through the pipe. */
    while (1)
      {
-@@ -4489,6 +4485,13 @@
+@@ -4489,6 +4485,13 @@ read_comsub (fd, quoted)
  #endif
  	  continue;
  	}
@@ -895,7 +895,7 @@
  
        /* Add the character to ISTRING, possibly after resizing it. */
        RESIZE_MALLOCED_BUFFER (istring, istring_index, 2, istring_size, DEFAULT_ARRAY_SIZE);
-@@ -4562,6 +4565,12 @@
+@@ -4562,6 +4565,12 @@ command_substitute (string, quoted)
    pid_t pid, old_pid, old_pipeline_pgrp, old_async_pid;
    char *istring;
    int result, fildes[2], function_value, pflags, rc;
@@ -908,7 +908,7 @@
  
    istring = (char *)NULL;
  
-@@ -4591,6 +4600,17 @@
+@@ -4591,6 +4600,17 @@ command_substitute (string, quoted)
    /* Flags to pass to parse_and_execute() */
    pflags = interactive ? SEVAL_RESETLINE : 0;
  
@@ -926,7 +926,7 @@
    /* Pipe the output of executing STRING into the current shell. */
    if (pipe (fildes) < 0)
      {
-@@ -4598,6 +4618,12 @@
+@@ -4598,6 +4618,12 @@ command_substitute (string, quoted)
        goto error_exit;
      }
  
@@ -939,7 +939,7 @@
    old_pid = last_made_pid;
  #if defined (JOB_CONTROL)
    old_pipeline_pgrp = pipeline_pgrp;
-@@ -4652,6 +4678,7 @@
+@@ -4652,6 +4678,7 @@ command_substitute (string, quoted)
  	  exit (EXECUTION_FAILURE);
  	}
  
@@ -947,7 +947,7 @@
        /* If standard output is closed in the parent shell
  	 (such as after `exec >&-'), file descriptor 1 will be
  	 the lowest available file descriptor, and end up in
-@@ -4667,6 +4694,17 @@
+@@ -4667,6 +4694,17 @@ command_substitute (string, quoted)
  	  (fildes[0] != fileno (stdout)) &&
  	  (fildes[0] != fileno (stderr)))
  	close (fildes[0]);

@@ -1,30 +1,32 @@
 # bash.cygport - directions for packaging bash for cygwin
 
-# Copyright (C) 2007, 2008 Eric Blake
+# Copyright (C) 2007, 2008, 2009 Eric Blake
 # This file is free software; I give unlimited permission to copy and/or
 # distribute it, with or without modifications, as long as this notice is
 # preserved.
 
 DESCRIPTION="The GNU Bourne Again SHell"
 HOMEPAGE=http://www.gnu.org/software/$PN
-REPO=ftp://ftp.gnu.org/pub/gnu
-#REPO=ftp://ftp.cwru.edu/pub
+REPO=ftp://ftp.gnu.org/pub/gnu/$PN
+#REPO=ftp://ftp.cwru.edu/pub/$PN
+SRC_DIR=${P%.*}
 case $P in
   (*.*.0) PATCH_URI= ;;
   (*.*.*)
-     PATCH_URI=$(seq -f "$REPO/$PN/${P%.*}-patches/${PN}32-%03g " ${P##*.}) ;;
-  (*) PATCH_URI= ;;
+     PATCH_URI=$(seq -f "$REPO/${P%.*}-patches/${PN}${PV_MAJ_MIN//./}-%03g " \
+		 ${P##*.}) ;;
+  (*) PATCH_URI= SRCDIR=$P ;;
 esac
 SRC_URI="\
-$REPO/$PN/${P%.*}.tar.gz \
-$REPO/$PN/${P%.*}.tar.gz.sig \
+$REPO/${P%.*}.tar.gz \
+$REPO/${P%.*}.tar.gz.sig \
 $PATCH_URI \
 ${PATCH_URI// /.sig }"
-SRC_DIR=${P%.*}
 
 CYGCONF_ARGS="--without-libintl-prefix --without-libiconv-prefix \
 --with-installed-readline bash_cv_dev_stdin=present bash_cv_dev_fd=standard"
 DIFF_EXCLUDES='bashref.info'
+DOCS="CHANGES COMPAT POSIX RBASH"
 
 # Interaction with bashdb
 export DEBUGGER_START_FILE=/usr/share/bashdb/bashdb-main.inc
@@ -68,6 +70,7 @@ src_install()
      unset until wait while ; do
     ln -f alias.1.gz $f.1.gz
   done
+  peflags -t1 $D/usr/bin/bash.exe
   cp -p "$D"/usr/bin/{ba,}sh.exe
 }
 
