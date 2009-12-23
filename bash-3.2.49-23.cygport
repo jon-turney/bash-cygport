@@ -23,7 +23,7 @@ $REPO/${P%.*}.tar.gz.sig \
 $PATCH_URI \
 ${PATCH_URI// /.sig }"
 
-CYGCONF_ARGS="--without-libintl-prefix --without-libiconv-prefix \
+CYGCONF_ARGS="CC=gcc-4 --without-libintl-prefix --without-libiconv-prefix \
 --with-installed-readline bash_cv_dev_stdin=present bash_cv_dev_fd=standard"
 DIFF_EXCLUDES='bashref.info'
 DOCS="CHANGES COMPAT POSIX RBASH"

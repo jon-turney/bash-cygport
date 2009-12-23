@@ -1,5 +1,5 @@
 --- origsrc/bash-3.2/aclocal.m4	2006-09-12 15:18:07.000000000 -0600
-+++ src/bash-3.2/aclocal.m4	2009-06-23 15:07:57.255915700 -0600
++++ src/bash-3.2/aclocal.m4	2009-07-01 19:06:30.199750000 -0600
 @@ -1574,7 +1574,7 @@ AC_DEFUN(BASH_CHECK_DEV_STDIN,
  AC_CACHE_VAL(bash_cv_dev_stdin,
  [if test -d /dev/fd && test -r /dev/stdin < /dev/null; then
@@ -9,8 +9,8 @@
     bash_cv_dev_stdin=present
   else
     bash_cv_dev_stdin=absent
---- origsrc/bash-3.2/bashline.c	2009-06-23 14:54:21.714260200 -0600
-+++ src/bash-3.2/bashline.c	2009-06-23 15:07:57.271540600 -0600
+--- origsrc/bash-3.2/bashline.c	2009-07-01 19:06:11.512250000 -0600
++++ src/bash-3.2/bashline.c	2009-07-01 19:06:30.215375000 -0600
 @@ -409,11 +409,12 @@ initialize_readline ()
    kseq[0] = CTRL('J');
    kseq[1] = '\0';
@@ -80,7 +80,7 @@
      {
        free (fn);
 --- origsrc/bash-3.2/builtins/evalfile.c	2006-07-27 19:41:43.000000000 -0600
-+++ src/bash-3.2/builtins/evalfile.c	2009-06-23 15:07:57.271540600 -0600
++++ src/bash-3.2/builtins/evalfile.c	2009-07-01 19:06:30.215375000 -0600
 @@ -1,4 +1,4 @@
 -/* Copyright (C) 1996-2003 Free Software Foundation, Inc.
 +/* Copyright (C) 1996-2003, 2006 Free Software Foundation, Inc.
@@ -98,8 +98,8 @@
    string = (char *)xmalloc (1 + file_size);
    result = read (fd, string, file_size);
    string[result] = '\0';
---- origsrc/bash-3.2/builtins/set.def	2009-06-23 14:54:22.479880300 -0600
-+++ src/bash-3.2/builtins/set.def	2009-06-23 15:07:57.287165500 -0600
+--- origsrc/bash-3.2/builtins/set.def	2009-07-01 19:06:12.684125000 -0600
++++ src/bash-3.2/builtins/set.def	2009-07-01 19:06:30.231000000 -0600
 @@ -1,7 +1,7 @@
  This file is set.def, from which is created set.c.
  It implements the "set" and "unset" builtins in Bash.
@@ -226,8 +226,8 @@
        free (vname);
      }
  }
---- origsrc/bash-3.2/builtins/shopt.def	2009-06-23 14:54:22.073632900 -0600
-+++ src/bash-3.2/builtins/shopt.def	2009-06-23 15:07:57.287165500 -0600
+--- origsrc/bash-3.2/builtins/shopt.def	2009-07-01 19:06:12.090375000 -0600
++++ src/bash-3.2/builtins/shopt.def	2009-07-01 19:06:30.231000000 -0600
 @@ -69,6 +69,10 @@ extern int hup_on_exit;
  extern int xpg_echo;
  extern int gnu_error_format;
@@ -250,7 +250,7 @@
  #if defined (HISTORY)
    { "lithist", &literal_history, (shopt_set_func_t *)NULL },
 --- origsrc/bash-3.2/config-top.h	2005-04-29 14:36:34.000000000 -0600
-+++ src/bash-3.2/config-top.h	2009-06-23 15:07:57.287165500 -0600
++++ src/bash-3.2/config-top.h	2009-07-01 19:06:30.231000000 -0600
 @@ -3,7 +3,7 @@
  /* This contains various user-settable options not under the control of
     autoconf. */
@@ -267,7 +267,7 @@
 -/* #define SSH_SOURCE_BASHRC */
 +#define SSH_SOURCE_BASHRC
 --- origsrc/bash-3.2/doc/Makefile.in	2004-07-27 06:57:48.000000000 -0600
-+++ src/bash-3.2/doc/Makefile.in	2009-06-23 15:07:57.302790400 -0600
++++ src/bash-3.2/doc/Makefile.in	2009-07-01 19:06:30.246625000 -0600
 @@ -1,6 +1,6 @@
  # This Makefile is for the Bash/documentation directory -*- text -*-.
  #
@@ -297,7 +297,7 @@
  	if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then \
  		install-info --dir-file=$(DESTDIR)$(infodir)/dir $(DESTDIR)$(infodir)/bash.info; \
 --- origsrc/bash-3.2/doc/builtins.1	2004-05-24 08:19:55.000000000 -0600
-+++ src/bash-3.2/doc/builtins.1	2009-06-23 15:07:57.302790400 -0600
++++ src/bash-3.2/doc/builtins.1	2009-07-01 19:06:30.246625000 -0600
 @@ -10,6 +10,6 @@ shift, shopt, source, suspend, test, tim
  ulimit, umask, unalias, unset, wait \- bash built-in commands, see \fBbash\fR(1)
  .SH BASH BUILTIN COMMANDS
@@ -306,8 +306,8 @@
 +.so man1/bash.1
  .SH SEE ALSO
  bash(1), sh(1)
---- origsrc/bash-3.2/execute_cmd.c	2009-06-23 14:54:23.151751000 -0600
-+++ src/bash-3.2/execute_cmd.c	2009-06-23 15:07:57.302790400 -0600
+--- origsrc/bash-3.2/execute_cmd.c	2009-07-01 19:06:13.856000000 -0600
++++ src/bash-3.2/execute_cmd.c	2009-07-01 19:06:30.262250000 -0600
 @@ -3727,6 +3727,17 @@ execute_disk_command (words, redirects, 
  
        if (command == 0)
@@ -351,8 +351,8 @@
 +#endif /* __CYGWIN__ */
      }
  }
---- origsrc/bash-3.2/findcmd.c	2009-06-23 14:54:16.370544400 -0600
-+++ src/bash-3.2/findcmd.c	2009-06-23 15:07:57.302790400 -0600
+--- origsrc/bash-3.2/findcmd.c	2009-07-01 19:06:02.981000000 -0600
++++ src/bash-3.2/findcmd.c	2009-07-01 19:06:30.277875000 -0600
 @@ -1,6 +1,6 @@
  /* findcmd.c -- Functions to search for commands by name. */
  
@@ -371,7 +371,7 @@
       support Unix file system semantics.  This may produce wrong
       answers for non-AFS files when ruid != euid.  I hate AFS. */
 --- origsrc/bash-3.2/input.c	2006-07-27 19:22:58.000000000 -0600
-+++ src/bash-3.2/input.c	2009-06-23 15:07:57.318415300 -0600
++++ src/bash-3.2/input.c	2009-07-01 19:06:30.277875000 -0600
 @@ -1,6 +1,6 @@
  /* input.c -- functions to perform buffered input with synchronization. */
  
@@ -380,19 +380,18 @@
  
     This file is part of GNU Bash, the Bourne Again SHell.
  
-@@ -43,6 +43,11 @@
+@@ -43,6 +43,10 @@
  #include "externs.h"
  #include "quit.h"
  
 +#if __CYGWIN__
-+# include <sys/cygwin.h>
 +int igncr;
 +#endif
 +
  #if !defined (errno)
  extern int errno;
  #endif /* !errno */
-@@ -172,6 +177,10 @@ make_buffered_stream (fd, buffer, bufsiz
+@@ -172,6 +176,10 @@ make_buffered_stream (fd, buffer, bufsiz
    bp->b_used = bp->b_inputp = bp->b_flag = 0;
    if (bufsize == 1)
      bp->b_flag |= B_UNBUFF;
@@ -403,7 +402,7 @@
    return (bp);
  }
  
-@@ -340,11 +349,7 @@ duplicate_buffered_stream (fd1, fd2)
+@@ -340,11 +348,7 @@ duplicate_buffered_stream (fd1, fd2)
  }
  
  /* Return 1 if a seek on FD will succeed. */
@@ -415,22 +414,7 @@
  
  /* Take FD, a file descriptor, and create and return a buffered stream
     corresponding to it.  If something is wrong and the file descriptor
-@@ -378,6 +383,14 @@ open_buffered_stream (file)
- {
-   int fd;
- 
-+#if __CYGWIN__
-+  /* Normalize DOS paths into Unix; otherwise mount point settings are
-+     not honored.  */
-+  char posix[PATH_MAX];
-+  cygwin_conv_to_posix_path (file, posix);
-+  file = posix;
-+#endif /* __CYGWIN__ */
-+
-   fd = open (file, O_RDONLY);
-   return ((fd >= 0) ? fd_to_buffered_stream (fd) : (BUFFERED_STREAM *)NULL);
- }
-@@ -453,6 +466,25 @@ b_fill_buffer (bp)
+@@ -453,6 +457,25 @@ b_fill_buffer (bp)
    ssize_t nr;
  
    CHECK_TERMSIG;
@@ -456,7 +440,7 @@
    nr = zread (bp->b_fd, bp->b_buffer, bp->b_size);
    if (nr <= 0)
      {
-@@ -465,15 +497,6 @@ b_fill_buffer (bp)
+@@ -465,15 +488,6 @@ b_fill_buffer (bp)
        return (EOF);
      }
  
@@ -472,7 +456,7 @@
    bp->b_used = nr;
    bp->b_inputp = 0;
    return (bp->b_buffer[bp->b_inputp++] & 0xFF);
-@@ -522,6 +545,19 @@ buffered_getchar ()
+@@ -522,6 +536,19 @@ buffered_getchar ()
  {
    CHECK_TERMSIG;
  
@@ -493,7 +477,7 @@
    return (bufstream_getc (buffers[bash_input.location.buffered_fd]));
  #else
 --- origsrc/bash-3.2/input.h	2006-03-19 16:31:20.000000000 -0600
-+++ src/bash-3.2/input.h	2009-06-23 15:07:57.318415300 -0600
++++ src/bash-3.2/input.h	2009-07-01 19:06:30.293500000 -0600
 @@ -1,5 +1,5 @@
  /* input.h -- Structures and unions used for reading input. */
 -/* Copyright (C) 1993 Free Software Foundation, Inc.
@@ -509,8 +493,8 @@
  
  /* A buffered stream.  Like a FILE *, but with our own buffering and
     synchronization.  Look in input.c for the implementation. */
---- origsrc/bash-3.2/jobs.c	2009-06-23 14:54:21.354887500 -0600
-+++ src/bash-3.2/jobs.c	2009-06-23 15:07:57.318415300 -0600
+--- origsrc/bash-3.2/jobs.c	2009-07-01 19:06:10.902875000 -0600
++++ src/bash-3.2/jobs.c	2009-07-01 19:06:30.309125000 -0600
 @@ -1690,7 +1690,22 @@ make_child (command, async_p)
  #endif /* BUFFERED_INPUT */
  
@@ -535,7 +519,7 @@
        sys_error ("fork");
  
 --- origsrc/bash-3.2/lib/sh/pathcanon.c	2005-02-22 15:40:56.000000000 -0700
-+++ src/bash-3.2/lib/sh/pathcanon.c	2009-06-23 15:07:57.318415300 -0600
++++ src/bash-3.2/lib/sh/pathcanon.c	2009-07-01 19:06:30.309125000 -0600
 @@ -1,6 +1,6 @@
  /* pathcanon.c -- Canonicalize and manipulate pathnames. */
  
@@ -586,7 +570,7 @@
  
    /* Empty string is really ``.'' or `/', depending on what we started with. */
 --- origsrc/bash-3.2/lib/sh/pathphys.c	2005-08-28 13:32:18.000000000 -0600
-+++ src/bash-3.2/lib/sh/pathphys.c	2009-06-23 15:07:57.334040200 -0600
++++ src/bash-3.2/lib/sh/pathphys.c	2009-07-01 19:06:30.324750000 -0600
 @@ -1,6 +1,6 @@
  /* pathphys.c -- Return pathname with all symlinks expanded. */
  
@@ -622,8 +606,8 @@
  }
  
  char *
---- origsrc/bash-3.2/lib/sh/snprintf.c	2009-06-23 14:54:16.526793400 -0600
-+++ src/bash-3.2/lib/sh/snprintf.c	2009-06-23 15:07:57.334040200 -0600
+--- origsrc/bash-3.2/lib/sh/snprintf.c	2009-07-01 19:06:03.277875000 -0600
++++ src/bash-3.2/lib/sh/snprintf.c	2009-07-01 19:06:30.324750000 -0600
 @@ -7,7 +7,7 @@
     Unix snprintf implementation.
     derived from inetutils/libinetutils/snprintf.c Version 1.1
@@ -634,7 +618,7 @@
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General License as published by
 --- origsrc/bash-3.2/lib/sh/tmpfile.c	2006-07-27 21:55:48.000000000 -0600
-+++ src/bash-3.2/lib/sh/tmpfile.c	2009-06-23 15:07:57.334040200 -0600
++++ src/bash-3.2/lib/sh/tmpfile.c	2009-07-01 19:06:30.340375000 -0600
 @@ -2,7 +2,7 @@
   * tmpfile.c - functions to create and safely open temp files for the shell.
   */
@@ -700,7 +684,7 @@
  	filename[tdlen + 1 + tmpnamelen] = '\0';
        fd = open (filename, BASEOPENFLAGS | ((flags & MT_READWRITE) ? O_RDWR : O_WRONLY), 0600);
 --- origsrc/bash-3.2/lib/sh/winsize.c	2006-07-27 21:57:45.000000000 -0600
-+++ src/bash-3.2/lib/sh/winsize.c	2009-06-23 15:07:57.334040200 -0600
++++ src/bash-3.2/lib/sh/winsize.c	2009-07-01 19:06:30.340375000 -0600
 @@ -1,6 +1,6 @@
  /* Handle window size changes and information. */
  
@@ -717,8 +701,8 @@
  
  #if !defined (STRUCT_WINSIZE_IN_SYS_IOCTL)
  /* For struct winsize on SCO */
---- origsrc/bash-3.2/parse.y	2009-06-23 14:54:21.714260200 -0600
-+++ src/bash-3.2/parse.y	2009-06-23 15:07:57.349665100 -0600
+--- origsrc/bash-3.2/parse.y	2009-07-01 19:06:11.496625000 -0600
++++ src/bash-3.2/parse.y	2009-07-01 19:06:30.356000000 -0600
 @@ -1,6 +1,6 @@
  /* Yacc grammar for bash. */
  
@@ -770,7 +754,7 @@
        free (msg);
  
 --- origsrc/bash-3.2/redir.c	2006-05-23 20:31:35.000000000 -0600
-+++ src/bash-3.2/redir.c	2009-06-23 15:07:57.349665100 -0600
++++ src/bash-3.2/redir.c	2009-07-01 19:06:30.371625000 -0600
 @@ -1,6 +1,6 @@
  /* redir.c -- Functions to perform input and output redirection. */
  
@@ -813,7 +797,7 @@
        free (filename);
        errno = r;
 --- origsrc/bash-3.2/shell.c	2006-05-17 06:46:54.000000000 -0600
-+++ src/bash-3.2/shell.c	2009-06-23 15:07:57.349665100 -0600
++++ src/bash-3.2/shell.c	2009-07-01 19:06:30.371625000 -0600
 @@ -1,6 +1,6 @@
  /* shell.c -- GNU's idea of the POSIX shell specification. */
  
@@ -834,21 +818,7 @@
    else
      {
        if (S_ISDIR (sb.st_mode) == 0)
-@@ -1344,6 +1347,13 @@ open_shell_script (script_name)
-   SHELL_VAR *funcname_v, *bash_source_v, *bash_lineno_v;
-   ARRAY *funcname_a, *bash_source_a, *bash_lineno_a;
- #endif
-+#if __CYGWIN__
-+  /* Normalize DOS paths into Unix; otherwise mount point settings are
-+     not honored.  */
-+  char posix[PATH_MAX];
-+  cygwin_conv_to_posix_path (script_name, posix);
-+  script_name = posix;
-+#endif /* __CYGWIN__ */
- 
-   filename = savestring (script_name);
- 
-@@ -1428,10 +1438,6 @@ open_shell_script (script_name)
+@@ -1428,10 +1431,6 @@ open_shell_script (script_name)
       not match with ours. */
    fd = move_to_high_fd (fd, 0, -1);
  
@@ -859,7 +829,7 @@
  #if defined (BUFFERED_INPUT)
    default_buffered_input = fd;
    SET_CLOSE_ON_EXEC (default_buffered_input);
-@@ -1520,7 +1526,7 @@ unset_bash_input (check_zero)
+@@ -1520,7 +1519,7 @@ unset_bash_input (check_zero)
      }
  #endif /* !BUFFERED_INPUT */
  }
@@ -868,8 +838,8 @@
  
  #if !defined (PROGRAM)
  #  define PROGRAM "bash"
---- origsrc/bash-3.2/subst.c	2009-06-23 14:54:23.495498800 -0600
-+++ src/bash-3.2/subst.c	2009-06-23 15:07:57.365290000 -0600
+--- origsrc/bash-3.2/subst.c	2009-07-01 19:06:14.434125000 -0600
++++ src/bash-3.2/subst.c	2009-07-01 19:06:30.387250000 -0600
 @@ -4464,10 +4464,6 @@ read_comsub (fd, quoted)
    istring = (char *)NULL;
    istring_index = istring_size = bufn = 0;

@@ -1,7 +1,7 @@
 --- origsrc/bash-3.2/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/bash.README	2009-06-23 15:07:29.271719800 -0600
-@@ -0,0 +1,350 @@
-+bash 3.2.49-22
++++ src/bash-3.2/CYGWIN-PATCHES/bash.README	2009-07-01 19:11:41.356000000 -0600
+@@ -0,0 +1,353 @@
++bash 3.2.49-23
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -64,21 +64,21 @@
 +death on the mailing lists by people with many ideas, but few patches.
 +
 +Runtime requirements (these or newer):
-+  cygwin-1.5.25-15
-+  libintl8-0.17-4
-+  libreadline6-5.2.14-12
++  cygwin-1.7.0-50
++  libintl8-0.17-11
++  libreadline7-6.0.3-1
 +
 +Additional build conditions (these or newer):
-+  bash-3.2.48-21
++  bash-3.2.49-22
 +  binutils-20080624-2
 +  bison-2.3-1
-+  cygport-0.4.4-1
-+  gcc-3.4.4-999
-+  gettext-0.17-4
-+  libiconv2-1.13-1
-+  libncurses8-5.5-4
-+  ncurses-5.7-5
-+  readline-5.2.14-12
++  cygport-0.9.7-1
++  gcc4-4.3.2-2
++  gettext-0.17-11
++  libiconv2-1.13-10
++  libncurses9-5.7-14
++  ncurses-5.7-14
++  readline-6.0.3-1
 +  rebase-3.0-2
 +
 +Canonical homepage:
@@ -96,17 +96,17 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.2.49-22-src.tar.bz2
++  unpack bash-3.2.49-23-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +	 unpacked under /usr/src automatically
 +  cd /usr/src
-+  cygport bash-3.2.49-22 all
++  cygport bash-3.2.49-23 all
 +
 +This will create:
-+  /usr/src/bash-3.2.49-22.tar.bz2
-+  /usr/src/bash-3.2.49-22-src.tar.bz2
++  /usr/src/bash-3.2.49-23.tar.bz2
++  /usr/src/bash-3.2.49-23-src.tar.bz2
 +
-+Or use 'cygport bash-3.2.49-22 prep' to get a patched source directory
++Or use 'cygport bash-3.2.49-23 prep' to get a patched source directory
 +
 +To find out the files included in the binary distribution, you can use
 +"cygcheck -l bash", or browse the listing for the appropriate version
@@ -115,6 +115,9 @@
 +------------------
 +
 +Port Notes:
++
++----- version 3.2.49-23 -- 2009-07-1 -----
++Build for cygwin 1.7.
 +
 +----- version 3.2.49-22 -- 2009-06-23 -----
 +Fold in new official upstream patch.  Enable TS-aware flag.
@@ -347,12 +350,12 @@
 +
 +--------------------
 +For more information about this package, see the upstream documentation in
-+/usr/share/doc/bash-3.2.49/.
++/usr/share/doc/bash/.
 +
 +Cygwin port maintained by: Eric Blake <ebb9@byu.net>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 --- origsrc/bash-3.2/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/postinstall.sh	2009-06-23 15:03:08.585888200 -0600
++++ src/bash-3.2/CYGWIN-PATCHES/postinstall.sh	2009-07-01 19:06:28.684125000 -0600
 @@ -0,0 +1,24 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
@@ -379,7 +382,7 @@
 +
 +test $result = 0 || exit $result
 --- origsrc/bash-3.2/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/setup.hint	2009-06-23 15:03:08.601513100 -0600
++++ src/bash-3.2/CYGWIN-PATCHES/setup.hint	2009-07-01 19:09:23.246625000 -0600
 @@ -0,0 +1,11 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"
@@ -390,5 +393,5 @@
 +programming and interactive use. In addition, most sh scripts can be
 +run by Bash without modification."
 +category: Base Shells
-+requires: cygwin libintl8 libreadline6
++requires: cygwin libintl8 libreadline7
 +#Maintainer: Eric Blake
