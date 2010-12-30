@@ -1,8 +1,8 @@
 			     BASH PATCH REPORT
 			     =================
 
-Bash-Release: 3.2
-Patch-ID: bash32-051
+Bash-Release:	4.1
+Patch-ID:	bash41-005
 
 Bug-Reported-by:	werner@suse.de
 Bug-Reference-ID:	<201002251238.o1PCcYcg016893@boole.suse.de>
@@ -16,31 +16,41 @@ signals immediately instead of deferring their handling.  This can result
 in unsafe functions being called from signal handlers, which can cause bash
 to hang or dump core.
 
-Patch:
+Patch (apply with `patch -p0'):
 
-*** ../bash-3.2-patched/builtins/read.def	2008-04-29 21:25:00.000000000 -0400
---- builtins/read.def	2010-03-17 09:50:51.000000000 -0400
+*** ../bash-4.1-patched/builtins/read.def	2009-10-08 11:35:46.000000000 -0400
+--- builtins/read.def	2010-03-17 17:35:39.000000000 -0400
 ***************
-*** 327,330 ****
---- 327,332 ----
-        if (code)
-  	{
-+ 	  interrupt_immediately--;
-+ 	  terminate_immediately = 0;
-  	  run_unwind_frame ("read_builtin");
-  	  return (EXECUTION_FAILURE);
-*** ../bash-3.2/patchlevel.h	Thu Apr 13 08:31:04 2006
---- patchlevel.h	Mon Oct 16 14:22:54 2006
+*** 616,621 ****
+      zsyncfd (fd);
+  
+-   interrupt_immediately--;
+-   terminate_immediately--;
+    discard_unwind_frame ("read_builtin");
+  
+--- 616,619 ----
+***************
+*** 624,627 ****
+--- 622,628 ----
+  assign_vars:
+  
++   interrupt_immediately--;
++   terminate_immediately--;
++ 
+  #if defined (ARRAY_VARS)
+    /* If -a was given, take the string read, break it into a list of words,
+*** ../bash-4.1-patched/patchlevel.h	2009-10-01 16:39:22.000000000 -0400
+--- patchlevel.h	2010-01-14 09:38:08.000000000 -0500
 ***************
 *** 26,30 ****
      looks for to find the patch level (for the sccs version string). */
   
-! #define PATCHLEVEL 50
+! #define PATCHLEVEL 4
   
   #endif /* _PATCHLEVEL_H_ */
 --- 26,30 ----
      looks for to find the patch level (for the sccs version string). */
   
-! #define PATCHLEVEL 51
+! #define PATCHLEVEL 5
   
   #endif /* _PATCHLEVEL_H_ */

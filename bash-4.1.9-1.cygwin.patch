@@ -1,7 +1,7 @@
---- origsrc/bash-3.2/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/bash.README	2010-08-13 10:48:11.453125000 -0600
-@@ -0,0 +1,356 @@
-+bash 3.2.51-24
+--- origsrc/bash-4.1/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
++++ src/bash-4.1/CYGWIN-PATCHES/bash.README	2010-12-29 16:27:05.921875000 -0700
+@@ -0,0 +1,367 @@
++bash 4.1.9-1
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -31,12 +31,12 @@
 +to force bash to ignore \r, independently of cygwin's mount style.  As of
 +bash-3.2.3-5, it controls regular scripts, command substitution, and
 +sourced files.  I hope to convince the upstream bash maintainer to accept
-+this patch into the future bash 4.0 even on Linux, rather than keeping it
++this patch into a future bash release even on Linux, rather than keeping it
 +a cygwin-specific patch, but only time will tell.  There are several ways
 +to activate this option:
 +4a. For a single affected script, add this line just after the she-bang:
 + (set -o igncr) 2>/dev/null && set -o igncr; # comment is needed
-+4b. For a single script, invoke bash explicitly with the shopt, as in
++4b. For a single script, invoke bash explicitly with the option, as in
 +'bash -o igncr ./myscript' rather than the simpler './myscript'.
 +4c. To affect all scripts, export the environment variable BASH_ENV,
 +pointing to a file that sets the shell option as desired.  Bash will
@@ -44,41 +44,46 @@
 +4d. Added in the bash-3.2-2 release: export the environment variable
 +SHELLOPTS with igncr included in it.  It is read-only from within bash,
 +but you can set it before invoking bash; once in bash, it auto-tracks the
-+current state of 'set -o igncr' or 'shopt -s igncr'.  If exported, then
-+all bash child processes inherit the same option settings; with the
-+exception added in 3.2.9-11 that certain interactive options are not
-+inherited in non-interactive use.
++current state of 'set -o igncr'.  If exported, then all bash child
++processes inherit the same option settings; with the exception added in
++3.2.9-11 that certain interactive options are not inherited in
++non-interactive use.
++4e. bash-4.1.2-1 dropped support for 'shopt -s igncr'; it did not make
++sense to support the option through both set and shopt, and SHELLOPTS
++proved to be more powerful.
 +5. You can also experiment with the IFS variable for controlling how bash
 +will treat \r during variable expansion.
-+6. The bash hack for honoring the underlying mount point of DOS-style
-+paths has been discontinued, as had been promised in several prior
-+release notes.  Use POSIX-style paths instead.
-+7. There are varying levels of speed at which bash operates.  The fastest
++6. There are varying levels of speed at which bash operates.  The fastest
 +is on a binary mount with igncr disabled (the default behavior).  Next
 +would be text mounts with igncr disabled and no \r in the underlying file.
 +Next would be binary mounts with igncr enabled.  And the slowest that bash
 +will operate is on text mounts with igncr enabled.
++7. As additional cygwin extensions, this version of bash includes:
++7a. EXECIGNORE - a colon-separated list of glob patterns to ignore
++when completing on execuatbles.  EXECIGNORE=*.dll is common.
++7b. completion_strip_exe - using 'shopt -s completion_strip_exe'
++makes completion strip .exe suffixes
 +8. If you don't like how bash behaves, then propose a patch, rather than
 +proposing idle ideas.  This turn of events has already been talked to
 +death on the mailing lists by people with many ideas, but few patches.
 +
 +Runtime requirements (these or newer):
-+  cygwin-1.7.5-1
++  cygwin-1.7.7-1
 +  libgcc1-4.3.4-3
 +  libintl8-0.17-11
-+  libreadline7-6.0.3-2
++  libreadline7-6.1.2-1
 +
 +Additional build conditions (these or newer):
-+  bash-3.2.49-23
++  bash-3.2.51-24
 +  binutils-2.20.51-2
 +  bison-2.4.2-1
-+  cygport-0.9.85-1
++  cygport-0.10.2-1
 +  gcc4-4.3.4-3
 +  gettext-0.17-11
 +  libiconv2-1.13.1-1
 +  libncurses9-5.7-16
 +  ncurses-5.7-18
-+  readline-6.0.3-2
++  readline-6.1.2-1
 +  rebase-3.0.1-1
 +
 +Canonical homepage:
@@ -96,17 +101,17 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-3.2.51-24-src.tar.bz2
++  unpack bash-4.1.9-1-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +    unpacked under /usr/src automatically
 +  cd /usr/src
-+  cygport bash-3.2.51-24 all
++  cygport bash-4.1.9-1 all
 +
 +This will create:
-+  /usr/src/bash-3.2.51-24.tar.bz2
-+  /usr/src/bash-3.2.51-24-src.tar.bz2
++  /usr/src/bash-4.1.9-1.tar.bz2
++  /usr/src/bash-4.1.9-1-src.tar.bz2
 +
-+Or use 'cygport bash-3.2.51-24 prep' to get a patched source directory
++Or use 'cygport bash-4.1.9-1 prep' to get a patched source directory
 +
 +To find out the files included in the binary distribution, you can use
 +"cygcheck -l bash", or browse the listing for the appropriate version
@@ -115,6 +120,12 @@
 +------------------
 +
 +Port Notes:
++
++----- version 4.1.9-1 -- 2010-12-29 -----
++New upstream version.  Drop 'shopt -s igncr' support (but keep
++set -o igncr').  Enable /etc/bash.bash{rc,_logout} sourcing.
++Provide [.1 man page.  Add EXECIGNORE and completion_strip_exe
++patches from Dan Colascione.
 +
 +----- version 3.2.51-24 -- 2010-08-13 -----
 +Fold in new official upstream patches.  Fix postinstall script.
@@ -357,8 +368,8 @@
 +
 +Cygwin port maintained by: Eric Blake <ebb9@byu.net>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
---- origsrc/bash-3.2/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/postinstall.sh	2010-08-13 10:16:54.281250000 -0600
+--- origsrc/bash-4.1/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
++++ src/bash-4.1/CYGWIN-PATCHES/postinstall.sh	2010-12-29 11:06:50.781250000 -0700
 @@ -0,0 +1,23 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
@@ -383,8 +394,8 @@
 +/bin/test -h /dev/fd     || ln -sf /proc/self/fd   /dev/fd     || result=1
 +
 +test $result = 0 || exit $result
---- origsrc/bash-3.2/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-3.2/CYGWIN-PATCHES/setup.hint	2010-08-13 10:48:22.984375000 -0600
+--- origsrc/bash-4.1/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
++++ src/bash-4.1/CYGWIN-PATCHES/setup.hint	2010-12-29 11:06:50.781250000 -0700
 @@ -0,0 +1,11 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"

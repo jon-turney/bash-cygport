@@ -38,7 +38,7 @@ src_compile()
   cd "$B"
   cygconf
   # Prepopulate the release level.
-  expr $PR - 1 > .build
+  expr $PR - 1 > .build || :
   # Parallel make builds version.h twice, which over-increments .build.
   cygmake -j1
 }
@@ -67,10 +67,9 @@ src_install()
      exit export fc fg fi for function getopts hash help history if in jobs \
      let local logout popd pushd read readonly return select set shift shopt \
      source suspend then time times trap type typeset ulimit umask unalias \
-     unset until wait while ; do
+     unset until wait while [ ; do
     ln -f alias.1.gz $f.1.gz
   done
-#  peflags -t1 $D/usr/bin/bash.exe
   cp -p "$D"/usr/bin/{ba,}sh.exe
 }
 
