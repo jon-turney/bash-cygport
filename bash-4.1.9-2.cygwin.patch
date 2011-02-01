@@ -1,7 +1,7 @@
 --- origsrc/bash-4.1/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.1/CYGWIN-PATCHES/bash.README	2010-12-29 16:27:05.921875000 -0700
-@@ -0,0 +1,367 @@
-+bash 4.1.9-1
++++ src/bash-4.1/CYGWIN-PATCHES/bash.README	2011-02-01 10:28:12.391500000 -0700
+@@ -0,0 +1,371 @@
++bash 4.1.9-2
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -27,7 +27,7 @@
 +where those files live as a text mount.  However, text mounts are not as
 +well tested or supported on the cygwin mailing list, so you may encounter
 +other problems with other cygwin tools in those directories.
-+4. This version of bash has a cygwin-specific shell option, named "igncr"
++4. This version of bash has a cygwin-specific set option, named "igncr",
 +to force bash to ignore \r, independently of cygwin's mount style.  As of
 +bash-3.2.3-5, it controls regular scripts, command substitution, and
 +sourced files.  I hope to convince the upstream bash maintainer to accept
@@ -48,7 +48,7 @@
 +processes inherit the same option settings; with the exception added in
 +3.2.9-11 that certain interactive options are not inherited in
 +non-interactive use.
-+4e. bash-4.1.2-1 dropped support for 'shopt -s igncr'; it did not make
++4e. bash-4.1.9-1 dropped support for 'shopt -s igncr'; it did not make
 +sense to support the option through both set and shopt, and SHELLOPTS
 +proved to be more powerful.
 +5. You can also experiment with the IFS variable for controlling how bash
@@ -60,7 +60,7 @@
 +will operate is on text mounts with igncr enabled.
 +7. As additional cygwin extensions, this version of bash includes:
 +7a. EXECIGNORE - a colon-separated list of glob patterns to ignore
-+when completing on execuatbles.  EXECIGNORE=*.dll is common.
++when completing on executables.  EXECIGNORE=*.dll is common.
 +7b. completion_strip_exe - using 'shopt -s completion_strip_exe'
 +makes completion strip .exe suffixes
 +8. If you don't like how bash behaves, then propose a patch, rather than
@@ -71,19 +71,20 @@
 +  cygwin-1.7.7-1
 +  libgcc1-4.3.4-3
 +  libintl8-0.17-11
-+  libreadline7-6.1.2-1
++  libncursesw10-5.7-18
++  libreadline7-6.1.2-2
 +
 +Additional build conditions (these or newer):
-+  bash-3.2.51-24
++  bash-4.1.9-1
 +  binutils-2.20.51-2
 +  bison-2.4.2-1
-+  cygport-0.10.2-1
++  cygport-0.10.3-1
 +  gcc4-4.3.4-3
 +  gettext-0.17-11
 +  libiconv2-1.13.1-1
-+  libncurses9-5.7-16
-+  ncurses-5.7-18
-+  readline-6.1.2-1
++  libncursesw-devel-5.7-18
++  ncursesw-5.7-18
++  readline-6.1.2-2
 +  rebase-3.0.1-1
 +
 +Canonical homepage:
@@ -101,17 +102,17 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-4.1.9-1-src.tar.bz2
++  unpack bash-4.1.9-2-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +    unpacked under /usr/src automatically
 +  cd /usr/src
-+  cygport bash-4.1.9-1 all
++  cygport bash-4.1.9-2 all
 +
 +This will create:
-+  /usr/src/bash-4.1.9-1.tar.bz2
-+  /usr/src/bash-4.1.9-1-src.tar.bz2
++  /usr/src/bash-4.1.9-2.tar.bz2
++  /usr/src/bash-4.1.9-2-src.tar.bz2
 +
-+Or use 'cygport bash-4.1.9-1 prep' to get a patched source directory
++Or use 'cygport bash-4.1.9-2 prep' to get a patched source directory
 +
 +To find out the files included in the binary distribution, you can use
 +"cygcheck -l bash", or browse the listing for the appropriate version
@@ -120,6 +121,9 @@
 +------------------
 +
 +Port Notes:
++
++----- version 4.1.9-2 -- 2011-02-01 -----
++Rebuild against newer readline/ncursesw setup.
 +
 +----- version 4.1.9-1 -- 2010-12-29 -----
 +New upstream version.  Drop 'shopt -s igncr' support (but keep
@@ -369,7 +373,7 @@
 +Cygwin port maintained by: Eric Blake <ebb9@byu.net>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 --- origsrc/bash-4.1/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.1/CYGWIN-PATCHES/postinstall.sh	2010-12-29 11:06:50.781250000 -0700
++++ src/bash-4.1/CYGWIN-PATCHES/postinstall.sh	2011-01-31 19:53:17.782125000 -0700
 @@ -0,0 +1,23 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
@@ -395,7 +399,7 @@
 +
 +test $result = 0 || exit $result
 --- origsrc/bash-4.1/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.1/CYGWIN-PATCHES/setup.hint	2010-12-29 11:06:50.781250000 -0700
++++ src/bash-4.1/CYGWIN-PATCHES/setup.hint	2011-01-31 20:09:24.813375000 -0700
 @@ -0,0 +1,11 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"
@@ -406,5 +410,5 @@
 +programming and interactive use. In addition, most sh scripts can be
 +run by Bash without modification."
 +category: Base Shells
-+requires: libgcc1 libintl8 libreadline7
++requires: libgcc1 libintl8 libncursesw10 libreadline7
 +#Maintainer: Eric Blake

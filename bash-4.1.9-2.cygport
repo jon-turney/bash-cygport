@@ -1,6 +1,6 @@
 # bash.cygport - directions for packaging bash for cygwin
 
-# Copyright (C) 2007, 2008, 2009, 2010 Eric Blake
+# Copyright (C) 2007, 2008, 2009, 2010, 2011 Eric Blake
 # This file is free software; I give unlimited permission to copy and/or
 # distribute it, with or without modifications, as long as this notice is
 # preserved.
@@ -23,8 +23,14 @@ $REPO/${P%.*}.tar.gz.sig \
 $PATCH_URI \
 ${PATCH_URI// /.sig }"
 
+# Use of ac_cv_rl_prefix is a hack; the readline libraries are in /usr/src,
+# but that gets included automatically, and bash links -L${ac_cv_rl_prefix}
+# prior to LDFLAGS.  Since we don't want /usr/lib/ncurses, this hack lets
+# us get /usr/lib/ncursesw in its place while still using /usr/lib/readline.
 CYGCONF_ARGS="CC=gcc-4 --without-libintl-prefix --without-libiconv-prefix \
---with-installed-readline bash_cv_dev_stdin=present bash_cv_dev_fd=standard"
+ --with-installed-readline bash_cv_dev_stdin=present bash_cv_dev_fd=standard \
+ CPPFLAGS=-I/usr/include/ncursesw LDFLAGS=-L/usr/lib/ncursesw --with-curses \
+ ac_cv_rl_prefix=/usr/lib/ncursesw"
 DIFF_EXCLUDES='bashref.info'
 DOCS="CHANGES COMPAT POSIX RBASH"
 
