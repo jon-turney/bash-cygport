@@ -47,6 +47,10 @@ src_compile()
   expr $PR - 1 > .build || :
   # Parallel make builds version.h twice, which over-increments .build.
   cygmake -j1
+  # execute_cmd.c uses undefined behavior across longjmp, which results
+  # in miscompilation at -O2.
+  rm execute_cmd.o
+  make CFLAGS='-g -O1'
 }
 
 # bash.1 cannot be compressed, or else bash_builtins.1 will not work.

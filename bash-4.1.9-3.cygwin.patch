@@ -1,7 +1,7 @@
 --- origsrc/bash-4.1/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.1/CYGWIN-PATCHES/bash.README	2011-02-01 10:28:12.391500000 -0700
-@@ -0,0 +1,371 @@
-+bash 4.1.9-2
++++ src/bash-4.1/CYGWIN-PATCHES/bash.README	2011-02-09 12:10:08.433125000 -0700
+@@ -0,0 +1,374 @@
++bash 4.1.9-3
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -75,7 +75,7 @@
 +  libreadline7-6.1.2-2
 +
 +Additional build conditions (these or newer):
-+  bash-4.1.9-1
++  bash-4.1.9-2
 +  binutils-2.20.51-2
 +  bison-2.4.2-1
 +  cygport-0.10.3-1
@@ -102,17 +102,17 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-4.1.9-2-src.tar.bz2
++  unpack bash-4.1.9-3-src.tar.bz2
 +    if you use setup to install this src package, it will be
 +    unpacked under /usr/src automatically
 +  cd /usr/src
-+  cygport bash-4.1.9-2 all
++  cygport bash-4.1.9-3 all
 +
 +This will create:
-+  /usr/src/bash-4.1.9-2.tar.bz2
-+  /usr/src/bash-4.1.9-2-src.tar.bz2
++  /usr/src/bash-4.1.9-3.tar.bz2
++  /usr/src/bash-4.1.9-3-src.tar.bz2
 +
-+Or use 'cygport bash-4.1.9-2 prep' to get a patched source directory
++Or use 'cygport bash-4.1.9-3 prep' to get a patched source directory
 +
 +To find out the files included in the binary distribution, you can use
 +"cygcheck -l bash", or browse the listing for the appropriate version
@@ -121,6 +121,9 @@
 +------------------
 +
 +Port Notes:
++
++----- version 4.1.9-3 -- 2011-02-09 -----
++Rebuild to work around an -O2 miscompilation.
 +
 +----- version 4.1.9-2 -- 2011-02-01 -----
 +Rebuild against newer readline/ncursesw setup.
@@ -373,7 +376,7 @@
 +Cygwin port maintained by: Eric Blake <ebb9@byu.net>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 --- origsrc/bash-4.1/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.1/CYGWIN-PATCHES/postinstall.sh	2011-01-31 19:53:17.782125000 -0700
++++ src/bash-4.1/CYGWIN-PATCHES/postinstall.sh	2011-02-09 11:38:49.167500000 -0700
 @@ -0,0 +1,23 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
@@ -399,7 +402,7 @@
 +
 +test $result = 0 || exit $result
 --- origsrc/bash-4.1/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.1/CYGWIN-PATCHES/setup.hint	2011-01-31 20:09:24.813375000 -0700
++++ src/bash-4.1/CYGWIN-PATCHES/setup.hint	2011-02-09 11:38:49.167500000 -0700
 @@ -0,0 +1,11 @@
 +# setup for bash
 +sdesc: "The GNU Bourne Again SHell"
