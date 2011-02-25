@@ -1,5 +1,5 @@
---- origsrc/bash-4.1/bashline.c	2011-02-09 11:34:16.323750000 -0700
-+++ src/bash-4.1/bashline.c	2011-02-09 11:39:15.386250000 -0700
+--- origsrc/bash-4.1/bashline.c	2011-02-25 15:47:26.321106900 -0700
++++ src/bash-4.1/bashline.c	2011-02-25 15:48:16.972226700 -0700
 @@ -239,6 +239,11 @@ int no_empty_command_completion;
     are the only possible matches, even if FIGNORE says to. */
  int force_fignore = 1;
@@ -103,7 +103,7 @@
    free (fn);
  
 --- origsrc/bash-4.1/builtins/evalfile.c	2009-10-19 15:38:21.000000000 -0600
-+++ src/bash-4.1/builtins/evalfile.c	2011-02-09 11:39:15.401875000 -0700
++++ src/bash-4.1/builtins/evalfile.c	2011-02-25 15:48:16.987845300 -0700
 @@ -148,10 +148,6 @@ file_error_and_exit:
        return ((flags & FEVAL_BUILTIN) ? EXECUTION_FAILURE : -1);
      }      
@@ -116,7 +116,7 @@
      {
        string = (char *)xmalloc (1 + file_size);
 --- origsrc/bash-4.1/builtins/set.def	2009-01-04 12:32:23.000000000 -0700
-+++ src/bash-4.1/builtins/set.def	2011-02-09 11:39:15.401875000 -0700
++++ src/bash-4.1/builtins/set.def	2011-02-25 15:48:17.003463900 -0700
 @@ -56,6 +56,13 @@ extern int dont_save_function_defs;
  #if defined (READLINE)
  extern int no_line_editing;
@@ -235,7 +235,7 @@
      }
  }
 --- origsrc/bash-4.1/builtins/shopt.def	2009-12-22 14:25:32.000000000 -0700
-+++ src/bash-4.1/builtins/shopt.def	2011-02-09 11:39:15.417500000 -0700
++++ src/bash-4.1/builtins/shopt.def	2011-02-25 15:48:17.003463900 -0700
 @@ -85,6 +85,10 @@ extern int check_jobs_at_exit;
  extern int autocd;
  extern int glob_star;
@@ -258,7 +258,7 @@
    { "dirspell", &dircomplete_spelling, (shopt_set_func_t *)NULL },
  #endif
 --- origsrc/bash-4.1/config-top.h	2009-12-22 13:29:39.000000000 -0700
-+++ src/bash-4.1/config-top.h	2011-02-09 11:39:15.417500000 -0700
++++ src/bash-4.1/config-top.h	2011-02-25 15:48:17.003463900 -0700
 @@ -75,10 +75,10 @@
  #define KSH_COMPATIBLE_SELECT
  
@@ -282,7 +282,7 @@
  /* Define if you want the case-capitalizing operators (~[~]) and the
     `capcase' variable attribute (declare -c). */
 --- origsrc/bash-4.1/configure	2009-12-29 06:34:51.000000000 -0700
-+++ src/bash-4.1/configure	2011-02-09 12:23:30.636250000 -0700
++++ src/bash-4.1/configure	2011-02-25 15:50:46.567177500 -0700
 @@ -1,21 +1,25 @@
  #! /bin/sh
  # From configure.in for Bash 4.1, version 4.019.
@@ -33071,7 +33071,7 @@
  fi
  
 --- origsrc/bash-4.1/doc/Makefile.in	2009-03-10 09:44:30.000000000 -0600
-+++ src/bash-4.1/doc/Makefile.in	2011-02-09 11:39:16.620625000 -0700
++++ src/bash-4.1/doc/Makefile.in	2011-02-25 15:48:18.221714700 -0700
 @@ -170,7 +170,7 @@ bashref.html: $(BASHREF_FILES) $(HSUSER)
  	$(TEXI2HTML) -menu -monolithic -I $(TEXINPUTDIR) $(srcdir)/bashref.texi
  
@@ -33095,7 +33095,7 @@
  	  $(INSTALL_DATA) $$d/bash.info $(DESTDIR)$(infodir)/bash.info
  # run install-info if it is present to update the info directory
 --- origsrc/bash-4.1/doc/bash.1	2009-12-30 11:01:31.000000000 -0700
-+++ src/bash-4.1/doc/bash.1	2011-02-09 11:39:16.636250000 -0700
++++ src/bash-4.1/doc/bash.1	2011-02-25 15:48:18.315426300 -0700
 @@ -1568,6 +1568,14 @@ subsequently reset.
  Expands to the effective user ID of the current user, initialized at
  shell startup.  This variable is readonly.
@@ -33123,7 +33123,7 @@
  If set, 
  .B bash
 --- origsrc/bash-4.1/doc/bashref.texi	2009-12-29 13:59:18.000000000 -0700
-+++ src/bash-4.1/doc/bashref.texi	2011-02-09 11:39:16.651875000 -0700
++++ src/bash-4.1/doc/bashref.texi	2011-02-25 15:48:18.362282100 -0700
 @@ -4363,6 +4363,10 @@ If set, Bash
  changes its behavior to that of version 3.1 with respect to quoted
  arguments to the conditional command's =~ operator.
@@ -33151,7 +33151,7 @@
  The editor used as a default by the @option{-e} option to the @code{fc}
  builtin command.
 --- origsrc/bash-4.1/doc/builtins.1	2008-08-12 07:24:40.000000000 -0600
-+++ src/bash-4.1/doc/builtins.1	2011-02-09 11:39:16.667500000 -0700
++++ src/bash-4.1/doc/builtins.1	2011-02-25 15:48:18.377900700 -0700
 @@ -12,6 +12,6 @@ shift, shopt, source, suspend, test, tim
  ulimit, umask, unalias, unset, wait \- bash built-in commands, see \fBbash\fR(1)
  .SH BASH BUILTIN COMMANDS
@@ -33161,7 +33161,7 @@
  .SH SEE ALSO
  bash(1), sh(1)
 --- origsrc/bash-4.1/execute_cmd.c	2009-12-30 10:55:37.000000000 -0700
-+++ src/bash-4.1/execute_cmd.c	2011-02-09 11:41:30.808125000 -0700
++++ src/bash-4.1/execute_cmd.c	2011-02-25 15:48:18.393519300 -0700
 @@ -4004,7 +4004,7 @@ execute_function (var, words, flags, fds
    char *debug_trap, *error_trap, *return_trap;
  #if defined (ARRAY_VARS)
@@ -33209,7 +33209,7 @@
      }
  }
 --- origsrc/bash-4.1/findcmd.c	2009-06-05 14:25:38.000000000 -0600
-+++ src/bash-4.1/findcmd.c	2011-02-09 11:39:16.698750000 -0700
++++ src/bash-4.1/findcmd.c	2011-02-25 15:48:18.424756500 -0700
 @@ -43,6 +43,8 @@
  #include "hashcmd.h"
  #include "findcmd.h"	/* matching prototypes and declarations */
@@ -33268,7 +33268,7 @@
    if (eaccess (name, R_OK) == 0)
      r |= FS_READABLE;
 --- origsrc/bash-4.1/findcmd.h	2009-01-04 12:32:29.000000000 -0700
-+++ src/bash-4.1/findcmd.h	2011-02-09 11:39:16.698750000 -0700
++++ src/bash-4.1/findcmd.h	2011-02-25 15:48:18.424756500 -0700
 @@ -31,5 +31,6 @@ extern char *find_user_command __P((cons
  extern char *find_path_file __P((const char *));
  extern char *search_for_command __P((const char *));
@@ -33277,7 +33277,7 @@
  
  #endif /* _FINDCMD_H_ */
 --- origsrc/bash-4.1/input.c	2009-01-04 12:32:29.000000000 -0700
-+++ src/bash-4.1/input.c	2011-02-09 11:39:16.714375000 -0700
++++ src/bash-4.1/input.c	2011-02-25 15:48:18.440375100 -0700
 @@ -43,6 +43,10 @@
  #include "externs.h"
  #include "quit.h"
@@ -33375,7 +33375,7 @@
    return (bufstream_getc (buffers[bash_input.location.buffered_fd]));
  #else
 --- origsrc/bash-4.1/input.h	2009-01-04 12:32:29.000000000 -0700
-+++ src/bash-4.1/input.h	2011-02-09 11:39:16.714375000 -0700
++++ src/bash-4.1/input.h	2011-02-25 15:48:18.440375100 -0700
 @@ -48,6 +48,7 @@ enum stream_type {st_none, st_stdin, st_
  #define B_ERROR		0x02
  #define B_UNBUFF	0x04
@@ -33385,7 +33385,7 @@
  /* A buffered stream.  Like a FILE *, but with our own buffering and
     synchronization.  Look in input.c for the implementation. */
 --- origsrc/bash-4.1/lib/sh/pathcanon.c	2008-08-12 12:01:37.000000000 -0600
-+++ src/bash-4.1/lib/sh/pathcanon.c	2011-02-09 11:39:16.745625000 -0700
++++ src/bash-4.1/lib/sh/pathcanon.c	2011-02-25 15:48:18.440375100 -0700
 @@ -194,6 +194,8 @@ sh_canonpath (path, flags)
  	    *q++ = DIRSEP;
  	  while (*p && (ISDIRSEP(*p) == 0))
@@ -33406,7 +33406,7 @@
    /* Empty string is really ``.'' or `/', depending on what we started with. */
    if (q == result)
 --- origsrc/bash-4.1/lib/sh/pathphys.c	2008-08-12 12:01:23.000000000 -0600
-+++ src/bash-4.1/lib/sh/pathphys.c	2011-02-09 11:39:16.745625000 -0700
++++ src/bash-4.1/lib/sh/pathphys.c	2011-02-25 15:48:18.487230900 -0700
 @@ -35,6 +35,7 @@
  #include <stdio.h>
  #include <chartypes.h>
@@ -33435,7 +33435,7 @@
  
  char *
 --- origsrc/bash-4.1/lib/sh/tmpfile.c	2008-08-12 11:50:12.000000000 -0600
-+++ src/bash-4.1/lib/sh/tmpfile.c	2011-02-09 11:39:16.792500000 -0700
++++ src/bash-4.1/lib/sh/tmpfile.c	2011-02-25 15:48:18.487230900 -0700
 @@ -40,7 +40,7 @@
  extern int errno;
  #endif
@@ -33520,8 +33520,8 @@
        if (tmpnamelen > 0 && tmpnamelen < 32)
  	filename[tdlen + 1 + tmpnamelen] = '\0';
        fd = open (filename, BASEOPENFLAGS | ((flags & MT_READWRITE) ? O_RDWR : O_WRONLY), 0600);
---- origsrc/bash-4.1/parse.y	2009-12-30 10:51:42.000000000 -0700
-+++ src/bash-4.1/parse.y	2011-02-09 11:39:16.792500000 -0700
+--- origsrc/bash-4.1/parse.y	2011-02-25 15:47:28.851320100 -0700
++++ src/bash-4.1/parse.y	2011-02-25 15:48:18.502849500 -0700
 @@ -1515,14 +1515,20 @@ yy_string_get ()
    string = bash_input.location.string;
  
@@ -33563,7 +33563,7 @@
        free (msg);
  
 --- origsrc/bash-4.1/pathexp.h	2009-01-04 12:32:40.000000000 -0700
-+++ src/bash-4.1/pathexp.h	2011-02-09 11:39:16.839375000 -0700
++++ src/bash-4.1/pathexp.h	2011-02-25 15:48:18.518468100 -0700
 @@ -86,7 +86,7 @@ struct ign {
  typedef int sh_iv_item_func_t __P((struct ign *));
  
@@ -33574,7 +33574,7 @@
    int num_ignores;	/* How many are there? */
    char *last_ignoreval;	/* Last value of variable - cached for speed */
 --- origsrc/bash-4.1/redir.c	2009-09-17 08:04:18.000000000 -0600
-+++ src/bash-4.1/redir.c	2011-02-09 11:39:16.839375000 -0700
++++ src/bash-4.1/redir.c	2011-02-25 15:48:18.518468100 -0700
 @@ -437,7 +437,7 @@ here_document_to_fd (redirectee, ri)
    /* In an attempt to avoid races, we close the first fd only after opening
       the second. */
@@ -33600,7 +33600,7 @@
        free (filename);
        errno = r;
 --- origsrc/bash-4.1/shell.c	2009-11-19 08:05:54.000000000 -0700
-+++ src/bash-4.1/shell.c	2011-02-09 11:39:16.870625000 -0700
++++ src/bash-4.1/shell.c	2011-02-25 15:48:18.534086700 -0700
 @@ -329,7 +329,10 @@ _cygwin32_check_tmp ()
    struct stat sb;
  
@@ -33625,7 +33625,7 @@
    default_buffered_input = fd;
    SET_CLOSE_ON_EXEC (default_buffered_input);
 --- origsrc/bash-4.1/subst.c	2009-12-30 06:24:28.000000000 -0700
-+++ src/bash-4.1/subst.c	2011-02-09 11:39:16.917500000 -0700
++++ src/bash-4.1/subst.c	2011-02-25 15:48:18.549705300 -0700
 @@ -4921,10 +4921,6 @@ read_comsub (fd, quoted, rflag)
    for (skip_ctlesc = skip_ctlnul = 0, s = ifs_value; s && *s; s++)
      skip_ctlesc |= *s == CTLESC, skip_ctlnul |= *s == CTLNUL;
@@ -33692,8 +33692,8 @@
  
        /* The currently executing shell is not interactive. */
        interactive = 0;
---- origsrc/bash-4.1/variables.c	2011-02-09 11:34:16.745625000 -0700
-+++ src/bash-4.1/variables.c	2011-02-09 11:39:16.933125000 -0700
+--- origsrc/bash-4.1/variables.c	2011-02-25 15:47:26.649097500 -0700
++++ src/bash-4.1/variables.c	2011-02-25 15:48:18.565323900 -0700
 @@ -4109,6 +4109,8 @@ static struct name_and_function special_
    { "COMP_WORDBREAKS", sv_comp_wordbreaks },
  #endif
@@ -33718,7 +33718,7 @@
  void
  sv_comp_wordbreaks (name)
 --- origsrc/bash-4.1/variables.h	2009-08-16 14:10:15.000000000 -0600
-+++ src/bash-4.1/variables.h	2011-02-09 11:39:16.980000000 -0700
++++ src/bash-4.1/variables.h	2011-02-25 15:48:18.580942500 -0700
 @@ -351,6 +351,7 @@ extern void sv_ifs __P((char *));
  extern void sv_path __P((char *));
  extern void sv_mail __P((char *));
