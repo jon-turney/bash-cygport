@@ -1,7 +1,7 @@
---- origsrc/bash-4.1/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.1/CYGWIN-PATCHES/bash.README	2011-02-25 15:49:45.592163100 -0700
-@@ -0,0 +1,377 @@
-+bash 4.1.10-4
+--- origsrc/bash-4.1/CYGWIN-PATCHES/bash.README	1969-12-31 16:00:00.000000000 -0800
++++ src/bash-4.1/CYGWIN-PATCHES/bash.README	2014-09-24 09:10:38.475883500 -0700
+@@ -0,0 +1,383 @@
++bash 4.1.12-5
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -68,24 +68,25 @@
 +death on the mailing lists by people with many ideas, but few patches.
 +
 +Runtime requirements (these or newer):
-+  cygwin-1.7.7-1
-+  libgcc1-4.3.4-3
-+  libintl8-0.17-11
-+  libncursesw10-5.7-18
-+  libreadline7-6.1.2-2
++  coreutils-8.23-2
++  cygwin-1.7.32-1
++  libgcc1-4.8.3-3 (32-bit build)
++  libintl8-0.18.3.2-2
++  libncursesw10-5.9-20140524-1
++  libreadline7-6.1.2-3
 +
 +Additional build conditions (these or newer):
-+  bash-4.1.9-3
-+  binutils-2.20.51-2
-+  bison-2.4.2-1
-+  cygport-0.10.3-1
-+  gcc4-4.3.4-3
-+  gettext-0.17-11
-+  libiconv2-1.13.1-1
-+  libncursesw-devel-5.7-18
-+  ncursesw-5.7-18
-+  readline-6.1.2-2
-+  rebase-3.0.1-1
++  bash-4.1.10-4
++  binutils-2.24.51-5
++  bison-2.7.1-1
++  cygport-0.17.0-1
++  gcc-4.7.3-1
++  gettext-0.18.3.2-2
++  libiconv2-1.14-2
++  libncursesw-devel-5.9-20140524-1
++  ncurses-5.9-20140524-1
++  readline-6.1.2-3
++  rebase-4.4.1-1
 +
 +Canonical homepage:
 +  http://www.gnu.org/software/bash
@@ -102,17 +103,17 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-4.1.10-4-src.tar.bz2
++  unpack bash-4.1.12-5-src.tar.xz
 +    if you use setup to install this src package, it will be
 +    unpacked under /usr/src automatically
 +  cd /usr/src
-+  cygport bash-4.1.10-4 all
++  cygport bash.cygport all
 +
 +This will create:
-+  /usr/src/bash-4.1.10-4.tar.bz2
-+  /usr/src/bash-4.1.10-4-src.tar.bz2
++  /usr/src/bash-4.1.12-5.tar.xz
++  /usr/src/bash-4.1.12-5-src.tar.xz
 +
-+Or use 'cygport bash-4.1.10-4 prep' to get a patched source directory
++Or use 'cygport bash.cygport prep' to get a patched source directory
 +
 +To find out the files included in the binary distribution, you can use
 +"cygcheck -l bash", or browse the listing for the appropriate version
@@ -121,6 +122,11 @@
 +------------------
 +
 +Port Notes:
++
++----- version 4.1.12-5 -- 2014-09-24 -----
++Fold in new official upstream patch, for CVE-2014-6271. Update to
++newer cygport idioms, and provide my first 64-bit build (4.1.11-2 was
++provided by others as a stopgap).
 +
 +----- version 4.1.10-4 -- 2011-02-25 -----
 +Fold in new official upstream patch.
@@ -376,10 +382,10 @@
 +For more information about this package, see the upstream documentation in
 +/usr/share/doc/bash/.
 +
-+Cygwin port maintained by: Eric Blake <ebb9@byu.net>
++Cygwin port maintained by: Eric Blake <eblake@redhat.com>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
---- origsrc/bash-4.1/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.1/CYGWIN-PATCHES/postinstall.sh	2011-02-25 15:47:57.855060300 -0700
+--- origsrc/bash-4.1/CYGWIN-PATCHES/postinstall.sh	1969-12-31 16:00:00.000000000 -0800
++++ src/bash-4.1/CYGWIN-PATCHES/postinstall.sh	2014-09-24 08:58:45.941302200 -0700
 @@ -0,0 +1,23 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
@@ -404,17 +410,3 @@
 +/bin/test -h /dev/fd     || ln -sf /proc/self/fd   /dev/fd     || result=1
 +
 +test $result = 0 || exit $result
---- origsrc/bash-4.1/CYGWIN-PATCHES/setup.hint	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.1/CYGWIN-PATCHES/setup.hint	2011-02-25 15:47:57.870678900 -0700
-@@ -0,0 +1,11 @@
-+# setup for bash
-+sdesc: "The GNU Bourne Again SHell"
-+ldesc: "Bash is an sh-compatible shell that incorporates useful
-+features from the Korn shell (ksh) and C shell (csh).  It is intended
-+to conform to the IEEE POSIX P1003.2/ISO 9945.2 Shell and Tools
-+standard.  It offers functional improvements over sh for both
-+programming and interactive use. In addition, most sh scripts can be
-+run by Bash without modification."
-+category: Base Shells
-+requires: libgcc1 libintl8 libncursesw10 libreadline7
-+#Maintainer: Eric Blake
