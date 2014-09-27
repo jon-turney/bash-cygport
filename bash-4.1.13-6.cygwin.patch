@@ -1,7 +1,7 @@
 --- origsrc/bash-4.1/CYGWIN-PATCHES/bash.README	1969-12-31 16:00:00.000000000 -0800
-+++ src/bash-4.1/CYGWIN-PATCHES/bash.README	2014-09-24 09:10:38.475883500 -0700
-@@ -0,0 +1,383 @@
-+bash 4.1.12-5
++++ src/bash-4.1/CYGWIN-PATCHES/bash.README	2014-09-26 21:00:46.934622800 -0700
+@@ -0,0 +1,392 @@
++bash 4.1.13-6
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -63,12 +63,16 @@
 +when completing on executables.  EXECIGNORE=*.dll is common.
 +7b. completion_strip_exe - using 'shopt -s completion_strip_exe'
 +makes completion strip .exe suffixes
-+8. If you don't like how bash behaves, then propose a patch, rather than
++8. This version of bash is immune to ShellShock (CVE-2014-6271 and
++friends) because it exports functions via 'BASH_FUNC_foo()=' rather than
++'foo=' environment variables.  This is different than the current
++upstream, but leads to saner behavior and matches what Fedora does.
++9. If you don't like how bash behaves, then propose a patch, rather than
 +proposing idle ideas.  This turn of events has already been talked to
 +death on the mailing lists by people with many ideas, but few patches.
 +
 +Runtime requirements (these or newer):
-+  coreutils-8.23-2
++  coreutils-8.23-3
 +  cygwin-1.7.32-1
 +  libgcc1-4.8.3-3 (32-bit build)
 +  libintl8-0.18.3.2-2
@@ -76,7 +80,7 @@
 +  libreadline7-6.1.2-3
 +
 +Additional build conditions (these or newer):
-+  bash-4.1.10-4
++  bash-4.1.12-5
 +  binutils-2.24.51-5
 +  bison-2.7.1-1
 +  cygport-0.17.0-1
@@ -103,15 +107,15 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-4.1.12-5-src.tar.xz
++  unpack bash-4.1.13-6-src.tar.xz
 +    if you use setup to install this src package, it will be
 +    unpacked under /usr/src automatically
 +  cd /usr/src
 +  cygport bash.cygport all
 +
 +This will create:
-+  /usr/src/bash-4.1.12-5.tar.xz
-+  /usr/src/bash-4.1.12-5-src.tar.xz
++  /usr/src/bash-4.1.13-6.tar.xz
++  /usr/src/bash-4.1.13-6-src.tar.xz
 +
 +Or use 'cygport bash.cygport prep' to get a patched source directory
 +
@@ -123,10 +127,15 @@
 +
 +Port Notes:
 +
++----- version 4.1.13-6 -- 2014-09-26 -----
++Fold in new official upstream patch (for CVE-2014-7169, ShellShock
++part 2), as well as Red Hat patch for saner function export
++namespacing (for CVE-2014-7186, CVE-2014-7187, ShellShock part 3).
++
 +----- version 4.1.12-5 -- 2014-09-24 -----
-+Fold in new official upstream patch, for CVE-2014-6271. Update to
-+newer cygport idioms, and provide my first 64-bit build (4.1.11-2 was
-+provided by others as a stopgap).
++Fold in new official upstream patch (for CVE-2014-6271, ShellShock
++part 1). Update to newer cygport idioms, and provide my first 64-bit
++uild 4.1.11-2 was provided by others as a stopgap). Enable --wordexp.
 +
 +----- version 4.1.10-4 -- 2011-02-25 -----
 +Fold in new official upstream patch.
@@ -385,7 +394,7 @@
 +Cygwin port maintained by: Eric Blake <eblake@redhat.com>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 --- origsrc/bash-4.1/CYGWIN-PATCHES/postinstall.sh	1969-12-31 16:00:00.000000000 -0800
-+++ src/bash-4.1/CYGWIN-PATCHES/postinstall.sh	2014-09-24 08:58:45.941302200 -0700
++++ src/bash-4.1/CYGWIN-PATCHES/postinstall.sh	2014-09-26 20:55:09.566809400 -0700
 @@ -0,0 +1,23 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or

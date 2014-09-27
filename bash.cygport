@@ -4,8 +4,8 @@
 # preserved.
 
 NAME="bash"
-VERSION=4.1.12
-RELEASE=5
+VERSION=4.1.13
+RELEASE=6
 CATEGORY="Base Shells"
 SUMMARY="The GNU Bourne Again SHell"
 DESCRIPTION="Bash is an sh-compatible shell that incorporates useful features
@@ -17,15 +17,14 @@ HOMEPAGE="http://www.gnu.org/software/bash"
 SRC_URI="mirror://gnu/bash/${P%.*}.tar.gz \
          mirror://gnu/bash/${P%.*}.tar.gz.sig"
 SRC_DIR="bash-${VERSION%.*}"
-PATCH_URI=$(seq -f "mirror://gnu/bash/${P%.*}-patches/${PN}${PV_MAJ_MIN//./}-%03g " ${P##*.})
+template="mirror://gnu/bash/${P%.*}-patches/${PN}${PV_MAJ_MIN//./}-%03g"
+PATCH_URI=$(seq -f " $template" ${P##*.})
+SRC_URI+=$(seq -f " $template.sig" ${P##*.})
 PATCH_URI+=" 4.1-cygwin.patch"
 PATCH_URI+=" 4.1-deprecations.patch"
 PATCH_URI+=" 4.1-readline-64bit.patch"
+PATCH_URI+=" 4.1-funcdef-import.patch"
 
-# Use of ac_cv_rl_prefix is a hack; the readline libraries are in /usr/src,
-# but that gets included automatically, and bash links -L${ac_cv_rl_prefix}
-# prior to LDFLAGS.  Since we don't want /usr/lib/ncurses, this hack lets
-# us get /usr/lib/ncursesw in its place while still using /usr/lib/readline.
 CPPFLAGS="-DWORDEXP_OPTION"
 CYGCONF_ARGS="
 	--without-libintl-prefix --without-libiconv-prefix
@@ -39,6 +38,7 @@ CYGCONF_ARGS="
 	ac_cv_func_isblank=yes
 "
 DIFF_EXCLUDES='bashref.info configure'
+DOCS="CHANGES COMPAT POSIX RBASH"
 
 # Interaction with bashdb
 export DEBUGGER_START_FILE=/usr/share/bashdb/bashdb-main.inc
@@ -50,13 +50,14 @@ src_compile()
   cd ${B}
   cygconf
   # Prepopulate the release level.
+  rm -f .build
   expr $PR - 1 > .build || :
-  # Parallel make builds version.h twice, which over-increments .build.
-  cygmake -j1 HISTORY_LDFLAGS= READLINE_LDFLAGS=
+  chmod a-w .build
+  cygmake HISTORY_LDFLAGS= READLINE_LDFLAGS=
   # execute_cmd.c uses undefined behavior across longjmp, which results
   # in miscompilation at -O2.
   rm execute_cmd.o
-  make CFLAGS="${CFLAGS} -O1" HISTORY_LDFLAGS= READLINE_LDFLAGS= \
+  cygmake CFLAGS="${CFLAGS} -O1" HISTORY_LDFLAGS= READLINE_LDFLAGS= \
 	 LOCAL_LDFLAGS='-Wl,--export-all,--out-implib,lib$(@:.exe=.dll.a)'
 }
 
@@ -84,7 +85,6 @@ src_install()
     ln -f alias.1.gz $f.1.gz
   done
 }
-DOCS="CHANGES COMPAT POSIX RBASH"
 
 # Local Variables:
 # fill-column: 72
