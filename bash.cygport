@@ -4,8 +4,8 @@
 # preserved.
 
 NAME="bash"
-VERSION=4.1.13
-RELEASE=6
+VERSION=4.1.14
+RELEASE=7
 CATEGORY="Base Shells"
 SUMMARY="The GNU Bourne Again SHell"
 DESCRIPTION="Bash is an sh-compatible shell that incorporates useful features
@@ -20,10 +20,6 @@ SRC_DIR="bash-${VERSION%.*}"
 template="mirror://gnu/bash/${P%.*}-patches/${PN}${PV_MAJ_MIN//./}-%03g"
 PATCH_URI=$(seq -f " $template" ${P##*.})
 SRC_URI+=$(seq -f " $template.sig" ${P##*.})
-PATCH_URI+=" 4.1-cygwin.patch"
-PATCH_URI+=" 4.1-deprecations.patch"
-PATCH_URI+=" 4.1-readline-64bit.patch"
-PATCH_URI+=" 4.1-funcdef-import.patch"
 
 CPPFLAGS="-DWORDEXP_OPTION"
 CYGCONF_ARGS="
@@ -50,9 +46,7 @@ src_compile()
   cd ${B}
   cygconf
   # Prepopulate the release level.
-  rm -f .build
-  expr $PR - 1 > .build || :
-  chmod a-w .build
+  expr $PR > .build
   cygmake HISTORY_LDFLAGS= READLINE_LDFLAGS=
   # execute_cmd.c uses undefined behavior across longjmp, which results
   # in miscompilation at -O2.
