@@ -3,17 +3,19 @@
 # distribute it, with or without modifications, as long as this notice is
 # preserved.
 
-NAME="bash"
-VERSION=4.1.14
-RELEASE=7
-CATEGORY="Base Shells"
+NAME=bash
+VERSION=4.1.16
+RELEASE=8
+
 SUMMARY="The GNU Bourne Again SHell"
 DESCRIPTION="Bash is an sh-compatible shell that incorporates useful features
 from the Korn shell (ksh) and C shell (csh).  It is intended to conform to the
 IEEE POSIX P1003.2/ISO 9945.2 Shell and Tools standard.  It offers functional
 improvements over sh for both programming and interactive use. In addition,
 most sh scripts can be run by Bash without modification."
-HOMEPAGE="http://www.gnu.org/software/bash"
+CATEGORY="Base Shells"
+
+HOMEPAGE=http://www.gnu.org/software/bash
 SRC_URI="mirror://gnu/bash/${P%.*}.tar.gz \
          mirror://gnu/bash/${P%.*}.tar.gz.sig"
 SRC_DIR="bash-${VERSION%.*}"
@@ -21,7 +23,7 @@ template="mirror://gnu/bash/${P%.*}-patches/${PN}${PV_MAJ_MIN//./}-%03g"
 PATCH_URI=$(seq -f " $template" ${P##*.})
 SRC_URI+=$(seq -f " $template.sig" ${P##*.})
 
-CPPFLAGS="-DWORDEXP_OPTION"
+CPPFLAGS=-DWORDEXP_OPTION
 CYGCONF_ARGS="
 	--without-libintl-prefix --without-libiconv-prefix
 	--with-installed-readline

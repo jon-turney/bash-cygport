@@ -1,7 +1,7 @@
 --- origsrc/bash-4.1/CYGWIN-PATCHES/bash.README	1969-12-31 16:00:00.000000000 -0800
-+++ src/bash-4.1/CYGWIN-PATCHES/bash.README	2014-09-29 13:47:19.424420300 -0700
-@@ -0,0 +1,397 @@
-+bash 4.1.14-7
++++ src/bash-4.1/CYGWIN-PATCHES/bash.README	2014-10-02 20:06:36.668390300 -0700
+@@ -0,0 +1,402 @@
++bash 4.1.16-8
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -81,7 +81,7 @@
 +  libreadline7-6.1.2-3
 +
 +Additional build conditions (these or newer):
-+  bash-4.1.13-6
++  bash-4.1.14-7
 +  binutils-2.24.51-5
 +  bison-2.7.1-1
 +  cygport-0.17.0-1
@@ -108,15 +108,16 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-4.1.14-7-src.tar.xz
++  unpack bash-4.1.16-8-src.tar.xz
 +    if you use setup to install this src package, it will be
 +    unpacked under /usr/src automatically
 +  cd /usr/src
 +  cygport bash.cygport all
 +
 +This will create:
-+  /usr/src/bash-4.1.14-7.tar.xz
-+  /usr/src/bash-4.1.14-7-src.tar.xz
++  /usr/src/bash-4.1.16-8.tar.xz
++  /usr/src/bash-4.1.16-8-src.tar.xz
++  /usr/src/bash-debuginfo-4.1.16-8.tar.xz
 +
 +Or use 'cygport bash.cygport prep' to get a patched source directory
 +
@@ -127,6 +128,10 @@
 +------------------
 +
 +Port Notes:
++
++----- version 4.1.16-8 -- 2014-10-02 -----
++Fold in new official upstream patches for several parser bugs
++(CVE-2014-7186, CVE-2014-7187, CVE-2014-6277).
 +
 +----- version 4.1.14-7 -- 2014-09-29 -----
 +Fold in new official upstream patch for all remaining ShellShock bugs
@@ -399,7 +404,7 @@
 +Cygwin port maintained by: Eric Blake <eblake@redhat.com>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 --- origsrc/bash-4.1/CYGWIN-PATCHES/postinstall.sh	1969-12-31 16:00:00.000000000 -0800
-+++ src/bash-4.1/CYGWIN-PATCHES/postinstall.sh	2014-09-29 13:43:54.080366900 -0700
++++ src/bash-4.1/CYGWIN-PATCHES/postinstall.sh	2014-10-02 20:07:42.937613700 -0700
 @@ -0,0 +1,23 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
