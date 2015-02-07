@@ -1,7 +1,7 @@
---- origsrc/bash-4.1/CYGWIN-PATCHES/bash.README	1969-12-31 16:00:00.000000000 -0800
-+++ src/bash-4.1/CYGWIN-PATCHES/bash.README	2014-10-08 13:28:23.517311700 -0700
-@@ -0,0 +1,405 @@
-+bash 4.1.17-9
+--- origsrc/bash-4.3/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
++++ src/bash-4.3/CYGWIN-PATCHES/bash.README	2015-02-06 17:06:18.301515500 -0700
+@@ -0,0 +1,411 @@
++bash 4.3.33-1
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -73,25 +73,28 @@
 +death on the mailing lists by people with many ideas, but few patches.
 +
 +Runtime requirements (these or newer):
-+  coreutils-8.23-2
-+  cygwin-1.7.32-1
-+  libgcc1-4.8.3-3 (32-bit build)
-+  libintl8-0.18.3.2-2
-+  libncursesw10-5.9-20140524-1
-+  libreadline7-6.1.2-3
++  coreutils-8.23-4
++  cygwin-1.7.34-6
++  libgcc1-4.9.2-2 [only on 32-bit]
++  libiconv2-1.14-2
++  libintl8-0.19.3-1
++  libncursesw10-5.9-20141227-1
++  libreadline7-6.3.8-1
 +
 +Additional build conditions (these or newer):
-+  bash-4.1.16-8
-+  binutils-2.24.51-5
-+  bison-2.7.1-1
-+  cygport-0.17.0-1
++  bash-4.1.17-9
++  binutils-2.25-1
++  bison-3.0.4-1
++  cygport-0.17.1-1
 +  gcc-4.7.3-1
-+  gettext-0.18.3.2-2
++  gcc-core-4.9.2-2
++  gettext-0.19.3-1
 +  libiconv2-1.14-2
-+  libncursesw-devel-5.9-20140524-1
-+  ncurses-5.9-20140524-1
-+  readline-6.1.2-3
-+  rebase-4.4.1-1
++  libncurses-devel-5.9-20141227-1 [only needed on 64-bit]
++  libncursesw-devel-5.9-20141227-1 [only needed on 32-bit]
++  libreadline-devel-6.3.8-1
++  ncurses-5.9-20141227-1
++  windows-default-manifest-6.4-1
 +
 +Canonical homepage:
 +  http://www.gnu.org/software/bash
@@ -108,16 +111,16 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-4.1.17-9-src.tar.xz
++  unpack bash-4.3.33-1-src.tar.xz
 +    if you use setup to install this src package, it will be
 +    unpacked under /usr/src automatically
 +  cd /usr/src
 +  cygport bash.cygport all
 +
 +This will create:
-+  /usr/src/bash-4.1.17-9.tar.xz
-+  /usr/src/bash-4.1.17-9-src.tar.xz
-+  /usr/src/bash-debuginfo-4.1.17-9.tar.xz
++  /usr/src/bash-4.3.33-1.tar.xz
++  /usr/src/bash-4.3.33-1-src.tar.xz
++  /usr/src/bash-debuginfo-4.3.33-1.tar.xz
 +
 +Or use 'cygport bash.cygport prep' to get a patched source directory
 +
@@ -128,6 +131,9 @@
 +------------------
 +
 +Port Notes:
++
++----- version 4.3.33-1 -- 2015-02-06 -----
++Long-awaited build of new upstream release.
 +
 +----- version 4.1.17-9 -- 2014-10-08 -----
 +Fold in new official upstream patch for parser bug (CVE-2014-6278).
@@ -406,15 +412,15 @@
 +
 +Cygwin port maintained by: Eric Blake <eblake@redhat.com>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
---- origsrc/bash-4.1/CYGWIN-PATCHES/postinstall.sh	1969-12-31 16:00:00.000000000 -0800
-+++ src/bash-4.1/CYGWIN-PATCHES/postinstall.sh	2014-10-08 13:26:18.966170800 -0700
-@@ -0,0 +1,23 @@
+--- origsrc/bash-4.3/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
++++ src/bash-4.3/CYGWIN-PATCHES/postinstall.sh	2015-02-06 16:48:09.305286700 -0700
+@@ -0,0 +1,26 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
 +# newer, meaning that this is executed by /bin/bash and not /bin/sh (if you
 +# are running an older setup.exe, this postinstall script can't do anything).
 +#
-+# Copyright (C) 2007, 2008, 2010 Eric Blake
++# Copyright (C) 2007, 2008, 2010, 2015 Eric Blake
 +# This file is free software; I give unlimited permission to copy and/or
 +# distribute it, with or without modifications, as long as this notice is
 +# preserved.
@@ -430,5 +436,8 @@
 +/bin/test -h /dev/stdout || ln -sf /proc/self/fd/1 /dev/stdout || result=1
 +/bin/test -h /dev/stderr || ln -sf /proc/self/fd/2 /dev/stderr || result=1
 +/bin/test -h /dev/fd     || ln -sf /proc/self/fd   /dev/fd     || result=1
++
++# Ensure /tmp exists.
++test -d /tmp || mkdir -m a=rwxt /tmp || result=1
 +
 +test $result = 0 || exit $result

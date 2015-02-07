@@ -1,11 +1,11 @@
-# Copyright (C) 2007, 2008, 2009, 2010, 2011, 2014 Eric Blake
+# Copyright (C) 2007-2011, 2014-2015 Eric Blake
 # This file is free software; I give unlimited permission to copy and/or
 # distribute it, with or without modifications, as long as this notice is
 # preserved.
 
 NAME=bash
-VERSION=4.1.17
-RELEASE=9
+VERSION=4.3.33
+RELEASE=1
 
 SUMMARY="The GNU Bourne Again SHell"
 DESCRIPTION="Bash is an sh-compatible shell that incorporates useful features
@@ -16,10 +16,10 @@ most sh scripts can be run by Bash without modification."
 CATEGORY="Base Shells"
 
 HOMEPAGE=http://www.gnu.org/software/bash
-SRC_URI="mirror://gnu/bash/${P%.*}.tar.gz \
-         mirror://gnu/bash/${P%.*}.tar.gz.sig"
-SRC_DIR="bash-${VERSION%.*}"
-template="mirror://gnu/bash/${P%.*}-patches/${PN}${PV_MAJ_MIN//./}-%03g"
+SRC_URI=mirror://gnu/bash/${P%.*}.tar.gz
+SRC_URI+=\ $SRC_URI.sig
+SRC_DIR=$PN-${VERSION%.*}
+template=mirror://gnu/bash/${P%.*}-patches/${PN}${PV_MAJ_MIN//./}-%03g
 PATCH_URI=$(seq -f " $template" ${P##*.})
 SRC_URI+=$(seq -f " $template.sig" ${P##*.})
 
@@ -30,11 +30,8 @@ CYGCONF_ARGS="
 	bash_cv_dev_stdin=present
 	bash_cv_dev_fd=standard
 	bash_cv_termcap_lib=libncurses
-	bash_cv_type_intmax_t=int64_t
-	bash_cv_type_uintmax_t=uint64_t
-	ac_cv_rl_version=6.2
-	ac_cv_func_isblank=yes
 "
+
 DIFF_EXCLUDES='bashref.info configure'
 DOCS="CHANGES COMPAT POSIX RBASH"
 
