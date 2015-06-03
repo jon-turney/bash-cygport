@@ -1,5 +1,16 @@
---- origsrc/bash-4.3/bashline.c	2015-02-02 10:52:29.855442500 -0700
-+++ src/bash-4.3/bashline.c	2015-02-06 15:27:05.334531500 -0700
+--- origsrc/bash-4.3/Makefile.in	2014-01-25 14:27:30.000000000 -0700
++++ src/bash-4.3/Makefile.in	2015-06-02 22:11:07.038992700 -0600
+@@ -61,7 +61,7 @@ topdir = @top_srcdir@
+ BUILD_DIR = @BUILD_DIR@
+ top_builddir = @BUILD_DIR@
+ srcdir = @srcdir@
+-VPATH = .:@srcdir@
++VPATH = @srcdir@
+ 
+ @SET_MAKE@
+ CC = @CC@
+--- origsrc/bash-4.3/bashline.c	2015-06-01 22:30:27.031721600 -0600
++++ src/bash-4.3/bashline.c	2015-06-01 22:37:59.668623000 -0600
 @@ -71,6 +71,16 @@
  #  include "pcomplete.h"
  #endif
@@ -104,8 +115,19 @@
    r = file_isdir (fn);
    free (fn);
  
---- origsrc/bash-4.3/builtins/evalstring.c	2015-02-02 10:52:29.668247100 -0700
-+++ src/bash-4.3/builtins/evalstring.c	2015-02-02 15:19:54.652021900 -0700
+--- origsrc/bash-4.3/builtins/Makefile.in	2012-05-25 07:29:19.000000000 -0600
++++ src/bash-4.3/builtins/Makefile.in	2015-06-02 22:11:23.606238100 -0600
+@@ -36,7 +36,7 @@ EXEEXT = @EXEEXT@
+ prefix = @prefix@
+ 
+ srcdir = @srcdir@
+-VPATH = .:@srcdir@
++VPATH = @srcdir@
+ topdir = @top_srcdir@
+ 
+ datarootdir = @datarootdir@
+--- origsrc/bash-4.3/builtins/evalstring.c	2015-06-01 22:30:26.860120500 -0600
++++ src/bash-4.3/builtins/evalstring.c	2015-06-01 22:37:59.668623000 -0600
 @@ -195,7 +195,7 @@ parse_and_execute (string, from_file, fl
    int code, lreset;
    volatile int should_jump_to_top_level, last_result;
@@ -124,8 +146,8 @@
  
    parse_prologue (string, flags, PS_TAG);
  
---- origsrc/bash-4.3/builtins/set.def	2013-04-19 05:20:34.000000000 -0600
-+++ src/bash-4.3/builtins/set.def	2015-02-06 15:39:58.116742700 -0700
+--- origsrc/bash-4.3/builtins/set.def	2015-06-01 22:30:27.078517900 -0600
++++ src/bash-4.3/builtins/set.def	2015-06-01 22:37:59.668623000 -0600
 @@ -56,6 +56,13 @@ extern int dont_save_function_defs;
  #if defined (READLINE)
  extern int no_line_editing;
@@ -245,7 +267,7 @@
      }
  }
 --- origsrc/bash-4.3/builtins/shopt.def	2013-02-27 07:43:20.000000000 -0700
-+++ src/bash-4.3/builtins/shopt.def	2015-02-06 15:40:48.286560400 -0700
++++ src/bash-4.3/builtins/shopt.def	2015-06-01 22:37:59.668623000 -0600
 @@ -91,6 +91,11 @@ extern int glob_star;
  extern int glob_asciirange;
  extern int lastpipe_opt;
@@ -269,7 +291,7 @@
    { "complete_fullquote", &complete_fullquote, (shopt_set_func_t *)NULL},
    { "direxpand", &dircomplete_expand, shopt_set_complete_direxpand },
 --- origsrc/bash-4.3/config-top.h	2012-08-18 18:51:30.000000000 -0600
-+++ src/bash-4.3/config-top.h	2015-02-06 15:41:25.633247300 -0700
++++ src/bash-4.3/config-top.h	2015-06-01 22:37:59.668623000 -0600
 @@ -80,10 +80,10 @@
  #define KSH_COMPATIBLE_SELECT
  
@@ -293,7 +315,16 @@
  /* Define if you want the case-capitalizing operators (~[~]) and the
     `capcase' variable attribute (declare -c). */
 --- origsrc/bash-4.3/doc/Makefile.in	2013-10-30 14:18:12.000000000 -0600
-+++ src/bash-4.3/doc/Makefile.in	2015-02-06 15:43:09.592270700 -0700
++++ src/bash-4.3/doc/Makefile.in	2015-06-02 22:11:30.829147200 -0600
+@@ -31,7 +31,7 @@ RM	    = rm -f
+ 
+ topdir = @top_srcdir@
+ srcdir = @srcdir@
+-VPATH = .:@srcdir@
++VPATH = @srcdir@
+ 
+ prefix = @prefix@
+ exec_prefix = @exec_prefix@
 @@ -176,7 +176,7 @@ bashref.html: $(BASHREF_FILES) $(HSUSER)
  	$(TEXI2HTML) -menu -monolithic -I $(TEXINPUTDIR) $(srcdir)/bashref.texi
  
@@ -317,7 +348,7 @@
  	  $(INSTALL_DATA) $$d/bash.info $(DESTDIR)$(infodir)/bash.info
  # run install-info if it is present to update the info directory
 --- origsrc/bash-4.3/doc/bash.1	2014-02-06 07:03:52.000000000 -0700
-+++ src/bash-4.3/doc/bash.1	2015-02-06 15:45:28.089962200 -0700
++++ src/bash-4.3/doc/bash.1	2015-06-01 22:37:59.684216300 -0600
 @@ -1658,6 +1658,14 @@ subsequently reset.
  Expands to the effective user ID of the current user, initialized at
  shell startup.  This variable is readonly.
@@ -345,7 +376,7 @@
  is set.
  When matching a pathname, the slash character must always be
 --- origsrc/bash-4.3/doc/bashref.texi	2014-02-22 11:20:36.000000000 -0700
-+++ src/bash-4.3/doc/bashref.texi	2015-02-06 15:47:02.236614800 -0700
++++ src/bash-4.3/doc/bashref.texi	2015-06-01 22:37:59.684216300 -0600
 @@ -4992,6 +4992,10 @@ filenames.
  This variable is set by default, which is the default Bash behavior in
  versions through 4.2.
@@ -373,7 +404,7 @@
  The editor used as a default by the @option{-e} option to the @code{fc}
  builtin command.
 --- origsrc/bash-4.3/doc/builtins.1	2012-02-21 12:32:05.000000000 -0700
-+++ src/bash-4.3/doc/builtins.1	2015-02-06 15:47:46.587662600 -0700
++++ src/bash-4.3/doc/builtins.1	2015-06-01 22:37:59.684216300 -0600
 @@ -19,6 +19,6 @@ shift, shopt, source, suspend, test, tim
  ulimit, umask, unalias, unset, wait \- bash built-in commands, see \fBbash\fR(1)
  .SH BASH BUILTIN COMMANDS
@@ -382,8 +413,30 @@
 +.so man1/bash.1
  .SH SEE ALSO
  bash(1), sh(1)
---- origsrc/bash-4.3/execute_cmd.c	2015-02-02 10:52:29.122228700 -0700
-+++ src/bash-4.3/execute_cmd.c	2015-02-02 14:59:13.601570900 -0700
+--- origsrc/bash-4.3/examples/loadables/Makefile.in	2013-05-26 15:42:09.000000000 -0600
++++ src/bash-4.3/examples/loadables/Makefile.in	2015-06-02 22:11:44.182822600 -0600
+@@ -31,7 +31,7 @@ datarootdir = @datarootdir@
+ topdir = @top_srcdir@
+ BUILD_DIR = @BUILD_DIR@
+ srcdir = @srcdir@
+-VPATH = .:@srcdir@
++VPATH = @srcdir@
+ 
+ @SET_MAKE@
+ CC = @CC@
+--- origsrc/bash-4.3/examples/loadables/perl/Makefile.in	2008-08-17 11:46:18.000000000 -0600
++++ src/bash-4.3/examples/loadables/perl/Makefile.in	2015-06-02 22:11:50.500838100 -0600
+@@ -32,7 +32,7 @@ datarootdir = @datarootdir@
+ topdir = @top_srcdir@
+ BUILD_DIR = @BUILD_DIR@
+ srcdir = @srcdir@
+-VPATH = .:@srcdir@
++VPATH = @srcdir@
+ 
+ @SET_MAKE@
+ CC = @CC@
+--- origsrc/bash-4.3/execute_cmd.c	2015-06-01 22:30:26.376515300 -0600
++++ src/bash-4.3/execute_cmd.c	2015-06-01 22:37:59.684216300 -0600
 @@ -58,6 +58,7 @@ extern int errno;
  #endif
  
@@ -393,7 +446,7 @@
  #include "bashansi.h"
  #include "bashintl.h"
 --- origsrc/bash-4.3/expr.c	2014-01-03 06:55:00.000000000 -0700
-+++ src/bash-4.3/expr.c	2015-02-02 15:13:44.976387700 -0700
++++ src/bash-4.3/expr.c	2015-06-01 22:37:59.684216300 -0600
 @@ -83,6 +83,7 @@
  
  #include "shell.h"
@@ -403,7 +456,7 @@
  /* Because of the $((...)) construct, expressions may include newlines.
     Here is a macro which accepts newlines, tabs and spaces as whitespace. */
 --- origsrc/bash-4.3/findcmd.c	2012-10-15 05:45:04.000000000 -0600
-+++ src/bash-4.3/findcmd.c	2015-02-06 15:57:01.842068500 -0700
++++ src/bash-4.3/findcmd.c	2015-06-01 22:37:59.684216300 -0600
 @@ -48,6 +48,8 @@
  extern int errno;
  #endif
@@ -462,7 +515,7 @@
    if (eaccess (name, R_OK) == 0)
      r |= FS_READABLE;
 --- origsrc/bash-4.3/findcmd.h	2012-01-14 16:56:25.000000000 -0700
-+++ src/bash-4.3/findcmd.h	2015-02-06 15:58:32.587850200 -0700
++++ src/bash-4.3/findcmd.h	2015-06-01 22:37:59.684216300 -0600
 @@ -31,5 +31,6 @@ extern char *find_user_command __P((cons
  extern char *find_path_file __P((const char *));
  extern char *search_for_command __P((const char *, int));
@@ -471,7 +524,7 @@
  
  #endif /* _FINDCMD_H_ */
 --- origsrc/bash-4.3/general.c	2014-01-30 14:46:15.000000000 -0700
-+++ src/bash-4.3/general.c	2015-02-02 14:53:18.480872600 -0700
++++ src/bash-4.3/general.c	2015-06-01 22:37:59.684216300 -0600
 @@ -44,6 +44,10 @@
  
  #include <tilde/tilde.h>
@@ -494,7 +547,7 @@
      }
  #else
 --- origsrc/bash-4.3/include/chartypes.h	2011-04-11 12:30:52.000000000 -0600
-+++ src/bash-4.3/include/chartypes.h	2015-02-02 11:17:38.041913600 -0700
++++ src/bash-4.3/include/chartypes.h	2015-06-01 22:37:59.699971000 -0600
 @@ -40,6 +40,7 @@
  #else
  #  define IN_CTYPE_DOMAIN(c) isascii(c)
@@ -531,7 +584,7 @@
  #define ISLETTER(c)	(ISALPHA(c))
  
 --- origsrc/bash-4.3/include/posixjmp.h	2012-12-23 20:20:50.000000000 -0700
-+++ src/bash-4.3/include/posixjmp.h	2015-02-02 11:07:03.773139300 -0700
++++ src/bash-4.3/include/posixjmp.h	2015-06-01 22:37:59.699971000 -0600
 @@ -27,13 +27,13 @@
  
  #if defined (HAVE_POSIX_SIGSETJMP)
@@ -549,7 +602,7 @@
  #  define procenv_t	jmp_buf
  #  define setjmp_nosigs	setjmp
 --- origsrc/bash-4.3/input.c	2014-02-07 07:13:08.000000000 -0700
-+++ src/bash-4.3/input.c	2015-02-06 16:04:08.520338500 -0700
++++ src/bash-4.3/input.c	2015-06-01 22:37:59.699971000 -0600
 @@ -44,6 +44,10 @@
  #include "quit.h"
  #include "trap.h"
@@ -581,8 +634,41 @@
  #if !defined (DJGPP)
    return (bufstream_getc (buffers[bash_input.location.buffered_fd]));
  #else
+--- origsrc/bash-4.3/lib/glob/Makefile.in	2010-08-10 18:59:51.000000000 -0600
++++ src/bash-4.3/lib/glob/Makefile.in	2015-06-02 22:12:04.993350600 -0600
+@@ -20,7 +20,7 @@
+ #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ srcdir = @srcdir@
+-VPATH = .:@srcdir@
++VPATH = @srcdir@
+ topdir = @top_srcdir@
+ BUILD_DIR = @BUILD_DIR@
+ 
+--- origsrc/bash-4.3/lib/malloc/Makefile.in	2010-11-16 06:31:23.000000000 -0700
++++ src/bash-4.3/lib/malloc/Makefile.in	2015-06-02 22:12:22.169080800 -0600
+@@ -16,7 +16,7 @@
+ #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ srcdir = @srcdir@
+-VPATH = .:@srcdir@
++VPATH = @srcdir@
+ topdir = @top_srcdir@
+ BUILD_DIR = @BUILD_DIR@
+ 
+--- origsrc/bash-4.3/lib/readline/Makefile.in	2012-01-14 17:00:28.000000000 -0700
++++ src/bash-4.3/lib/readline/Makefile.in	2015-06-02 22:12:30.327873400 -0600
+@@ -28,7 +28,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
+ PACKAGE_VERSION = @PACKAGE_VERSION@
+ 
+ srcdir = @srcdir@
+-VPATH = .:@srcdir@
++VPATH = @srcdir@
+ topdir = @top_srcdir@
+ BUILD_DIR = @BUILD_DIR@
+ 
 --- origsrc/bash-4.3/lib/readline/bind.c	2013-04-06 15:46:38.000000000 -0600
-+++ src/bash-4.3/lib/readline/bind.c	2015-02-02 11:09:15.016690700 -0700
++++ src/bash-4.3/lib/readline/bind.c	2015-06-01 22:37:59.699971000 -0600
 @@ -452,7 +452,7 @@ rl_translate_keyseq (seq, array, len)
  {
    register int i, c, l, temp;
@@ -619,7 +705,7 @@
        rl_command_func_t *function;
        char **invokers;
 --- origsrc/bash-4.3/lib/readline/chardefs.h	2011-07-25 19:47:56.000000000 -0600
-+++ src/bash-4.3/lib/readline/chardefs.h	2015-02-02 11:09:15.032385700 -0700
++++ src/bash-4.3/lib/readline/chardefs.h	2015-06-01 22:37:59.699971000 -0600
 @@ -71,6 +71,7 @@
  #else
  #  define IN_CTYPE_DOMAIN(c) isascii(c)
@@ -650,7 +736,7 @@
  #define _rl_lowercase_p(c)	(NON_NEGATIVE(c) && ISLOWER(c))
  #define _rl_uppercase_p(c)	(NON_NEGATIVE(c) && ISUPPER(c))
 --- origsrc/bash-4.3/lib/readline/complete.c	2013-10-14 07:27:10.000000000 -0600
-+++ src/bash-4.3/lib/readline/complete.c	2015-02-02 11:09:15.032385700 -0700
++++ src/bash-4.3/lib/readline/complete.c	2015-06-01 22:37:59.699971000 -0600
 @@ -1082,7 +1082,7 @@ _rl_find_completion_word (fp, dp)
        /* We didn't find an unclosed quoted substring upon which to do
           completion, so use the word break characters to find the
@@ -687,8 +773,8 @@
  
    /* The first time through, we generate the list of matches and set things
       up to insert them. */
---- origsrc/bash-4.3/lib/readline/display.c	2015-02-02 10:52:28.435825200 -0700
-+++ src/bash-4.3/lib/readline/display.c	2015-02-02 11:09:15.032385700 -0700
+--- origsrc/bash-4.3/lib/readline/display.c	2015-06-01 22:30:25.799321600 -0600
++++ src/bash-4.3/lib/readline/display.c	2015-06-01 22:37:59.715429000 -0600
 @@ -66,7 +66,6 @@ extern char *strchr (), *strrchr ();
  static void update_line PARAMS((char *, char *, int, int, int, int));
  static void space_to_eol PARAMS((int));
@@ -723,7 +809,7 @@
  /* Insert COL spaces, keeping the cursor at the same position.  We follow the
     ncurses documentation and use either im/ei with explicit spaces, or IC/ic
 --- origsrc/bash-4.3/lib/readline/histexpand.c	2013-12-02 07:22:30.000000000 -0700
-+++ src/bash-4.3/lib/readline/histexpand.c	2015-02-02 11:10:59.599841400 -0700
++++ src/bash-4.3/lib/readline/histexpand.c	2015-06-01 22:37:59.715429000 -0600
 @@ -204,7 +204,7 @@ get_history_event (string, caller_index,
      }
  
@@ -751,7 +837,7 @@
  		  }
  
 --- origsrc/bash-4.3/lib/readline/histfile.c	2013-07-19 06:17:17.000000000 -0600
-+++ src/bash-4.3/lib/readline/histfile.c	2015-02-02 11:10:59.599841400 -0700
++++ src/bash-4.3/lib/readline/histfile.c	2015-06-01 22:37:59.715429000 -0600
 @@ -104,7 +104,7 @@ int history_write_timestamps = 0;
  
  /* Does S look like the beginning of a history timestamp entry?  Placeholder
@@ -761,8 +847,8 @@
  
  /* Return the string that should be used in the place of this
     filename.  This only matters when you don't specify the
---- origsrc/bash-4.3/lib/readline/input.c	2015-02-02 10:52:28.966301600 -0700
-+++ src/bash-4.3/lib/readline/input.c	2015-02-02 11:10:59.599841400 -0700
+--- origsrc/bash-4.3/lib/readline/input.c	2015-06-01 22:30:26.220523700 -0600
++++ src/bash-4.3/lib/readline/input.c	2015-06-01 22:37:59.715429000 -0600
 @@ -431,7 +431,7 @@ rl_read_key ()
    else
      {
@@ -773,7 +859,7 @@
  
        /* If the user has an event function, then call it periodically. */
 --- origsrc/bash-4.3/lib/readline/isearch.c	2013-10-14 07:08:40.000000000 -0600
-+++ src/bash-4.3/lib/readline/isearch.c	2015-02-02 11:10:59.599841400 -0700
++++ src/bash-4.3/lib/readline/isearch.c	2015-06-01 22:37:59.715429000 -0600
 @@ -740,7 +740,7 @@ rl_search_history (direction, invoking_k
       int direction, invoking_key;
  {
@@ -804,8 +890,8 @@
    /* We might want to handle EOF here */
    r = _rl_isearch_dispatch (cxt, cxt->lastc);
  
---- origsrc/bash-4.3/lib/readline/misc.c	2015-02-02 10:52:29.059837600 -0700
-+++ src/bash-4.3/lib/readline/misc.c	2015-02-02 11:10:59.599841400 -0700
+--- origsrc/bash-4.3/lib/readline/misc.c	2015-06-01 22:30:26.329717900 -0600
++++ src/bash-4.3/lib/readline/misc.c	2015-06-01 22:37:59.715429000 -0600
 @@ -455,7 +455,7 @@ _rl_revert_all_lines ()
    entry = (hpos == history_length) ? previous_history () : current_history ();
    while (entry)
@@ -825,7 +911,7 @@
  	  if (ul == saved_undo_list)
  	    saved_undo_list = 0;
 --- origsrc/bash-4.3/lib/readline/nls.c	2013-03-09 12:51:10.000000000 -0700
-+++ src/bash-4.3/lib/readline/nls.c	2015-02-02 11:10:59.615378900 -0700
++++ src/bash-4.3/lib/readline/nls.c	2015-06-01 22:37:59.715429000 -0600
 @@ -80,7 +80,7 @@ static char *legal_lang_values[] =
  static char *normalize_codeset PARAMS((char *));
  #endif /* !HAVE_SETLOCALE */
@@ -851,7 +937,7 @@
  
    if (cp == 0 || len < 4 || len > 5)
 --- origsrc/bash-4.3/lib/readline/parens.c	2009-04-19 11:12:06.000000000 -0600
-+++ src/bash-4.3/lib/readline/parens.c	2015-02-02 11:10:59.615378900 -0700
++++ src/bash-4.3/lib/readline/parens.c	2015-06-01 22:37:59.731034300 -0600
 @@ -106,7 +106,7 @@ rl_insert_close (count, invoking_key)
    else
      {
@@ -871,7 +957,7 @@
  #else /* !HAVE_SELECT */
        _rl_insert_char (count, invoking_key);
 --- origsrc/bash-4.3/lib/readline/posixjmp.h	2012-12-23 20:20:50.000000000 -0700
-+++ src/bash-4.3/lib/readline/posixjmp.h	2015-02-02 11:07:14.272005800 -0700
++++ src/bash-4.3/lib/readline/posixjmp.h	2015-06-01 22:37:59.731034300 -0600
 @@ -27,13 +27,13 @@
  
  #if defined (HAVE_POSIX_SIGSETJMP)
@@ -888,8 +974,8 @@
  #else
  #  define procenv_t	jmp_buf
  #  define setjmp_nosigs	setjmp
---- origsrc/bash-4.3/lib/readline/readline.c	2015-02-02 10:52:27.921033200 -0700
-+++ src/bash-4.3/lib/readline/readline.c	2015-02-02 11:10:59.615378900 -0700
+--- origsrc/bash-4.3/lib/readline/readline.c	2015-06-01 22:30:25.300106200 -0600
++++ src/bash-4.3/lib/readline/readline.c	2015-06-01 22:37:59.731034300 -0600
 @@ -95,7 +95,7 @@ static void bind_arrow_keys_internal PAR
  static void bind_arrow_keys PARAMS((void));
  
@@ -925,7 +1011,7 @@
  /* Bind some common arrow key sequences in MAP. */
  static void
 --- origsrc/bash-4.3/lib/readline/rltty.c	2013-08-25 14:57:05.000000000 -0600
-+++ src/bash-4.3/lib/readline/rltty.c	2015-02-02 11:10:59.615378900 -0700
++++ src/bash-4.3/lib/readline/rltty.c	2015-06-01 22:37:59.731034300 -0600
 @@ -30,6 +30,7 @@
  #include <signal.h>
  #include <errno.h>
@@ -935,7 +1021,7 @@
  #if defined (HAVE_UNISTD_H)
  #  include <unistd.h>
 --- origsrc/bash-4.3/lib/readline/shell.c	2013-03-13 08:17:00.000000000 -0600
-+++ src/bash-4.3/lib/readline/shell.c	2015-02-02 11:10:59.615378900 -0700
++++ src/bash-4.3/lib/readline/shell.c	2015-06-01 22:37:59.731034300 -0600
 @@ -123,8 +123,10 @@ sh_single_quote (string)
  /* Set the environment variables LINES and COLUMNS to lines and cols,
     respectively. */
@@ -948,7 +1034,7 @@
  void
  sh_set_lines_and_columns (lines, cols)
 --- origsrc/bash-4.3/lib/readline/signals.c	2014-01-10 13:06:48.000000000 -0700
-+++ src/bash-4.3/lib/readline/signals.c	2015-02-02 11:10:59.631052800 -0700
++++ src/bash-4.3/lib/readline/signals.c	2015-06-01 22:37:59.731034300 -0600
 @@ -576,7 +576,6 @@ rl_free_line_state ()
  /* **************************************************************** */
  
@@ -958,7 +1044,7 @@
  #else /* !HAVE_POSIX_SIGNALS */
  #  if defined (HAVE_BSD_SIGNALS)
 --- origsrc/bash-4.3/lib/readline/terminal.c	2013-09-18 07:12:01.000000000 -0600
-+++ src/bash-4.3/lib/readline/terminal.c	2015-02-02 11:10:59.631052800 -0700
++++ src/bash-4.3/lib/readline/terminal.c	2015-06-01 22:37:59.746816200 -0600
 @@ -31,6 +31,7 @@
  #if defined (HAVE_SYS_FILE_H)
  #  include <sys/file.h>
@@ -968,7 +1054,7 @@
  #if defined (HAVE_UNISTD_H)
  #  include <unistd.h>
 --- origsrc/bash-4.3/lib/readline/text.c	2013-10-14 07:25:05.000000000 -0600
-+++ src/bash-4.3/lib/readline/text.c	2015-02-02 11:10:59.631052800 -0700
++++ src/bash-4.3/lib/readline/text.c	2015-06-01 22:37:59.746816200 -0600
 @@ -859,11 +859,10 @@ _rl_overwrite_char (count, c)
    int i;
  #if defined (HANDLE_MULTIBYTE)
@@ -983,7 +1069,7 @@
  
    rl_begin_undo_group ();
 --- origsrc/bash-4.3/lib/readline/tilde.c	2010-07-25 15:42:13.000000000 -0600
-+++ src/bash-4.3/lib/readline/tilde.c	2015-02-02 11:10:59.631052800 -0700
++++ src/bash-4.3/lib/readline/tilde.c	2015-06-01 22:37:59.746816200 -0600
 @@ -196,7 +196,7 @@ tilde_expand (string)
    int result_size, result_index;
  
@@ -994,7 +1080,7 @@
    else
      result = (char *)xmalloc (result_size = (strlen (string) + 1));
 --- origsrc/bash-4.3/lib/readline/undo.c	2014-02-02 13:47:46.000000000 -0700
-+++ src/bash-4.3/lib/readline/undo.c	2015-02-02 11:10:59.631052800 -0700
++++ src/bash-4.3/lib/readline/undo.c	2015-06-01 22:37:59.746816200 -0600
 @@ -124,7 +124,7 @@ _rl_free_undo_list (ul)
  void
  rl_free_undo_list ()
@@ -1005,7 +1091,7 @@
    orig_list = rl_undo_list;
    _rl_free_undo_list (rl_undo_list);
 --- origsrc/bash-4.3/lib/readline/vi_mode.c	2012-09-01 16:55:30.000000000 -0600
-+++ src/bash-4.3/lib/readline/vi_mode.c	2015-02-02 11:10:59.631052800 -0700
++++ src/bash-4.3/lib/readline/vi_mode.c	2015-06-01 22:37:59.762370700 -0600
 @@ -1089,7 +1089,7 @@ static int
  rl_domove_motion_callback (m)
       _rl_vimotion_cxt *m;
@@ -1023,8 +1109,19 @@
    _rl_vimotion_cxt *m;
  
    m = _rl_vimvcxt;
+--- origsrc/bash-4.3/lib/sh/Makefile.in	2014-01-02 12:52:08.000000000 -0700
++++ src/bash-4.3/lib/sh/Makefile.in	2015-06-02 22:12:39.235567900 -0600
+@@ -26,7 +26,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
+ PACKAGE_VERSION = @PACKAGE_VERSION@
+ 
+ srcdir = @srcdir@
+-VPATH = .:@srcdir@
++VPATH = @srcdir@
+ topdir = @top_srcdir@
+ BUILD_DIR = @BUILD_DIR@
+ 
 --- origsrc/bash-4.3/lib/sh/pathphys.c	2013-05-28 13:33:58.000000000 -0600
-+++ src/bash-4.3/lib/sh/pathphys.c	2015-02-06 16:10:02.439889300 -0700
++++ src/bash-4.3/lib/sh/pathphys.c	2015-06-01 22:37:59.762370700 -0600
 @@ -35,6 +35,7 @@
  #include <stdio.h>
  #include <chartypes.h>
@@ -1065,7 +1162,7 @@
  
  char *
 --- origsrc/bash-4.3/lib/sh/tmpfile.c	2013-12-18 15:50:13.000000000 -0700
-+++ src/bash-4.3/lib/sh/tmpfile.c	2015-02-06 16:14:38.936003400 -0700
++++ src/bash-4.3/lib/sh/tmpfile.c	2015-06-01 22:37:59.762370700 -0600
 @@ -96,7 +96,7 @@ get_tmpdir (flags)
    if (tdir && (file_iswdir (tdir) == 0 || strlen (tdir) > PATH_MAX))
      tdir = 0;
@@ -1141,8 +1238,30 @@
        if (tmpnamelen > 0 && tmpnamelen < 32)
  	filename[tdlen + 1 + tmpnamelen] = '\0';
        fd = open (filename, BASEOPENFLAGS | ((flags & MT_READWRITE) ? O_RDWR : O_WRONLY), 0600);
+--- origsrc/bash-4.3/lib/termcap/Makefile.in	2009-01-04 12:32:36.000000000 -0700
++++ src/bash-4.3/lib/termcap/Makefile.in	2015-06-02 22:12:46.598807600 -0600
+@@ -20,7 +20,7 @@
+ #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ srcdir = @srcdir@
+-VPATH = .:@srcdir@
++VPATH = @srcdir@
+ topdir = @top_srcdir@
+ BUILD_DIR = @BUILD_DIR@
+ 
+--- origsrc/bash-4.3/lib/tilde/Makefile.in	2009-01-04 12:32:37.000000000 -0700
++++ src/bash-4.3/lib/tilde/Makefile.in	2015-06-02 22:12:53.837267600 -0600
+@@ -20,7 +20,7 @@
+ #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ srcdir = @srcdir@
+-VPATH = .:@srcdir@
++VPATH = @srcdir@
+ topdir = @top_srcdir@
+ BUILD_DIR = @BUILD_DIR@
+ 
 --- origsrc/bash-4.3/mksyntax.c	2012-07-29 17:48:38.000000000 -0600
-+++ src/bash-4.3/mksyntax.c	2015-02-02 11:20:05.806107600 -0700
++++ src/bash-4.3/mksyntax.c	2015-06-01 22:37:59.762370700 -0600
 @@ -29,13 +29,13 @@
  
  #ifdef HAVE_UNISTD_H
@@ -1160,8 +1279,8 @@
  #ifndef errno
  extern int errno;
  #endif
---- origsrc/bash-4.3/parse.y	2015-02-02 10:52:29.683854200 -0700
-+++ src/bash-4.3/parse.y	2015-02-06 16:16:41.100373000 -0700
+--- origsrc/bash-4.3/parse.y	2015-06-01 22:30:27.296935100 -0600
++++ src/bash-4.3/parse.y	2015-06-01 22:37:59.762370700 -0600
 @@ -1531,14 +1531,20 @@ yy_string_get ()
    string = bash_input.location.string;
  
@@ -1195,7 +1314,7 @@
  		  shell_input_line[i] = '\0';
  		  truncating = 1;
  		}
-@@ -3582,7 +3588,6 @@ parse_comsub (qc, open, close, lenp, fla
+@@ -3587,7 +3593,6 @@ parse_comsub (qc, open, close, lenp, fla
  
    while (count)
      {
@@ -1204,7 +1323,7 @@
  
        if (ch == EOF)
 --- origsrc/bash-4.3/pathexp.h	2009-01-04 12:32:40.000000000 -0700
-+++ src/bash-4.3/pathexp.h	2015-02-06 16:17:55.793749100 -0700
++++ src/bash-4.3/pathexp.h	2015-06-01 22:37:59.762370700 -0600
 @@ -86,7 +86,7 @@ struct ign {
  typedef int sh_iv_item_func_t __P((struct ign *));
  
@@ -1215,7 +1334,7 @@
    int num_ignores;	/* How many are there? */
    char *last_ignoreval;	/* Last value of variable - cached for speed */
 --- origsrc/bash-4.3/redir.c	2013-10-14 07:19:59.000000000 -0600
-+++ src/bash-4.3/redir.c	2015-02-02 15:14:57.828874300 -0700
++++ src/bash-4.3/redir.c	2015-06-01 22:37:59.762370700 -0600
 @@ -156,7 +156,6 @@ redirection_error (temp, error)
  #endif
    else if (expandable_redirection_filename (temp))
@@ -1224,8 +1343,8 @@
        oflags = temp->redirectee.filename->flags;
        if (posixly_correct && interactive_shell == 0)
  	temp->redirectee.filename->flags |= W_NOGLOB;
---- origsrc/bash-4.3/subst.c	2015-02-02 10:52:29.325035100 -0700
-+++ src/bash-4.3/subst.c	2015-02-06 16:22:17.968992600 -0700
+--- origsrc/bash-4.3/subst.c	2015-06-01 22:30:26.548171000 -0600
++++ src/bash-4.3/subst.c	2015-06-01 22:37:59.777867500 -0600
 @@ -41,6 +41,7 @@
  #include "posixstat.h"
  #include "bashintl.h"
@@ -1277,8 +1396,19 @@
    old_pid = last_made_pid;
  #if defined (JOB_CONTROL)
    old_pipeline_pgrp = pipeline_pgrp;
+--- origsrc/bash-4.3/support/Makefile.in	2009-01-04 12:32:42.000000000 -0700
++++ src/bash-4.3/support/Makefile.in	2015-06-02 22:13:08.797781900 -0600
+@@ -28,7 +28,7 @@
+ #
+ topdir = @top_srcdir@
+ srcdir = @srcdir@
+-VPATH = .:@srcdir@
++VPATH = @srcdir@
+ BUILD_DIR = @BUILD_DIR@
+ 
+ RM	= rm -f
 --- origsrc/bash-4.3/support/bashversion.c	2008-09-09 07:31:53.000000000 -0600
-+++ src/bash-4.3/support/bashversion.c	2015-02-02 14:41:55.430580700 -0700
++++ src/bash-4.3/support/bashversion.c	2015-06-01 22:37:59.777867500 -0600
 @@ -26,6 +26,9 @@
  
  #if defined (HAVE_UNISTD_H)
@@ -1309,7 +1439,7 @@
    if (progname = strrchr (argv[0], '/'))
      progname++;
 --- origsrc/bash-4.3/support/mkversion.sh	2008-08-13 06:25:57.000000000 -0600
-+++ src/bash-4.3/support/mkversion.sh	2015-02-06 15:54:20.833467800 -0700
++++ src/bash-4.3/support/mkversion.sh	2015-06-01 22:37:59.777867500 -0600
 @@ -29,7 +29,7 @@ source_dir="."
  while [ $# -gt 0 ]; do
  	case "$1" in
@@ -1319,8 +1449,8 @@
  	-s)	shift; rel_status=$1; shift ;;
  	-p)	shift; patch_level=$1; shift ;;
  	-d)	shift; dist_version=$1; shift ;;
---- origsrc/bash-4.3/variables.c	2015-02-02 10:52:29.730633100 -0700
-+++ src/bash-4.3/variables.c	2015-02-06 16:23:22.022986200 -0700
+--- origsrc/bash-4.3/variables.c	2015-06-01 22:30:27.172783200 -0600
++++ src/bash-4.3/variables.c	2015-06-01 22:37:59.793424400 -0600
 @@ -2526,9 +2526,9 @@ bind_variable_internal (name, value, tab
  
    newname = 0;
@@ -1349,7 +1479,7 @@
        var_setvalue (entry, make_variable_value (entry, value, 0)); /* XXX */
      }
    else if (entry->assign_func)	/* array vars have assign functions now */
-@@ -4679,6 +4679,8 @@ static struct name_and_function special_
+@@ -4681,6 +4681,8 @@ static struct name_and_function special_
    { "COMP_WORDBREAKS", sv_comp_wordbreaks },
  #endif
  
@@ -1358,7 +1488,7 @@
    { "FUNCNEST", sv_funcnest },
  
    { "GLOBIGNORE", sv_globignore },
-@@ -4877,6 +4879,13 @@ sv_globignore (name)
+@@ -4879,6 +4881,13 @@ sv_globignore (name)
      setup_glob_ignore (name);
  }
  
@@ -1372,7 +1502,7 @@
  #if defined (READLINE)
  void
  sv_comp_wordbreaks (name)
-@@ -4950,7 +4959,7 @@ sv_winsize (name)
+@@ -4952,7 +4961,7 @@ sv_winsize (name)
  /* Update the value of HOME in the export environment so tilde expansion will
     work on cygwin. */
  #if defined (__CYGWIN__)
@@ -1382,7 +1512,7 @@
  {
    array_needs_making = 1;
 --- origsrc/bash-4.3/variables.h	2014-01-08 13:33:29.000000000 -0700
-+++ src/bash-4.3/variables.h	2015-02-06 16:23:43.441933900 -0700
++++ src/bash-4.3/variables.h	2015-06-01 22:37:59.793424400 -0600
 @@ -372,6 +372,7 @@ extern void sv_ifs __P((char *));
  extern void sv_path __P((char *));
  extern void sv_mail __P((char *));

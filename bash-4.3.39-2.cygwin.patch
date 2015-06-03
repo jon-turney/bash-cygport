@@ -1,7 +1,7 @@
 --- origsrc/bash-4.3/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.3/CYGWIN-PATCHES/bash.README	2015-02-06 17:06:18.301515500 -0700
-@@ -0,0 +1,411 @@
-+bash 4.3.33-1
++++ src/bash-4.3/CYGWIN-PATCHES/bash.README	2015-06-03 06:08:38.993808800 -0600
+@@ -0,0 +1,415 @@
++bash 4.3.39-2
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -74,26 +74,27 @@
 +
 +Runtime requirements (these or newer):
 +  coreutils-8.23-4
-+  cygwin-1.7.34-6
-+  libgcc1-4.9.2-2 [only on 32-bit]
-+  libiconv2-1.14-2
-+  libintl8-0.19.3-1
-+  libncursesw10-5.9-20141227-1
++  cygwin-2.0.2-1
++  libgcc1-4.9.2-3 [only on 32-bit]
++  libiconv2-1.14-3
++  libintl8-0.19.4-1
++  libncursesw10-5.9-20150516-1
 +  libreadline7-6.3.8-1
 +
 +Additional build conditions (these or newer):
-+  bash-4.1.17-9
++  bash-4.3.33-1
 +  binutils-2.25-1
 +  bison-3.0.4-1
-+  cygport-0.17.1-1
++  cygport-0.20.0-1
 +  gcc-4.7.3-1
-+  gcc-core-4.9.2-2
-+  gettext-0.19.3-1
-+  libiconv2-1.14-2
-+  libncurses-devel-5.9-20141227-1 [only needed on 64-bit]
-+  libncursesw-devel-5.9-20141227-1 [only needed on 32-bit]
++  gcc-core-4.9.2-3
++  gettext-0.19.4-1
++  libiconv2-1.14-3
++  libncurses-devel-5.9-20150516-1 [only needed on 64-bit]
++  libncursesw-devel-5.9-20150516-1 [only needed on 32-bit]
 +  libreadline-devel-6.3.8-1
-+  ncurses-5.9-20141227-1
++  make-4.1-1
++  ncurses-5.9-20150516-1
 +  windows-default-manifest-6.4-1
 +
 +Canonical homepage:
@@ -111,16 +112,16 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-4.3.33-1-src.tar.xz
++  unpack bash-4.3.39-2-src.tar.xz
 +    if you use setup to install this src package, it will be
 +    unpacked under /usr/src automatically
 +  cd /usr/src
 +  cygport bash.cygport all
 +
 +This will create:
-+  /usr/src/bash-4.3.33-1.tar.xz
-+  /usr/src/bash-4.3.33-1-src.tar.xz
-+  /usr/src/bash-debuginfo-4.3.33-1.tar.xz
++  /usr/src/bash-4.3.39-2.tar.xz
++  /usr/src/bash-4.3.39-2-src.tar.xz
++  /usr/src/bash-debuginfo-4.3.39-2.tar.xz
 +
 +Or use 'cygport bash.cygport prep' to get a patched source directory
 +
@@ -131,6 +132,9 @@
 +------------------
 +
 +Port Notes:
++
++----- version 4.3.39-2 -- 2015-06-03 -----
++Fold in new official upstream patches.
 +
 +----- version 4.3.33-1 -- 2015-02-06 -----
 +Long-awaited build of new upstream release.
@@ -413,7 +417,7 @@
 +Cygwin port maintained by: Eric Blake <eblake@redhat.com>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 --- origsrc/bash-4.3/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.3/CYGWIN-PATCHES/postinstall.sh	2015-02-06 16:48:09.305286700 -0700
++++ src/bash-4.3/CYGWIN-PATCHES/postinstall.sh	2015-06-01 22:38:39.339685900 -0600
 @@ -0,0 +1,26 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
