@@ -5,7 +5,7 @@
 
 NAME=bash
 VERSION=4.3.42
-RELEASE=3
+RELEASE=4
 
 SUMMARY="The GNU Bourne Again SHell"
 DESCRIPTION="Bash is an sh-compatible shell that incorporates useful features

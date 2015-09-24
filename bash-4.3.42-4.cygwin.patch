@@ -1,7 +1,7 @@
 --- origsrc/bash-4.3/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.3/CYGWIN-PATCHES/bash.README	2015-08-25 13:41:33.330291300 -0600
-@@ -0,0 +1,418 @@
-+bash 4.3.42-3
++++ src/bash-4.3/CYGWIN-PATCHES/bash.README	2015-09-24 13:32:50.743022800 -0600
+@@ -0,0 +1,421 @@
++bash 4.3.42-4
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -73,23 +73,22 @@
 +death on the mailing lists by people with many ideas, but few patches.
 +
 +Runtime requirements (these or newer):
-+  coreutils-8.23-4
++  coreutils-8.24-3
 +  cygwin-2.2.1-1
 +  libgcc1-4.9.3-1 [only on 32-bit]
 +  libiconv2-1.14-3
-+  libintl8-0.19.4-1
++  libintl8-0.19.5.1-2
 +  libncursesw10-5.9-20150530-1
 +  libreadline7-6.3.8-1
 +
 +Additional build conditions (these or newer):
-+  bash-4.3.39-2
++  bash-4.3.42-3
 +  binutils-2.25-1
 +  bison-3.0.4-1
 +  cygport-0.20.2-1
 +  gcc-4.7.3-1
 +  gcc-core-4.9.3-1
-+  gettext-0.19.4-1
-+  libiconv2-1.14-3
++  gettext-0.19.5.1-2
 +  libncurses-devel-5.9-20150530-1 [only needed on 64-bit]
 +  libncursesw-devel-5.9-20150530-1 [only needed on 32-bit]
 +  libreadline-devel-6.3.8-1
@@ -112,16 +111,16 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-4.3.42-3-src.tar.xz
++  unpack bash-4.3.42-4-src.tar.xz
 +    if you use setup to install this src package, it will be
 +    unpacked under /usr/src automatically
 +  cd /usr/src
 +  cygport bash.cygport all
 +
 +This will create:
-+  /usr/src/bash-4.3.42-3.tar.xz
-+  /usr/src/bash-4.3.42-3-src.tar.xz
-+  /usr/src/bash-debuginfo/bash-debuginfo-4.3.42-3.tar.xz
++  /usr/src/bash-4.3.42-4.tar.xz
++  /usr/src/bash-4.3.42-4-src.tar.xz
++  /usr/src/bash-debuginfo/bash-debuginfo-4.3.42-4.tar.xz
 +
 +Or use 'cygport bash.cygport prep' to get a patched source directory
 +
@@ -132,6 +131,10 @@
 +------------------
 +
 +Port Notes:
++
++----- version 4.3.42-4 -- 2015-09-24 -----
++Fix upstream typo that broke \r handling on text mounts (thanks to
++Jeff Downs).
 +
 +----- version 4.3.42-3 -- 2015-08-25 -----
 +Fold in new official upstream patches.
@@ -420,7 +423,7 @@
 +Cygwin port maintained by: Eric Blake <eblake@redhat.com>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 --- origsrc/bash-4.3/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.3/CYGWIN-PATCHES/postinstall.sh	2015-08-25 13:34:28.414653100 -0600
++++ src/bash-4.3/CYGWIN-PATCHES/postinstall.sh	2015-09-24 13:09:51.631709400 -0600
 @@ -0,0 +1,26 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
