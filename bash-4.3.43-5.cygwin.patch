@@ -1,7 +1,7 @@
 --- origsrc/bash-4.3/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.3/CYGWIN-PATCHES/bash.README	2015-09-24 13:32:50.743022800 -0600
-@@ -0,0 +1,421 @@
-+bash 4.3.42-4
++++ src/bash-4.3/CYGWIN-PATCHES/bash.README	2016-08-05 21:33:13.867516600 -0600
+@@ -0,0 +1,425 @@
++bash 4.3.43-5
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -30,9 +30,10 @@
 +4. This version of bash has a cygwin-specific set option, named "igncr",
 +to force bash to ignore \r, independently of cygwin's mount style.  As of
 +bash-3.2.3-5, it controls regular scripts, command substitution, and
-+sourced files.  I hope to convince the upstream bash maintainer to accept
-+this patch into a future bash release even on Linux, rather than keeping it
-+a cygwin-specific patch, but only time will tell.  There are several ways
++sourced files; bash 4.3.43-5 adds control over the read builtin.  I hope
++to convince the upstream bash maintainer to accept this patch into a
++future bash release even on Linux, rather than keeping it a
++cygwin-specific patch, but only time will tell.  There are several ways
 +to activate this option:
 +4a. For a single affected script, add this line just after the she-bang:
 + (set -o igncr) 2>/dev/null && set -o igncr; # comment is needed
@@ -73,27 +74,27 @@
 +death on the mailing lists by people with many ideas, but few patches.
 +
 +Runtime requirements (these or newer):
-+  coreutils-8.24-3
-+  cygwin-2.2.1-1
-+  libgcc1-4.9.3-1 [only on 32-bit]
++  coreutils-8.25-3
++  cygwin-2.5.2-1
++  libgcc1-5.4.0-1 [only on 32-bit]
 +  libiconv2-1.14-3
-+  libintl8-0.19.5.1-2
-+  libncursesw10-5.9-20150530-1
++  libintl8-0.19.7-1
++  libncursesw10-6.0-6.20160709
 +  libreadline7-6.3.8-1
 +
 +Additional build conditions (these or newer):
-+  bash-4.3.42-3
-+  binutils-2.25-1
++  bash-4.3.42-4
++  binutils-2.25-4
 +  bison-3.0.4-1
-+  cygport-0.20.2-1
++  cygport-0.22.0-1
 +  gcc-4.7.3-1
-+  gcc-core-4.9.3-1
-+  gettext-0.19.5.1-2
-+  libncurses-devel-5.9-20150530-1 [only needed on 64-bit]
-+  libncursesw-devel-5.9-20150530-1 [only needed on 32-bit]
++  gcc-core-5.4.0-1
++  gettext-0.19.7-1
++  libncurses-devel-6.0-6.20160709 [only needed on 64-bit]
++  libncursesw-devel-6.0-6.20160709 [only needed on 32-bit]
 +  libreadline-devel-6.3.8-1
-+  make-4.1-1
-+  ncurses-5.9-20150530-1
++  make-4.2.1-1
++  ncurses-6.0-6.20160709
 +  windows-default-manifest-6.4-1
 +
 +Canonical homepage:
@@ -111,16 +112,16 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-4.3.42-4-src.tar.xz
++  unpack bash-4.3.43-5-src.tar.xz
 +    if you use setup to install this src package, it will be
 +    unpacked under /usr/src automatically
 +  cd /usr/src
 +  cygport bash.cygport all
 +
 +This will create:
-+  /usr/src/bash-4.3.42-4.tar.xz
-+  /usr/src/bash-4.3.42-4-src.tar.xz
-+  /usr/src/bash-debuginfo/bash-debuginfo-4.3.42-4.tar.xz
++  /usr/src/bash-4.3.43-5.tar.xz
++  /usr/src/bash-4.3.43-5-src.tar.xz
++  /usr/src/bash-debuginfo/bash-debuginfo-4.3.43-5.tar.xz
 +
 +Or use 'cygport bash.cygport prep' to get a patched source directory
 +
@@ -131,6 +132,9 @@
 +------------------
 +
 +Port Notes:
++
++----- version 4.3.43-5 -- 2016-08-05 -----
++Fold in new official upstream patch. Fix \r vs. igncr handling of read.
 +
 +----- version 4.3.42-4 -- 2015-09-24 -----
 +Fix upstream typo that broke \r handling on text mounts (thanks to
@@ -423,7 +427,7 @@
 +Cygwin port maintained by: Eric Blake <eblake@redhat.com>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 --- origsrc/bash-4.3/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.3/CYGWIN-PATCHES/postinstall.sh	2015-09-24 13:09:51.631709400 -0600
++++ src/bash-4.3/CYGWIN-PATCHES/postinstall.sh	2016-08-05 16:40:53.667324600 -0600
 @@ -0,0 +1,26 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
