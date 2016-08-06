@@ -4,8 +4,8 @@
 # preserved.
 
 NAME=bash
-VERSION=4.3.43
-RELEASE=5
+VERSION=4.3.46
+RELEASE=6
 
 SUMMARY="The GNU Bourne Again SHell"
 DESCRIPTION="Bash is an sh-compatible shell that incorporates useful features

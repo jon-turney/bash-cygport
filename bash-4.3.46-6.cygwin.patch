@@ -1,7 +1,7 @@
 --- origsrc/bash-4.3/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.3/CYGWIN-PATCHES/bash.README	2016-08-05 21:33:13.867516600 -0600
-@@ -0,0 +1,425 @@
-+bash 4.3.43-5
++++ src/bash-4.3/CYGWIN-PATCHES/bash.README	2016-08-06 06:51:16.811682900 -0600
+@@ -0,0 +1,428 @@
++bash 4.3.46-6
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -112,16 +112,16 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-4.3.43-5-src.tar.xz
++  unpack bash-4.3.46-6-src.tar.xz
 +    if you use setup to install this src package, it will be
 +    unpacked under /usr/src automatically
 +  cd /usr/src
 +  cygport bash.cygport all
 +
 +This will create:
-+  /usr/src/bash-4.3.43-5.tar.xz
-+  /usr/src/bash-4.3.43-5-src.tar.xz
-+  /usr/src/bash-debuginfo/bash-debuginfo-4.3.43-5.tar.xz
++  /usr/src/bash-4.3.46-6.tar.xz
++  /usr/src/bash-4.3.46-6-src.tar.xz
++  /usr/src/bash-debuginfo/bash-debuginfo-4.3.46-6.tar.xz
 +
 +Or use 'cygport bash.cygport prep' to get a patched source directory
 +
@@ -132,6 +132,9 @@
 +------------------
 +
 +Port Notes:
++
++----- version 4.3.46-6 -- 2016-08-06 -----
++Fold in new official upstream patches.
 +
 +----- version 4.3.43-5 -- 2016-08-05 -----
 +Fold in new official upstream patch. Fix \r vs. igncr handling of read.
@@ -427,7 +430,7 @@
 +Cygwin port maintained by: Eric Blake <eblake@redhat.com>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 --- origsrc/bash-4.3/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.3/CYGWIN-PATCHES/postinstall.sh	2016-08-05 16:40:53.667324600 -0600
++++ src/bash-4.3/CYGWIN-PATCHES/postinstall.sh	2016-08-06 06:49:51.947160000 -0600
 @@ -0,0 +1,26 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
