@@ -1,7 +1,7 @@
 --- origsrc/bash-4.3/CYGWIN-PATCHES/bash.README	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.3/CYGWIN-PATCHES/bash.README	2016-08-06 06:51:16.811682900 -0600
-@@ -0,0 +1,428 @@
-+bash 4.3.46-6
++++ src/bash-4.3/CYGWIN-PATCHES/bash.README	2016-08-24 10:07:05.238814000 -0600
+@@ -0,0 +1,431 @@
++bash 4.3.46-7
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -79,22 +79,22 @@
 +  libgcc1-5.4.0-1 [only on 32-bit]
 +  libiconv2-1.14-3
 +  libintl8-0.19.7-1
-+  libncursesw10-6.0-6.20160709
++  libncursesw10-6.0-7.20160806
 +  libreadline7-6.3.8-1
 +
 +Additional build conditions (these or newer):
-+  bash-4.3.42-4
++  bash-4.3.46-6
 +  binutils-2.25-4
 +  bison-3.0.4-1
 +  cygport-0.22.0-1
 +  gcc-4.7.3-1
 +  gcc-core-5.4.0-1
 +  gettext-0.19.7-1
-+  libncurses-devel-6.0-6.20160709 [only needed on 64-bit]
-+  libncursesw-devel-6.0-6.20160709 [only needed on 32-bit]
++  libncurses-devel-6.0-7.20160806 [only needed on 64-bit]
++  libncursesw-devel-6.0-7.20160806 [only needed on 32-bit]
 +  libreadline-devel-6.3.8-1
 +  make-4.2.1-1
-+  ncurses-6.0-6.20160709
++  ncurses-6.0-7.20160806
 +  windows-default-manifest-6.4-1
 +
 +Canonical homepage:
@@ -112,16 +112,16 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-4.3.46-6-src.tar.xz
++  unpack bash-4.3.46-7-src.tar.xz
 +    if you use setup to install this src package, it will be
 +    unpacked under /usr/src automatically
 +  cd /usr/src
 +  cygport bash.cygport all
 +
 +This will create:
-+  /usr/src/bash-4.3.46-6.tar.xz
-+  /usr/src/bash-4.3.46-6-src.tar.xz
-+  /usr/src/bash-debuginfo/bash-debuginfo-4.3.46-6.tar.xz
++  /usr/src/bash-4.3.46-7.tar.xz
++  /usr/src/bash-4.3.46-7-src.tar.xz
++  /usr/src/bash-debuginfo/bash-debuginfo-4.3.46-7.tar.xz
 +
 +Or use 'cygport bash.cygport prep' to get a patched source directory
 +
@@ -132,6 +132,9 @@
 +------------------
 +
 +Port Notes:
++
++----- version 4.3.46-7 -- 2016-08-24 -----
++Fix accidental reversion of 'shopt -s completion_strip_exe'.
 +
 +----- version 4.3.46-6 -- 2016-08-06 -----
 +Fold in new official upstream patches.
@@ -430,7 +433,7 @@
 +Cygwin port maintained by: Eric Blake <eblake@redhat.com>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 --- origsrc/bash-4.3/CYGWIN-PATCHES/postinstall.sh	1969-12-31 17:00:00.000000000 -0700
-+++ src/bash-4.3/CYGWIN-PATCHES/postinstall.sh	2016-08-06 06:49:51.947160000 -0600
++++ src/bash-4.3/CYGWIN-PATCHES/postinstall.sh	2016-08-24 09:57:41.279498400 -0600
 @@ -0,0 +1,26 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
