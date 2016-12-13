@@ -1,7 +1,7 @@
---- origsrc/bash-4.3/CYGWIN-PATCHES/bash.README	1969-12-31 18:00:00.000000000 -0600
-+++ src/bash-4.3/CYGWIN-PATCHES/bash.README	2016-12-09 16:35:35.300993600 -0600
-@@ -0,0 +1,434 @@
-+bash 4.3.48-8
+--- origsrc/bash-4.4/CYGWIN-PATCHES/bash.README	1969-12-31 18:00:00.000000000 -0600
++++ src/bash-4.4/CYGWIN-PATCHES/bash.README	2016-12-13 14:44:54.809128900 -0600
+@@ -0,0 +1,437 @@
++bash 4.4.5-1
 +------------------------------------------
 +Bash is an sh-compatible shell that incorporates useful features from
 +the Korn shell (ksh) and C shell (csh).  It is intended to conform to
@@ -80,10 +80,10 @@
 +  libiconv2-1.14-3
 +  libintl8-0.19.8.1-2
 +  libncursesw10-6.0-8.20160917
-+  libreadline7-6.3.8-1
++  libreadline7-7.0.1-1
 +
 +Additional build conditions (these or newer):
-+  bash-4.3.46-7
++  bash-4.3.48-8
 +  binutils-2.25-4
 +  bison-3.0.4-1
 +  cygport-0.23.0-1
@@ -112,16 +112,16 @@
 +------------------------------------
 +
 +Build instructions:
-+  unpack bash-4.3.48-8-src.tar.xz
++  unpack bash-4.4.5-1-src.tar.xz
 +    if you use setup to install this src package, it will be
 +    unpacked under /usr/src automatically
 +  cd /usr/src
 +  cygport bash.cygport all
 +
 +This will create:
-+  /usr/src/bash-4.3.48-8.tar.xz
-+  /usr/src/bash-4.3.48-8-src.tar.xz
-+  /usr/src/bash-debuginfo/bash-debuginfo-4.3.48-8.tar.xz
++  /usr/src/bash-4.4.5-1.tar.xz
++  /usr/src/bash-4.4.5-1-src.tar.xz
++  /usr/src/bash-debuginfo/bash-debuginfo-4.4.5-1.tar.xz
 +
 +Or use 'cygport bash.cygport prep' to get a patched source directory
 +
@@ -132,6 +132,9 @@
 +------------------
 +
 +Port Notes:
++
++----- version 4.4.5-1 -- 2016-12-13 -----
++New upstream release.
 +
 +----- version 4.3.48-8 -- 2016-12-09 -----
 +Fold in new official upstream patches.
@@ -435,8 +438,8 @@
 +
 +Cygwin port maintained by: Eric Blake <eblake@redhat.com>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
---- origsrc/bash-4.3/CYGWIN-PATCHES/postinstall.sh	1969-12-31 18:00:00.000000000 -0600
-+++ src/bash-4.3/CYGWIN-PATCHES/postinstall.sh	2016-12-09 16:30:25.919817100 -0600
+--- origsrc/bash-4.4/CYGWIN-PATCHES/postinstall.sh	1969-12-31 18:00:00.000000000 -0600
++++ src/bash-4.4/CYGWIN-PATCHES/postinstall.sh	2016-12-13 10:25:42.229040000 -0600
 @@ -0,0 +1,26 @@
 +#!/bin/bash
 +# Bash postinstall script.  Assumes you are running setup.exe 2.510.2.2 or
