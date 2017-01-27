@@ -1,11 +1,11 @@
-# Copyright (C) 2007-2011, 2014-2016 Eric Blake
+# Copyright (C) 2007-2011, 2014-2017 Eric Blake
 # This file is free software; I give unlimited permission to copy and/or
 # distribute it, with or without modifications, as long as this notice is
 # preserved.
 
 NAME=bash
-VERSION=4.4.11
-RELEASE=2
+VERSION=4.4.12
+RELEASE=3
 
 SUMMARY="The GNU Bourne Again SHell"
 DESCRIPTION="Bash is an sh-compatible shell that incorporates useful features
@@ -59,7 +59,7 @@ src_install()
   cd ${B}
   cyginstall
   dolib libbash.dll.a
-  cp -p ${D}/usr/bin/{ba,}sh.exe
+  ln ${D}/usr/bin/{ba,}sh.exe
 
   cd ${S}
   includeinto bash
